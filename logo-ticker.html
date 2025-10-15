@@ -1189,18 +1189,14 @@
 
                 // Convert logos to URL array
                 const logoUrls = this.logos.map(logo => logo.url);
-                const logosJSON = JSON.stringify(logoUrls).replace(/'/g, "\\'");
 
                 // Get background style
                 const background = this.settings.bgType === 'gradient'
                     ? `linear-gradient(${this.settings.gradientDirection}deg, ${this.settings.gradientColor1}, ${this.settings.gradientColor2})`
                     : this.settings.bgColor;
 
-                // Generate self-contained embed code
-                const embedCode = `<!-- Logo Ticker Widget -->
-<div id="logo-ticker-container"></div>
-<script>
-(function() {
+                // Generate self-contained embed code with proper escaping
+                const scriptContent = `(function() {
     const config = {
         logos: ${JSON.stringify(logoUrls)},
         speed: ${this.settings.speed},
@@ -1208,46 +1204,23 @@
         logoSizeMobile: ${this.settings.logoSizeMobile},
         spacing: ${this.settings.spacing},
         spacingMobile: ${this.settings.spacingMobile},
-        background: '${background}',
+        background: '${background.replace(/'/g, "\\'")}',
         cornerRadius: ${cornerRadius}
     };
 
     const container = document.getElementById('logo-ticker-container');
-
-    // Create wrapper
     const wrapper = document.createElement('div');
-    wrapper.style.cssText = \`
-        background: \${config.background};
-        border-radius: \${config.cornerRadius}px;
-        overflow: hidden;
-        position: relative;
-        width: 100%;
-    \`;
+    wrapper.style.cssText = 'background: ' + config.background + '; border-radius: ' + config.cornerRadius + 'px; overflow: hidden; position: relative; width: 100%;';
 
-    // Create track
     const track = document.createElement('div');
-    track.style.cssText = \`
-        display: flex;
-        width: max-content;
-        animation: ticker-scroll \${config.speed}s linear infinite;
-        padding: 40px 0;
-    \`;
+    track.style.cssText = 'display: flex; width: max-content; animation: ticker-scroll ' + config.speed + 's linear infinite; padding: 40px 0;';
 
-    // Add logos (duplicate for seamless loop)
     const logos = [...config.logos, ...config.logos];
     logos.forEach(url => {
         const img = document.createElement('img');
         img.src = url;
         img.alt = 'Logo';
-        img.style.cssText = \`
-            height: \${config.logoSize}px;
-            width: auto;
-            object-fit: contain;
-            margin-right: \${config.spacing}px;
-            filter: grayscale(100%);
-            opacity: 0.7;
-            transition: all 0.3s;
-        \`;
+        img.style.cssText = 'height: ' + config.logoSize + 'px; width: auto; object-fit: contain; margin-right: ' + config.spacing + 'px; filter: grayscale(100%); opacity: 0.7; transition: all 0.3s;';
         img.onmouseenter = function() {
             this.style.filter = 'grayscale(0%)';
             this.style.opacity = '1';
@@ -1267,26 +1240,15 @@
     wrapper.appendChild(track);
     container.appendChild(wrapper);
 
-    // Inject styles
     if (!document.getElementById('logo-ticker-styles')) {
         const style = document.createElement('style');
         style.id = 'logo-ticker-styles';
-        style.textContent = \`
-            @keyframes ticker-scroll {
-                0% { transform: translateX(0); }
-                100% { transform: translateX(-50%); }
-            }
-            @media (max-width: 768px) {
-                #logo-ticker-container img {
-                    height: \${config.logoSizeMobile}px !important;
-                    margin-right: \${config.spacingMobile}px !important;
-                }
-            }
-        \`;
+        style.textContent = '@keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } } @media (max-width: 768px) { #logo-ticker-container img { height: ' + config.logoSizeMobile + 'px !important; margin-right: ' + config.spacingMobile + 'px !important; } }';
         document.head.appendChild(style);
     }
-})();
-</script>`;
+})();`;
+
+                const embedCode = '<!-- Logo Ticker Widget -->\n<div id="logo-ticker-container"></div>\n<script>\n' + scriptContent + '\n<\/script>';
 
                 document.getElementById('embedCodeBox').textContent = embedCode;
             }
