@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logo Ticker Showcase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: #1e1e1e;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 16px 20px;
+            background: #1e1e1e;
+            color: white;
+            border-bottom: 1px solid #2d2d2d;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.1rem;
+            margin: 0;
+            font-weight: 400;
+            color: #e0e0e0;
+        }
+
+        .home-btn {
+            background: transparent;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .home-btn:hover {
+            background: #2d2d2d;
+            color: #e0e0e0;
+        }
+
+        .home-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .tab-navigation {
+            display: flex;
+            background: #252525;
+            border-bottom: 1px solid #2d2d2d;
+        }
+
+        .tab-nav-btn {
+            flex: 1;
+            padding: 12px 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: #888;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-nav-btn:hover {
+            background: #2a2a2a;
+            color: #e0e0e0;
+        }
+
+        .tab-nav-btn.active {
+            color: #fff;
+            border-bottom-color: #3498db;
+            background: #1e1e1e;
+        }
+
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #1e1e1e;
+        }
+
+        .tab-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .tab-content::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+
+        .tab-content::-webkit-scrollbar-thumb {
+            background: #3a3a3a;
+            border-radius: 4px;
+        }
+
+        .tab-content::-webkit-scrollbar-thumb:hover {
+            background: #4a4a4a;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+
+        .preview-area {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: auto;
+            gap: 30px;
+        }
+
+        .export-section {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .export-section h2 {
+            margin: 0 0 16px 0;
+            font-size: 1.2rem;
+            color: #2c3e50;
+        }
+
+        .export-section p {
+            margin: 0 0 16px 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .code-box {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #2c3e50;
+            max-height: 300px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin-bottom: 12px;
+        }
+
+        .copy-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #2980b9;
+        }
+
+        .copy-btn.copied {
+            background: #27ae60;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #888;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .content-section {
+            margin-bottom: 24px;
+        }
+
+        .segmented-control {
+            display: flex;
+            background: #252525;
+            border-radius: 6px;
+            padding: 3px;
+            gap: 2px;
+        }
+
+        .segmented-option {
+            flex: 1;
+        }
+
+        .segmented-option input[type="radio"] {
+            display: none;
+        }
+
+        .segmented-option label {
+            display: block;
+            padding: 6px 10px;
+            background: transparent;
+            border-radius: 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 0.8rem;
+            color: #888;
+            font-weight: 400;
+        }
+
+        .segmented-option input[type="radio"]:checked + label {
+            background: #1e1e1e;
+            color: #e0e0e0;
+        }
+
+        .segmented-option label:hover {
+            color: #b0b0b0;
+        }
+
+        .gradient-presets {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .gradient-preset {
+            aspect-ratio: 1;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .gradient-preset:hover {
+            border-color: #4a4a4a;
+            transform: scale(1.05);
+        }
+
+        .gradient-preset.active {
+            border-color: #3498db;
+        }
+
+        .gradient-preset.custom {
+            background: #2d2d2d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gradient-preset.custom svg {
+            width: 16px;
+            height: 16px;
+            fill: #888;
+        }
+
+        .color-handler-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-handler {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid #3a3a3a;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .color-handler:hover {
+            border-color: #4a4a4a;
+            transform: scale(1.05);
+        }
+
+        .color-handler input[type="color"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .color-divider {
+            color: #4a4a4a;
+            font-size: 0.85rem;
+        }
+
+        .corner-icons {
+            display: flex;
+            background: #252525;
+            border-radius: 6px;
+            padding: 3px;
+            gap: 2px;
+        }
+
+        .corner-icon-option {
+            flex: 1;
+        }
+
+        .corner-icon-option input[type="radio"] {
+            display: none;
+        }
+
+        .corner-icon-option label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .corner-icon-option label svg {
+            width: 16px;
+            height: 16px;
+            fill: #888;
+        }
+
+        .corner-icon-option input[type="radio"]:checked + label {
+            background: #1e1e1e;
+        }
+
+        .corner-icon-option input[type="radio"]:checked + label svg {
+            fill: #e0e0e0;
+        }
+
+        .corner-icon-option label:hover svg {
+            fill: #b0b0b0;
+        }
+
+        .gradient-controls {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .gradient-controls.active {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .corner-custom-slider {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .corner-custom-slider.active {
+            display: block;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .control-group label {
+            font-weight: 400;
+            color: #b0b0b0;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-label-text {
+            flex: 1;
+        }
+
+        .control-value {
+            background: #2d2d2d;
+            color: #3498db;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            min-width: 50px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #2d2d2d;
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 0 0 2px #1e1e1e;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb:hover {
+            background: #5dade2;
+            transform: scale(1.1);
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            border: 2px solid #1e1e1e;
+            transition: all 0.2s;
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb:hover {
+            background: #5dade2;
+            transform: scale(1.1);
+        }
+
+        .control-group input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #2d2d2d;
+            border-radius: 6px;
+            background: #2d2d2d;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .control-group input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        .control-group input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 4px;
+        }
+
+        .add-logo-btn {
+            width: 100%;
+            background: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .add-logo-btn:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .add-logo-btn:active {
+            transform: translateY(0);
+        }
+
+        .upload-area {
+            display: none;
+        }
+
+        .upload-area input[type="file"] {
+            display: none;
+        }
+
+        .logo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .logo-grid-item {
+            position: relative;
+            padding: 12px;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            background: #2d2d2d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 3/2;
+            transition: all 0.2s;
+        }
+
+        .logo-grid-item:hover {
+            border-color: #3498db;
+            background: #333;
+        }
+
+        .logo-grid-item img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .logo-preview {
+            display: none;
+        }
+
+        .logo-preview-item {
+            display: none;
+        }
+
+        .logo-preview-item img {
+            display: none;
+        }
+
+        .remove-logo {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .remove-logo:hover {
+            background: #c0392b;
+        }
+
+        .ticker-container {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .ticker-wrapper {
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+        }
+
+        .ticker-wrapper::before,
+        .ticker-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 100px;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .ticker-wrapper::before {
+            left: 0;
+            background: linear-gradient(to right, var(--bg-color), transparent);
+        }
+
+        .ticker-wrapper::after {
+            right: 0;
+            background: linear-gradient(to left, var(--bg-color), transparent);
+        }
+
+        .ticker-track {
+            display: flex;
+            width: max-content;
+            animation: scroll linear infinite;
+            padding: 40px 0;
+        }
+
+        .ticker-track.paused {
+            animation-play-state: paused;
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .ticker-item img {
+            height: var(--logo-height);
+            width: auto;
+            object-fit: contain;
+            filter: grayscale(100%);
+            opacity: 0.7;
+            transition: all 0.3s;
+        }
+
+        .ticker-item:hover img {
+            filter: grayscale(0%);
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .control-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ticker-item img {
+                height: var(--logo-height-mobile);
+            }
+
+            .ticker-wrapper::before,
+            .ticker-wrapper::after {
+                width: 50px;
+            }
+        }
+
+        .reset-btn {
+            background: #2d2d2d;
+            color: #b0b0b0;
+            padding: 10px 16px;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #3a3a3a;
+            color: #e0e0e0;
+            border-color: #4a4a4a;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>Logo Ticker</h1>
+                <button class="home-btn" id="homeBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z"/>
+                    </svg>
+                    Home
+                </button>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation" id="tabNavigation">
+                <button class="tab-nav-btn active" data-tab="content">Content</button>
+                <button class="tab-nav-btn" data-tab="layout">Layout</button>
+                <button class="tab-nav-btn" data-tab="style">Style</button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Content Tab -->
+                <div class="tab-pane active" id="contentTab">
+                    <button class="add-logo-btn" id="addLogoBtn">
+                        <span>+ Add Logo</span>
+                    </button>
+
+                    <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+
+                    <div class="content-section">
+                        <h3 class="section-title">Your Logos</h3>
+                        <div class="logo-grid" id="logoGrid"></div>
+                    </div>
+
+                    <button class="reset-btn" id="resetBtn">Reset to Default</button>
+                </div>
+
+                <!-- Layout Tab -->
+                <div class="tab-pane" id="layoutTab">
+                    <div class="content-section">
+                        <h3 class="section-title">Animation</h3>
+                        <div class="control-group">
+                            <label for="speed">
+                                <span class="control-label-text">Transition Speed</span>
+                                <span class="control-value" id="speedValue">20s</span>
+                            </label>
+                            <input type="range" id="speed" min="5" max="60" value="20" step="1">
+                        </div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3 class="section-title">Logo Size</h3>
+                        <div class="control-group">
+                            <label for="logoSize">
+                                <span class="control-label-text">Desktop Height</span>
+                                <span class="control-value" id="logoSizeValue">60px</span>
+                            </label>
+                            <input type="range" id="logoSize" min="20" max="200" value="60" step="5">
+                        </div>
+
+                        <div class="control-group">
+                            <label for="logoSizeMobile">
+                                <span class="control-label-text">Mobile Height</span>
+                                <span class="control-value" id="logoSizeMobileValue">40px</span>
+                            </label>
+                            <input type="range" id="logoSizeMobile" min="20" max="150" value="40" step="5">
+                        </div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3 class="section-title">Spacing</h3>
+                        <div class="control-group">
+                            <label for="spacing">
+                                <span class="control-label-text">Desktop Spacing</span>
+                                <span class="control-value" id="spacingValue">60px</span>
+                            </label>
+                            <input type="range" id="spacing" min="10" max="200" value="60" step="5">
+                        </div>
+
+                        <div class="control-group">
+                            <label for="spacingMobile">
+                                <span class="control-label-text">Mobile Spacing</span>
+                                <span class="control-value" id="spacingMobileValue">40px</span>
+                            </label>
+                            <input type="range" id="spacingMobile" min="10" max="150" value="40" step="5">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Style Tab -->
+                <div class="tab-pane" id="styleTab">
+                    <div class="content-section">
+                        <h3 class="section-title">Background</h3>
+                        <div class="segmented-control">
+                            <div class="segmented-option">
+                                <input type="radio" id="bgTypeSolid" name="bgType" value="solid" checked>
+                                <label for="bgTypeSolid">Color</label>
+                            </div>
+                            <div class="segmented-option">
+                                <input type="radio" id="bgTypeGradient" name="bgType" value="gradient">
+                                <label for="bgTypeGradient">Gradient</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="solidColorControl" class="content-section">
+                        <div class="control-group">
+                            <input type="color" id="bgColor" value="#ffffff">
+                        </div>
+                    </div>
+
+                    <div id="gradientControls" class="gradient-controls">
+                        <div class="content-section">
+                            <div class="gradient-presets" id="gradientPresets"></div>
+                        </div>
+
+                        <div class="content-section">
+                            <div class="control-group">
+                                <label>
+                                    <span class="control-label-text">Colors</span>
+                                    <div class="color-handler-group">
+                                        <div class="color-handler" style="background-color: #3498db;">
+                                            <input type="color" id="gradientColor1" value="#3498db">
+                                        </div>
+                                        <span class="color-divider">—</span>
+                                        <div class="color-handler" style="background-color: #9b59b6;">
+                                            <input type="color" id="gradientColor2" value="#9b59b6">
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="content-section">
+                            <div class="control-group">
+                                <label for="gradientDirection">
+                                    <span class="control-label-text">Direction</span>
+                                    <span class="control-value" id="gradientDirectionValue">90°</span>
+                                </label>
+                                <input type="range" id="gradientDirection" min="0" max="360" value="90" step="15">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-section">
+                        <div class="control-group">
+                            <label>
+                                <span class="control-label-text">Corner Radius</span>
+                                <div class="corner-icons">
+                                    <div class="corner-icon-option">
+                                        <input type="radio" id="cornerSquare" name="cornerStyle" value="0" checked>
+                                        <label for="cornerSquare">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M15.833 4.167V17.5h-1.568V5.735H2.5V4.167z"></path>
+                                            </svg>
+                                        </label>
+                                    </div>
+                                    <div class="corner-icon-option">
+                                        <input type="radio" id="cornerRounded" name="cornerStyle" value="8">
+                                        <label for="cornerRounded">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M9.82 4.167a6.013 6.013 0 0 1 6.01 5.839l.003.174v7.32h-1.568v-7.32a4.445 4.445 0 0 0-4.289-4.442l-.156-.003H2.5V4.167h7.32Z"></path>
+                                            </svg>
+                                        </label>
+                                    </div>
+                                    <div class="corner-icon-option">
+                                        <input type="radio" id="cornerCircular" name="cornerStyle" value="50">
+                                        <label for="cornerCircular">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M3.284 4.167c6.856 0 12.428 5.498 12.547 12.326l.002.223v.784h-1.568v-.784c0-5.994-4.803-10.866-10.77-10.979l-.21-.002H2.5V4.167h.784Z"></path>
+                                            </svg>
+                                        </label>
+                                    </div>
+                                    <div class="corner-icon-option">
+                                        <input type="radio" id="cornerCustom" name="cornerStyle" value="custom">
+                                        <label for="cornerCustom">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M3.864 8.333a1.363 1.363 0 1 1 0 2.726 1.363 1.363 0 0 1 0-2.726Zm6.136 0a1.363 1.363 0 1 1 .001 2.726A1.363 1.363 0 0 1 10 8.333Zm6.136 0a1.363 1.363 0 1 1 .001 2.726 1.363 1.363 0 0 1 0-2.726Z"></path>
+                                            </svg>
+                                        </label>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div id="cornerCustomSlider" class="corner-custom-slider">
+                            <div class="control-group">
+                                <label for="cornerRadius">
+                                    <span class="control-label-text">Custom Radius</span>
+                                    <span class="control-value" id="cornerRadiusValue">0px</span>
+                                </label>
+                                <input type="range" id="cornerRadius" min="0" max="100" value="0" step="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="preview-area">
+                <div class="ticker-container">
+                    <div class="ticker-wrapper" id="tickerWrapper">
+                        <div class="ticker-track" id="tickerTrack"></div>
+                    </div>
+                </div>
+
+                <div class="export-section">
+                    <h2>Embed Code</h2>
+                    <p>Copy the code below and paste it into your website where you want the logo ticker to appear. It's completely self-contained and ready to use!</p>
+                    <div class="code-box" id="embedCodeBox"></div>
+                    <button class="copy-btn" id="copyCodeBtn">Copy to Clipboard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class LogoTicker {
+            constructor() {
+                this.gradientPresets = [
+                    { angle: 248, color1: '#3d48e4', color2: '#ee4975' },
+                    { angle: 248, color1: '#ff4f4f', color2: '#cb6cff' },
+                    { angle: 248, color1: '#ffb100', color2: '#ffef91' },
+                    { angle: 248, color1: '#198a3f', color2: '#669945' },
+                    { angle: 292, color1: '#526ecb', color2: '#32418d' },
+                    { angle: 248, color1: '#08747f', color2: '#27a590' },
+                    { angle: 248, color1: '#2bb1b2', color2: '#2553b3' },
+                    { angle: 248, color1: '#d9354d', color2: '#d99717' },
+                    { angle: 248, color1: '#f7f9fc', color2: '#e4e5ea' },
+                    { angle: 248, color1: '#707b8c', color2: '#4e5565' },
+                    { angle: 248, color1: '#52545a', color2: '#111111' }
+                ];
+
+                this.logos = this.loadLogos();
+                this.settings = this.loadSettings();
+                this.initializeEventListeners();
+                this.renderGradientPresets();
+                this.applySettings();
+                this.renderTicker();
+                this.renderPreview();
+                this.generateEmbedCode();
+            }
+
+            loadLogos() {
+                const saved = localStorage.getItem('tickerLogos');
+                return saved ? JSON.parse(saved) : this.getDefaultLogos();
+            }
+
+            getDefaultLogos() {
+                // Default placeholder logos using data URIs
+                return [
+                    { id: '1', url: this.createPlaceholderLogo('LOGO 1', '#3498db') },
+                    { id: '2', url: this.createPlaceholderLogo('LOGO 2', '#e74c3c') },
+                    { id: '3', url: this.createPlaceholderLogo('LOGO 3', '#2ecc71') },
+                    { id: '4', url: this.createPlaceholderLogo('LOGO 4', '#f39c12') },
+                    { id: '5', url: this.createPlaceholderLogo('LOGO 5', '#9b59b6') },
+                    { id: '6', url: this.createPlaceholderLogo('LOGO 6', '#1abc9c') }
+                ];
+            }
+
+            createPlaceholderLogo(text, color) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 200;
+                canvas.height = 80;
+                const ctx = canvas.getContext('2d');
+
+                ctx.fillStyle = color;
+                ctx.fillRect(0, 0, 200, 80);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(text, 100, 40);
+
+                return canvas.toDataURL();
+            }
+
+            loadSettings() {
+                const saved = localStorage.getItem('tickerSettings');
+                return saved ? JSON.parse(saved) : {
+                    speed: 20,
+                    logoSize: 60,
+                    spacing: 60,
+                    logoSizeMobile: 40,
+                    spacingMobile: 40,
+                    bgColor: '#ffffff',
+                    bgType: 'solid',
+                    gradientColor1: '#3498db',
+                    gradientColor2: '#9b59b6',
+                    gradientDirection: 90,
+                    cornerStyle: '0',
+                    cornerRadius: 0
+                };
+            }
+
+            saveLogos() {
+                localStorage.setItem('tickerLogos', JSON.stringify(this.logos));
+            }
+
+            saveSettings() {
+                localStorage.setItem('tickerSettings', JSON.stringify(this.settings));
+            }
+
+            initializeEventListeners() {
+                // Home button
+                document.getElementById('homeBtn').addEventListener('click', () => {
+                    this.goHome();
+                });
+
+                // Copy code button
+                document.getElementById('copyCodeBtn').addEventListener('click', () => {
+                    this.copyEmbedCode();
+                });
+
+                // Tab navigation
+                document.querySelectorAll('.tab-nav-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const tab = e.currentTarget.dataset.tab;
+                        this.switchTab(tab);
+                    });
+                });
+
+                // Add logo button
+                const addLogoBtn = document.getElementById('addLogoBtn');
+                const fileInput = document.getElementById('fileInput');
+
+                addLogoBtn.addEventListener('click', () => {
+                    fileInput.click();
+                });
+
+                fileInput.addEventListener('change', (e) => {
+                    this.handleFiles(e.target.files);
+                });
+
+                // Settings controls
+                const controls = {
+                    speed: { suffix: 's', valueId: 'speedValue' },
+                    logoSize: { suffix: 'px', valueId: 'logoSizeValue' },
+                    spacing: { suffix: 'px', valueId: 'spacingValue' },
+                    logoSizeMobile: { suffix: 'px', valueId: 'logoSizeMobileValue' },
+                    spacingMobile: { suffix: 'px', valueId: 'spacingMobileValue' },
+                    bgColor: { suffix: '', valueId: null },
+                    gradientColor1: { suffix: '', valueId: null },
+                    gradientColor2: { suffix: '', valueId: null },
+                    gradientDirection: { suffix: '°', valueId: 'gradientDirectionValue' },
+                    cornerRadius: { suffix: 'px', valueId: 'cornerRadiusValue' }
+                };
+
+                Object.keys(controls).forEach(id => {
+                    const element = document.getElementById(id);
+                    if (!element) return;
+                    const config = controls[id];
+                    element.value = this.settings[id];
+
+                    // Update value display
+                    if (config.valueId) {
+                        document.getElementById(config.valueId).textContent = element.value + config.suffix;
+                    }
+
+                    // Update color handler backgrounds
+                    if (id === 'gradientColor1' || id === 'gradientColor2') {
+                        const handler = element.closest('.color-handler');
+                        if (handler) {
+                            handler.style.backgroundColor = element.value;
+                        }
+                    }
+
+                    element.addEventListener('input', () => {
+                        this.settings[id] = element.type === 'range' ? parseFloat(element.value) : element.value;
+
+                        // Update value display
+                        if (config.valueId) {
+                            document.getElementById(config.valueId).textContent = element.value + config.suffix;
+                        }
+
+                        // Update color handler background
+                        if (id === 'gradientColor1' || id === 'gradientColor2') {
+                            const handler = element.closest('.color-handler');
+                            if (handler) {
+                                handler.style.backgroundColor = element.value;
+                            }
+                        }
+
+                        this.saveSettings();
+                        this.applySettings();
+                        this.generateEmbedCode();
+                    });
+                });
+
+                // Background type radio buttons
+                document.querySelectorAll('input[name="bgType"]').forEach(radio => {
+                    radio.checked = radio.value === this.settings.bgType;
+                    radio.addEventListener('change', (e) => {
+                        this.settings.bgType = e.target.value;
+                        this.toggleBackgroundControls();
+                        this.saveSettings();
+                        this.applySettings();
+                        this.generateEmbedCode();
+                    });
+                });
+
+                // Corner style radio buttons
+                document.querySelectorAll('input[name="cornerStyle"]').forEach(radio => {
+                    radio.checked = radio.value === this.settings.cornerStyle;
+                    radio.addEventListener('change', (e) => {
+                        this.settings.cornerStyle = e.target.value;
+                        this.toggleCornerControls();
+                        this.saveSettings();
+                        this.applySettings();
+                        this.generateEmbedCode();
+                    });
+                });
+
+                // Initialize visibility
+                this.toggleBackgroundControls();
+                this.toggleCornerControls();
+
+                // Reset button
+                document.getElementById('resetBtn').addEventListener('click', () => {
+                    if (confirm('Reset to default logos and settings?')) {
+                        this.resetToDefaults();
+                    }
+                });
+
+                // Pause on hover
+                const tickerTrack = document.getElementById('tickerTrack');
+                tickerTrack.addEventListener('mouseenter', () => {
+                    tickerTrack.classList.add('paused');
+                });
+                tickerTrack.addEventListener('mouseleave', () => {
+                    tickerTrack.classList.remove('paused');
+                });
+            }
+
+            goHome() {
+                // Deactivate all tabs
+                document.querySelectorAll('.tab-nav-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.remove('active');
+                });
+
+                // Scroll to top of preview area
+                document.querySelector('.preview-area').scrollTop = 0;
+            }
+
+            switchTab(tabName) {
+                // Update tab buttons
+                document.querySelectorAll('.tab-nav-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.tab === tabName);
+                });
+
+                // Update tab panes
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.remove('active');
+                });
+
+                const tabMap = {
+                    'content': 'contentTab',
+                    'layout': 'layoutTab',
+                    'style': 'styleTab'
+                };
+
+                document.getElementById(tabMap[tabName]).classList.add('active');
+            }
+
+            generateEmbedCode() {
+                // Get corner radius
+                let cornerRadius = this.settings.cornerStyle === 'custom'
+                    ? this.settings.cornerRadius
+                    : this.settings.cornerStyle;
+
+                // Convert logos to URL array
+                const logoUrls = this.logos.map(logo => logo.url);
+                const logosJSON = JSON.stringify(logoUrls).replace(/'/g, "\\'");
+
+                // Get background style
+                const background = this.settings.bgType === 'gradient'
+                    ? `linear-gradient(${this.settings.gradientDirection}deg, ${this.settings.gradientColor1}, ${this.settings.gradientColor2})`
+                    : this.settings.bgColor;
+
+                // Generate self-contained embed code
+                const embedCode = `<!-- Logo Ticker Widget -->
+<div id="logo-ticker-container"></div>
+<script>
+(function() {
+    const config = {
+        logos: ${JSON.stringify(logoUrls)},
+        speed: ${this.settings.speed},
+        logoSize: ${this.settings.logoSize},
+        logoSizeMobile: ${this.settings.logoSizeMobile},
+        spacing: ${this.settings.spacing},
+        spacingMobile: ${this.settings.spacingMobile},
+        background: '${background}',
+        cornerRadius: ${cornerRadius}
+    };
+
+    const container = document.getElementById('logo-ticker-container');
+
+    // Create wrapper
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = \`
+        background: \${config.background};
+        border-radius: \${config.cornerRadius}px;
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+    \`;
+
+    // Create track
+    const track = document.createElement('div');
+    track.style.cssText = \`
+        display: flex;
+        width: max-content;
+        animation: ticker-scroll \${config.speed}s linear infinite;
+        padding: 40px 0;
+    \`;
+
+    // Add logos (duplicate for seamless loop)
+    const logos = [...config.logos, ...config.logos];
+    logos.forEach(url => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = 'Logo';
+        img.style.cssText = \`
+            height: \${config.logoSize}px;
+            width: auto;
+            object-fit: contain;
+            margin-right: \${config.spacing}px;
+            filter: grayscale(100%);
+            opacity: 0.7;
+            transition: all 0.3s;
+        \`;
+        img.onmouseenter = function() {
+            this.style.filter = 'grayscale(0%)';
+            this.style.opacity = '1';
+            this.style.transform = 'scale(1.1)';
+        };
+        img.onmouseleave = function() {
+            this.style.filter = 'grayscale(100%)';
+            this.style.opacity = '0.7';
+            this.style.transform = 'scale(1)';
+        };
+        track.appendChild(img);
+    });
+
+    track.onmouseenter = function() { this.style.animationPlayState = 'paused'; };
+    track.onmouseleave = function() { this.style.animationPlayState = 'running'; };
+
+    wrapper.appendChild(track);
+    container.appendChild(wrapper);
+
+    // Inject styles
+    if (!document.getElementById('logo-ticker-styles')) {
+        const style = document.createElement('style');
+        style.id = 'logo-ticker-styles';
+        style.textContent = \`
+            @keyframes ticker-scroll {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+            }
+            @media (max-width: 768px) {
+                #logo-ticker-container img {
+                    height: \${config.logoSizeMobile}px !important;
+                    margin-right: \${config.spacingMobile}px !important;
+                }
+            }
+        \`;
+        document.head.appendChild(style);
+    }
+})();
+</script>`;
+
+                document.getElementById('embedCodeBox').textContent = embedCode;
+            }
+
+            copyEmbedCode() {
+                const code = document.getElementById('embedCodeBox').textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    const btn = document.getElementById('copyCodeBtn');
+                    btn.textContent = 'Copied!';
+                    btn.classList.add('copied');
+
+                    setTimeout(() => {
+                        btn.textContent = 'Copy to Clipboard';
+                        btn.classList.remove('copied');
+                    }, 2000);
+                });
+            }
+
+            renderGradientPresets() {
+                const container = document.getElementById('gradientPresets');
+
+                const presetsHTML = this.gradientPresets.map((preset, index) => `
+                    <div class="gradient-preset"
+                         data-preset="${index}"
+                         style="background: linear-gradient(${preset.angle}deg, ${preset.color1}, ${preset.color2});">
+                    </div>
+                `).join('');
+
+                const customHTML = `
+                    <div class="gradient-preset custom">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M17.31 5.264 14.737 2.69a.643.643 0 0 0-.91 0l-3.332 3.333-.605-.606a.643.643 0 0 0-.91 0l-.15.151a.643.643 0 0 0 0 .91l.605.605-5.604 5.605-.303 2.12-.606.606.008.007c-.028.023-.058.043-.084.068a1.179 1.179 0 0 0 1.666 1.667c.026-.026.045-.056.068-.084l.008.008.606-.606 2.12-.303 5.605-5.604.606.605a.643.643 0 0 0 .909 0l.15-.15a.643.643 0 0 0 0-.91l-.605-.606 3.333-3.332a.643.643 0 0 0 0-.909Zm-8.25 7.038H6.336l3.857-3.857 1.363 1.363-2.494 2.494Z"></path>
+                        </svg>
+                    </div>
+                `;
+
+                container.innerHTML = presetsHTML + customHTML;
+
+                // Add click handlers
+                container.querySelectorAll('.gradient-preset[data-preset]').forEach(preset => {
+                    preset.addEventListener('click', (e) => {
+                        const index = parseInt(e.currentTarget.dataset.preset);
+                        this.applyGradientPreset(index);
+                    });
+                });
+            }
+
+            applyGradientPreset(index) {
+                const preset = this.gradientPresets[index];
+                this.settings.gradientColor1 = preset.color1;
+                this.settings.gradientColor2 = preset.color2;
+                this.settings.gradientDirection = preset.angle;
+
+                // Update UI
+                document.getElementById('gradientColor1').value = preset.color1;
+                document.getElementById('gradientColor2').value = preset.color2;
+                document.getElementById('gradientDirection').value = preset.angle;
+                document.getElementById('gradientDirectionValue').textContent = preset.angle + '°';
+
+                // Update color handlers
+                document.querySelector('.color-handler:nth-child(1)').style.backgroundColor = preset.color1;
+                document.querySelector('.color-handler:nth-child(3)').style.backgroundColor = preset.color2;
+
+                // Mark preset as active
+                document.querySelectorAll('.gradient-preset').forEach(p => p.classList.remove('active'));
+                document.querySelector(`[data-preset="${index}"]`).classList.add('active');
+
+                this.saveSettings();
+                this.applySettings();
+            }
+
+            toggleBackgroundControls() {
+                const solidControl = document.getElementById('solidColorControl');
+                const gradientControls = document.getElementById('gradientControls');
+
+                if (this.settings.bgType === 'solid') {
+                    solidControl.style.display = 'block';
+                    gradientControls.classList.remove('active');
+                } else {
+                    solidControl.style.display = 'none';
+                    gradientControls.classList.add('active');
+                }
+            }
+
+            toggleCornerControls() {
+                const customSlider = document.getElementById('cornerCustomSlider');
+
+                if (this.settings.cornerStyle === 'custom') {
+                    customSlider.classList.add('active');
+                } else {
+                    customSlider.classList.remove('active');
+                }
+            }
+
+            handleFiles(files) {
+                Array.from(files).forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const logo = {
+                                id: Date.now().toString() + Math.random(),
+                                url: e.target.result
+                            };
+                            this.logos.push(logo);
+                            this.saveLogos();
+                            this.renderTicker();
+                            this.renderPreview();
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            removeLogo(id) {
+                this.logos = this.logos.filter(logo => logo.id !== id);
+                this.saveLogos();
+                this.renderTicker();
+                this.renderPreview();
+            }
+
+            applySettings() {
+                const wrapper = document.getElementById('tickerWrapper');
+                const container = document.querySelector('.ticker-container');
+                const track = document.getElementById('tickerTrack');
+
+                // Apply background
+                let backgroundColor;
+                if (this.settings.bgType === 'solid') {
+                    backgroundColor = this.settings.bgColor;
+                    wrapper.style.setProperty('--bg-color', this.settings.bgColor);
+                } else {
+                    const angle = this.settings.gradientDirection;
+                    backgroundColor = `linear-gradient(${angle}deg, ${this.settings.gradientColor1}, ${this.settings.gradientColor2})`;
+                    // For gradient, use the first color for the fade effect
+                    wrapper.style.setProperty('--bg-color', this.settings.gradientColor1);
+                }
+                wrapper.style.background = backgroundColor;
+
+                // Apply corner radius
+                let borderRadius;
+                if (this.settings.cornerStyle === 'custom') {
+                    borderRadius = this.settings.cornerRadius + 'px';
+                } else {
+                    borderRadius = this.settings.cornerStyle + 'px';
+                }
+                container.style.borderRadius = borderRadius;
+
+                // Apply logo size
+                wrapper.style.setProperty('--logo-height', this.settings.logoSize + 'px');
+                wrapper.style.setProperty('--logo-height-mobile', this.settings.logoSizeMobile + 'px');
+
+                track.style.animationDuration = this.settings.speed + 's';
+
+                // Update spacing
+                document.querySelectorAll('.ticker-item').forEach(item => {
+                    item.style.marginRight = this.settings.spacing + 'px';
+                });
+            }
+
+            renderTicker() {
+                const track = document.getElementById('tickerTrack');
+
+                if (this.logos.length === 0) {
+                    track.innerHTML = '<p style="padding: 40px; color: #666;">Upload logos to get started</p>';
+                    return;
+                }
+
+                // Duplicate logos for seamless loop
+                const duplicatedLogos = [...this.logos, ...this.logos];
+
+                track.innerHTML = duplicatedLogos.map(logo => `
+                    <div class="ticker-item" style="margin-right: ${this.settings.spacing}px;">
+                        <img src="${logo.url}" alt="Logo">
+                    </div>
+                `).join('');
+
+                this.applySettings();
+            }
+
+            renderPreview() {
+                const grid = document.getElementById('logoGrid');
+
+                if (this.logos.length === 0) {
+                    grid.innerHTML = '<div class="empty-state"><p>No logos added yet</p></div>';
+                    return;
+                }
+
+                grid.innerHTML = this.logos.map(logo => `
+                    <div class="logo-grid-item">
+                        <img src="${logo.url}" alt="Logo">
+                        <button class="remove-logo" onclick="ticker.removeLogo('${logo.id}')">×</button>
+                    </div>
+                `).join('');
+            }
+
+            resetToDefaults() {
+                this.logos = this.getDefaultLogos();
+                this.settings = {
+                    speed: 20,
+                    logoSize: 60,
+                    spacing: 60,
+                    logoSizeMobile: 40,
+                    spacingMobile: 40,
+                    bgColor: '#ffffff',
+                    bgType: 'solid',
+                    gradientColor1: '#3498db',
+                    gradientColor2: '#9b59b6',
+                    gradientDirection: 90,
+                    cornerStyle: '0',
+                    cornerRadius: 0
+                };
+
+                this.saveLogos();
+                this.saveSettings();
+
+                // Update UI controls and value displays
+                const controls = {
+                    speed: { suffix: 's', valueId: 'speedValue' },
+                    logoSize: { suffix: 'px', valueId: 'logoSizeValue' },
+                    spacing: { suffix: 'px', valueId: 'spacingValue' },
+                    logoSizeMobile: { suffix: 'px', valueId: 'logoSizeMobileValue' },
+                    spacingMobile: { suffix: 'px', valueId: 'spacingMobileValue' },
+                    bgColor: { suffix: '', valueId: null },
+                    gradientColor1: { suffix: '', valueId: null },
+                    gradientColor2: { suffix: '', valueId: null },
+                    gradientDirection: { suffix: '°', valueId: 'gradientDirectionValue' },
+                    cornerRadius: { suffix: 'px', valueId: 'cornerRadiusValue' }
+                };
+
+                Object.keys(controls).forEach(id => {
+                    const element = document.getElementById(id);
+                    if (!element) return;
+                    const config = controls[id];
+                    element.value = this.settings[id];
+
+                    // Update value display
+                    if (config.valueId) {
+                        document.getElementById(config.valueId).textContent = this.settings[id] + config.suffix;
+                    }
+                });
+
+                // Update radio buttons
+                document.querySelectorAll('input[name="bgType"]').forEach(radio => {
+                    radio.checked = radio.value === this.settings.bgType;
+                });
+
+                document.querySelectorAll('input[name="cornerStyle"]').forEach(radio => {
+                    radio.checked = radio.value === this.settings.cornerStyle;
+                });
+
+                // Update visibility
+                this.toggleBackgroundControls();
+                this.toggleCornerControls();
+
+                this.applySettings();
+                this.renderTicker();
+                this.renderPreview();
+            }
+        }
+
+        // Initialize
+        let ticker;
+        document.addEventListener('DOMContentLoaded', () => {
+            ticker = new LogoTicker();
+        });
+    </script>
+</body>
+</html>

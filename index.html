@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Snippet Hub</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Code Snippet Hub</h1>
+            <p>Create and manage embeddable HTML snippets for your websites</p>
+        </header>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="snippet-list">
+                    <h3>Your Snippets</h3>
+                    <button class="btn btn-primary" id="newSnippetBtn">+ New Snippet</button>
+                    <div id="snippetsList"></div>
+                </div>
+            </div>
+
+            <div class="editor-area">
+                <div class="snippet-editor" id="snippetEditor" style="display: none;">
+                    <div class="editor-header">
+                        <input type="text" id="snippetName" placeholder="Snippet Name" class="snippet-name-input">
+                        <div class="editor-actions">
+                            <button class="btn btn-secondary" id="previewBtn">Preview</button>
+                            <button class="btn btn-primary" id="saveBtn">Save</button>
+                            <button class="btn btn-danger" id="deleteBtn">Delete</button>
+                        </div>
+                    </div>
+
+                    <div class="editor-tabs">
+                        <button class="tab-btn active" data-tab="html">HTML</button>
+                        <button class="tab-btn" data-tab="css">CSS</button>
+                        <button class="tab-btn" data-tab="js">JavaScript</button>
+                    </div>
+
+                    <div class="editor-content">
+                        <textarea id="htmlEditor" class="code-editor active" placeholder="Enter your HTML code here..."></textarea>
+                        <textarea id="cssEditor" class="code-editor" placeholder="Enter your CSS code here..."></textarea>
+                        <textarea id="jsEditor" class="code-editor" placeholder="Enter your JavaScript code here..."></textarea>
+                    </div>
+                </div>
+
+                <div class="welcome-screen" id="welcomeScreen">
+                    <h2>Welcome to Code Snippet Hub</h2>
+                    <p>Create a new snippet to get started, or select an existing one from the sidebar.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-modal" id="previewModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Preview</h3>
+                    <button class="close-btn" id="closePreview">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="preview-tabs">
+                        <button class="tab-btn active" data-preview="render">Rendered</button>
+                        <button class="tab-btn" data-preview="code">Embed Code</button>
+                    </div>
+                    <div class="preview-content">
+                        <div id="renderPreview" class="preview-pane active">
+                            <iframe id="previewFrame" src="about:blank"></iframe>
+                        </div>
+                        <div id="codePreview" class="preview-pane">
+                            <textarea id="embedCode" readonly></textarea>
+                            <button class="btn btn-primary" id="copyEmbedBtn">Copy Embed Code</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
