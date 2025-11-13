@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader } from '@googlemaps/js-api-loader';
 import './GoogleReviewsPage.css';
 
 interface Review {
@@ -146,34 +145,51 @@ const GoogleReviewsPage: React.FC = () => {
       return;
     }
 
-    const loader = new Loader({
-      apiKey: apiKey,
-      version: 'weekly',
-      libraries: ['places']
-    });
+    // Check if already loaded
+    if ((window as any).google && (window as any).google.maps) {
+      initializeGoogleMaps();
+      return;
+    }
 
-    loader.loadCallback((e) => {
-      if (e) {
-        console.error('Error loading Google Maps API:', e);
-        setFetchError('Failed to load Google Maps. Using demo mode.');
-      } else {
-        // Initialize Autocomplete Service
-        autocompleteService.current = new google.maps.places.AutocompleteService();
+    // Load Google Maps script
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      initializeGoogleMaps();
+    };
+    script.onerror = () => {
+      console.error('Error loading Google Maps API');
+      setFetchError('Failed to load Google Maps. Using demo mode.');
+    };
+    document.head.appendChild(script);
 
-        // Initialize Places Service (requires a map div)
-        if (mapDivRef.current) {
-          const map = new google.maps.Map(mapDivRef.current, {
-            center: { lat: 0, lng: 0 },
-            zoom: 1
-          });
-          placesService.current = new google.maps.places.PlacesService(map);
-        }
-
-        setGoogleLoaded(true);
-        console.log('Google Maps API loaded successfully');
+    return () => {
+      // Cleanup script on unmount
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
       }
-    });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const initializeGoogleMaps = () => {
+    // Initialize Autocomplete Service
+    autocompleteService.current = new google.maps.places.AutocompleteService();
+
+    // Initialize Places Service (requires a map div)
+    if (mapDivRef.current) {
+      const map = new google.maps.Map(mapDivRef.current, {
+        center: { lat: 0, lng: 0 },
+        zoom: 1
+      });
+      placesService.current = new google.maps.places.PlacesService(map);
+    }
+
+    setGoogleLoaded(true);
+    console.log('Google Maps API loaded successfully');
+  };
 
   const addReview = () => {
     const newReview: Review = {
