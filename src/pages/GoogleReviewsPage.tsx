@@ -153,7 +153,7 @@ const GoogleReviewsPage: React.FC = () => {
     });
 
     loader
-      .importLibrary('places')
+      .load()
       .then(() => {
         // Initialize Autocomplete Service
         autocompleteService.current = new google.maps.places.AutocompleteService();
