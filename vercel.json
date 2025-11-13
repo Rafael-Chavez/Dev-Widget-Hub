@@ -1,6 +1,7 @@
 {
-  "buildCommand": "cd widget-hub && npm install && npm run build",
-  "outputDirectory": "widget-hub/build",
-  "framework": "create-react-app",
-  "installCommand": "cd widget-hub && npm install"
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  }
 }

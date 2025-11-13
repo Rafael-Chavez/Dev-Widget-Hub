@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --color-deepsea-darkest: #0d1b2a;
+  --color-deepsea-dark: #1b263b;
+  --color-deepsea-medium: #415a77;
+  --color-deepsea-light: #778da9;
+  --color-deepsea-lightest: #e0e1dd;
+
+  --color-primary: #415a77;
+  --color-secondary: #778da9;
+  --color-bg: #0d1b2a;
+  --color-bg-alt: #1b263b;
+  --color-text: #e0e1dd;
+  --color-text-secondary: #778da9;
+
+  --gradient-primary: linear-gradient(135deg, #1b263b 0%, #415a77 100%);
+  --gradient-accent: linear-gradient(135deg, #415a77 0%, #778da9 100%);
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
