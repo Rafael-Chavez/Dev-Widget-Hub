@@ -152,9 +152,11 @@ const GoogleReviewsPage: React.FC = () => {
       libraries: ['places']
     });
 
-    loader
-      .load()
-      .then(() => {
+    loader.loadCallback((e) => {
+      if (e) {
+        console.error('Error loading Google Maps API:', e);
+        setFetchError('Failed to load Google Maps. Using demo mode.');
+      } else {
         // Initialize Autocomplete Service
         autocompleteService.current = new google.maps.places.AutocompleteService();
 
@@ -169,11 +171,8 @@ const GoogleReviewsPage: React.FC = () => {
 
         setGoogleLoaded(true);
         console.log('Google Maps API loaded successfully');
-      })
-      .catch((error: Error) => {
-        console.error('Error loading Google Maps API:', error);
-        setFetchError('Failed to load Google Maps. Using demo mode.');
-      });
+      }
+    });
   }, []);
 
   const addReview = () => {
