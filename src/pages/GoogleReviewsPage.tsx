@@ -233,6 +233,11 @@ const GoogleReviewsPage: React.FC = () => {
       return;
     }
 
+    console.log('Searching for:', searchQuery);
+    console.log('Google loaded:', googleLoaded);
+    console.log('Autocomplete service:', autocompleteService.current);
+    console.log('Places service:', placesService.current);
+
     setIsLoading(true);
     setFetchError('');
     setSearchResults([]);
@@ -240,6 +245,7 @@ const GoogleReviewsPage: React.FC = () => {
     try {
       // Use Google Places API if loaded, otherwise fall back to demo
       if (googleLoaded && autocompleteService.current && placesService.current) {
+        console.log('Using real Google Places API');
         // Use Autocomplete Service to get predictions
         const request: google.maps.places.AutocompletionRequest = {
           input: searchQuery,
@@ -247,6 +253,8 @@ const GoogleReviewsPage: React.FC = () => {
         };
 
         autocompleteService.current.getPlacePredictions(request, (predictions, status) => {
+          console.log('Predictions status:', status);
+          console.log('Predictions:', predictions);
           if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
             // Get details for each prediction
             const results: SearchResult[] = [];
@@ -284,6 +292,7 @@ const GoogleReviewsPage: React.FC = () => {
         });
       } else {
         // Fall back to demo mode
+        console.log('Using demo mode - API not loaded');
         const mockResults: SearchResult[] = [
           {
             id: '1',
