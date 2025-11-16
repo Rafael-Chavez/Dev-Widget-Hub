@@ -320,9 +320,11 @@ const GoogleReviewsPage: React.FC = () => {
           }
         ];
 
+        console.log('Setting mock results:', mockResults);
         setSearchResults(mockResults);
         setShowSearchResults(true);
         setIsLoading(false);
+        console.log('Search results set. showSearchResults:', true, 'results count:', mockResults.length);
       }
 
       setFetchError('');
