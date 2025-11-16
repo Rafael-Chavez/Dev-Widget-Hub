@@ -238,14 +238,33 @@ const GoogleReviewsPage: React.FC = () => {
     });
   };
 
-  const searchBusinesses = async () => {
+  // Handle search input change with autocomplete
+  const handleSearchInputChange = (value: string) => {
+    setSearchQuery(value);
+
+    // Clear results if input is empty
+    if (!value.trim()) {
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
+    }
+
+    // Trigger autocomplete after 2 characters
+    if (value.trim().length >= 2) {
+      searchBusinesses(value);
+    }
+  };
+
+  const searchBusinesses = async (query?: string) => {
+    const searchText = query || searchQuery;
+
     // Validate input
-    if (!searchQuery.trim()) {
+    if (!searchText.trim()) {
       setFetchError('Please enter a business name or address');
       return;
     }
 
-    console.log('Searching for:', searchQuery);
+    console.log('Searching for:', searchText);
     console.log('Google loaded:', googleLoaded);
     console.log('Autocomplete service:', autocompleteService.current);
     console.log('Places service:', placesService.current);
@@ -471,14 +490,6 @@ const GoogleReviewsPage: React.FC = () => {
     } catch (error) {
       setFetchError('Failed to fetch reviews. Please try again.');
       setIsLoading(false);
-    }
-  };
-
-  const handleSearchInputChange = (value: string) => {
-    setSearchQuery(value);
-    if (!value.trim()) {
-      setShowSearchResults(false);
-      setSearchResults([]);
     }
   };
 
@@ -753,7 +764,7 @@ const GoogleReviewsPage: React.FC = () => {
 
                   <button
                     className="search-btn"
-                    onClick={searchBusinesses}
+                    onClick={() => searchBusinesses()}
                     disabled={isLoading}
                   >
                     {isLoading ? (
