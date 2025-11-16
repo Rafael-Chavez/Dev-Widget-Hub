@@ -140,6 +140,10 @@ const GoogleReviewsPage: React.FC = () => {
   useEffect(() => {
     const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
+    console.log('Initializing Google Maps...');
+    console.log('API Key present:', !!apiKey);
+    console.log('API Key value:', apiKey ? `${apiKey.substring(0, 10)}...` : 'none');
+
     if (!apiKey || apiKey === 'your_api_key_here') {
       console.warn('Google Maps API key not configured. Using demo mode.');
       return;
@@ -147,26 +151,34 @@ const GoogleReviewsPage: React.FC = () => {
 
     // Check if already loaded
     if ((window as any).google && (window as any).google.maps) {
+      console.log('Google Maps already loaded, initializing...');
       initializeGoogleMaps();
       return;
     }
 
     // Load Google Maps script
+    console.log('Loading Google Maps script...');
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMaps`;
     script.async = true;
     script.defer = true;
-    script.onload = () => {
+
+    // Set up global callback
+    (window as any).initGoogleMaps = () => {
+      console.log('Google Maps script loaded via callback');
       initializeGoogleMaps();
     };
-    script.onerror = () => {
-      console.error('Error loading Google Maps API');
+
+    script.onerror = (error) => {
+      console.error('Error loading Google Maps API:', error);
       setFetchError('Failed to load Google Maps. Using demo mode.');
     };
+
     document.head.appendChild(script);
 
     return () => {
-      // Cleanup script on unmount
+      // Cleanup
+      delete (window as any).initGoogleMaps;
       if (script.parentNode) {
         script.parentNode.removeChild(script);
       }
