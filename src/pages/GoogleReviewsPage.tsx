@@ -47,6 +47,31 @@ interface Settings {
   columns: number;
 }
 
+const ReviewText: React.FC<{ text: string; textColor: string; accentColor: string }> = ({ text, textColor, accentColor }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const charLimit = 150;
+  const isLongText = text.length > charLimit;
+
+  if (!isLongText) {
+    return <p className="review-text" style={{ color: textColor }}>{text}</p>;
+  }
+
+  return (
+    <div>
+      <p className="review-text" style={{ color: textColor }}>
+        {isExpanded ? text : `${text.substring(0, charLimit)}...`}
+      </p>
+      <button
+        className="read-more-btn"
+        style={{ color: accentColor }}
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        {isExpanded ? 'Read less' : 'Read more'}
+      </button>
+    </div>
+  );
+};
+
 const GoogleReviewsPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'content' | 'layout' | 'style'>('content');
@@ -663,11 +688,46 @@ const GoogleReviewsPage: React.FC = () => {
         reviewHeader.appendChild(authorInfo);
         card.appendChild(reviewHeader);
 
-        // Review Text
+        // Review Text with Read More functionality
+        const reviewTextContainer = document.createElement('div');
         const reviewText = document.createElement('p');
-        reviewText.textContent = review.text;
+        const charLimit = 150;
+        const isLongReview = review.text.length > charLimit;
+
         reviewText.style.cssText = 'color: ' + config.textColor + '; font-size: 14px; line-height: 1.6; margin: 0;';
-        card.appendChild(reviewText);
+
+        if (isLongReview) {
+            const truncatedText = review.text.substring(0, charLimit) + '...';
+            reviewText.textContent = truncatedText;
+            reviewText.setAttribute('data-full-text', review.text);
+            reviewText.setAttribute('data-truncated', 'true');
+
+            const readMoreBtn = document.createElement('button');
+            readMoreBtn.textContent = 'Read more';
+            readMoreBtn.style.cssText = 'background: none; border: none; color: ' + config.accentColor + '; cursor: pointer; font-size: 14px; font-weight: 600; padding: 4px 0; margin-top: 4px; display: block;';
+            readMoreBtn.onclick = function(e) {
+                e.preventDefault();
+                const para = this.previousElementSibling;
+                const isTruncated = para.getAttribute('data-truncated') === 'true';
+
+                if (isTruncated) {
+                    para.textContent = para.getAttribute('data-full-text');
+                    para.setAttribute('data-truncated', 'false');
+                    this.textContent = 'Read less';
+                } else {
+                    para.textContent = para.getAttribute('data-full-text').substring(0, charLimit) + '...';
+                    para.setAttribute('data-truncated', 'true');
+                    this.textContent = 'Read more';
+                }
+            };
+
+            reviewTextContainer.appendChild(reviewText);
+            reviewTextContainer.appendChild(readMoreBtn);
+            card.appendChild(reviewTextContainer);
+        } else {
+            reviewText.textContent = review.text;
+            card.appendChild(reviewText);
+        }
 
         reviewsContainer.appendChild(card);
     });
@@ -1281,9 +1341,11 @@ const GoogleReviewsPage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <p className="review-text" style={{ color: settings.textColor }}>
-                    {review.text}
-                  </p>
+                  <ReviewText
+                    text={review.text}
+                    textColor={settings.textColor}
+                    accentColor={settings.accentColor}
+                  />
                 </div>
               ))}
             </div>
