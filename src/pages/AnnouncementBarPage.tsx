@@ -19,27 +19,104 @@ interface Settings {
   closeable: boolean;
 }
 
+interface Template {
+  name: string;
+  message: string;
+  buttonText: string;
+  buttonUrl: string;
+  bgColor: string;
+  textColor: string;
+  buttonBgColor: string;
+  buttonTextColor: string;
+}
+
+const templates: Template[] = [
+  {
+    name: 'Sale Promotion',
+    message: '🎉 Special Offer: Get 20% off your first order! Use code: WELCOME20',
+    buttonText: 'Shop Now',
+    buttonUrl: '#',
+    bgColor: '#3498db',
+    textColor: '#ffffff',
+    buttonBgColor: '#ffffff',
+    buttonTextColor: '#3498db'
+  },
+  {
+    name: 'Free Shipping',
+    message: '🚚 Free Shipping on Orders Over $50 - Limited Time Only!',
+    buttonText: 'Shop Now',
+    buttonUrl: '#',
+    bgColor: '#27ae60',
+    textColor: '#ffffff',
+    buttonBgColor: '#ffffff',
+    buttonTextColor: '#27ae60'
+  },
+  {
+    name: 'New Arrival',
+    message: '✨ New Collection Just Dropped! Check Out The Latest Styles',
+    buttonText: 'Explore Now',
+    buttonUrl: '#',
+    bgColor: '#8e44ad',
+    textColor: '#ffffff',
+    buttonBgColor: '#ffffff',
+    buttonTextColor: '#8e44ad'
+  },
+  {
+    name: 'Event Announcement',
+    message: '📅 Join Our Live Event This Friday at 3PM EST - Don\'t Miss Out!',
+    buttonText: 'Register Now',
+    buttonUrl: '#',
+    bgColor: '#e74c3c',
+    textColor: '#ffffff',
+    buttonBgColor: '#ffffff',
+    buttonTextColor: '#e74c3c'
+  },
+  {
+    name: 'Limited Stock',
+    message: '⚡ Hurry! Only a Few Items Left in Stock - Shop Before They\'re Gone',
+    buttonText: 'View Products',
+    buttonUrl: '#',
+    bgColor: '#f39c12',
+    textColor: '#ffffff',
+    buttonBgColor: '#ffffff',
+    buttonTextColor: '#f39c12'
+  }
+];
+
 const AnnouncementBarPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'content' | 'style'>('content');
   const [isVisible, setIsVisible] = useState(true);
 
   const [settings, setSettings] = useState<Settings>({
-    message: '🎉 Special Offer: Get 20% off your first order! Use code: WELCOME20',
-    buttonText: 'Shop Now',
-    buttonUrl: '#',
+    message: templates[0].message,
+    buttonText: templates[0].buttonText,
+    buttonUrl: templates[0].buttonUrl,
     showButton: true,
     showCloseButton: true,
     position: 'top',
-    bgColor: '#3498db',
-    textColor: '#ffffff',
-    buttonBgColor: '#ffffff',
-    buttonTextColor: '#3498db',
+    bgColor: templates[0].bgColor,
+    textColor: templates[0].textColor,
+    buttonBgColor: templates[0].buttonBgColor,
+    buttonTextColor: templates[0].buttonTextColor,
     fontSize: 16,
     padding: 12,
     animation: 'slide',
     closeable: true
   });
+
+  const applyTemplate = (template: Template) => {
+    setSettings({
+      ...settings,
+      message: template.message,
+      buttonText: template.buttonText,
+      buttonUrl: template.buttonUrl,
+      bgColor: template.bgColor,
+      textColor: template.textColor,
+      buttonBgColor: template.buttonBgColor,
+      buttonTextColor: template.buttonTextColor
+    });
+  };
 
   const generateEmbedCode = (): string => {
     const scriptContent = `(function() {
@@ -196,6 +273,29 @@ const AnnouncementBarPage: React.FC = () => {
         <div className="tab-content">
           {activeTab === 'content' && (
             <div className="tab-pane active">
+              <div className="content-section">
+                <h3 className="section-title">Templates</h3>
+                <div className="control-group">
+                  <label htmlFor="template">Choose a Template</label>
+                  <div className="template-grid">
+                    {templates.map((template, index) => (
+                      <button
+                        key={index}
+                        className="template-btn"
+                        onClick={() => applyTemplate(template)}
+                        title={template.message}
+                      >
+                        <div className="template-preview" style={{ background: template.bgColor }}>
+                          <span style={{ color: template.textColor, fontSize: '11px' }}>
+                            {template.name}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               <div className="content-section">
                 <h3 className="section-title">Message</h3>
                 <div className="control-group">
