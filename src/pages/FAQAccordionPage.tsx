@@ -48,6 +48,30 @@ const templates: Template[] = [
     borderRadius: 8
   },
   {
+    name: 'Clean Minimal',
+    accentColor: '#2c2c2c',
+    bgColor: '#fafafa',
+    textColor: '#6c6c6c',
+    questionColor: '#1f1f1f',
+    borderRadius: 12
+  },
+  {
+    name: 'Soft Purple',
+    accentColor: '#8b7fb8',
+    bgColor: '#f5f3ff',
+    textColor: '#5f5f5f',
+    questionColor: '#2d2d2d',
+    borderRadius: 8
+  },
+  {
+    name: 'Professional Blue',
+    accentColor: '#4361ee',
+    bgColor: '#f8f9fa',
+    textColor: '#6c757d',
+    questionColor: '#333333',
+    borderRadius: 8
+  },
+  {
     name: 'Modern Purple',
     accentColor: '#9b59b6',
     bgColor: '#f8f9fa',
