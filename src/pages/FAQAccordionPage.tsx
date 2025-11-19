@@ -40,6 +40,14 @@ const templates: Template[] = [
     borderRadius: 8
   },
   {
+    name: 'Frontend Mentor',
+    accentColor: '#a729f5',
+    bgColor: '#ffffff',
+    textColor: '#6b6b6b',
+    questionColor: '#1a1a1a',
+    borderRadius: 8
+  },
+  {
     name: 'Modern Purple',
     accentColor: '#9b59b6',
     bgColor: '#f8f9fa',
