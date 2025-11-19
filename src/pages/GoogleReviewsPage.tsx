@@ -28,7 +28,7 @@ interface Settings {
   averageRating: number;
   totalReviews: number;
   reviews: Review[];
-  layout: 'grid' | 'list' | 'carousel' | 'masonry' | 'slider' | 'badge';
+  layout: 'grid' | 'list' | 'carousel' | 'slider' | 'badge';
   maxReviews: number;
   minRating: number;
   showAvatar: boolean;
@@ -347,40 +347,8 @@ const GoogleReviewsPage: React.FC = () => {
           }
         });
       } else {
-        // Fall back to demo mode
-        console.log('Using demo mode - API not loaded');
-        const mockResults: SearchResult[] = [
-          {
-            id: '1',
-            name: searchQuery,
-            address: '200 Eastern Pkwy, Brooklyn, NY 11238, USA',
-            placeId: 'ChIJOwg_06VPwokRYv534QaPC8g',
-            rating: 4.7,
-            totalReviews: 3542
-          },
-          {
-            id: '2',
-            name: `${searchQuery} - Main Branch`,
-            address: '123 Main St, Brooklyn, NY 11201, USA',
-            placeId: 'ChIJd8BlQ2BZwokRAFUEcm_qrcA',
-            rating: 4.5,
-            totalReviews: 1205
-          },
-          {
-            id: '3',
-            name: `${searchQuery} Brooklyn Heights`,
-            address: '456 Court St, Brooklyn, NY 11231, USA',
-            placeId: 'ChIJPZDrEzBbwokRoNrpodC5P30',
-            rating: 4.8,
-            totalReviews: 856
-          }
-        ];
-
-        console.log('Setting mock results:', mockResults);
-        setSearchResults(mockResults);
-        setShowSearchResults(true);
+        setFetchError('Google Maps API not loaded. Please refresh the page.');
         setIsLoading(false);
-        console.log('Search results set. showSearchResults:', true, 'results count:', mockResults.length);
       }
 
       setFetchError('');
@@ -445,72 +413,8 @@ const GoogleReviewsPage: React.FC = () => {
           }
         });
       } else {
-        // Fall back to demo mode
-        const businessName = selectedBusiness?.name || settings.businessAddress || settings.businessName;
-        const avgRating = selectedBusiness?.rating || settings.averageRating;
-        const totalRevs = selectedBusiness?.totalReviews || settings.totalReviews;
-
-        const sampleReviews: Review[] = [
-          {
-            id: Date.now().toString() + '1',
-            author: 'Alex Martinez',
-            rating: 5,
-            date: '1 week ago',
-            text: `Fantastic experience with ${businessName}! The service was outstanding and exceeded all my expectations. Highly recommend!`,
-            avatar: 'https://ui-avatars.com/api/?name=Alex+Martinez&background=4285f4&color=fff'
-          },
-          {
-            id: Date.now().toString() + '2',
-            author: 'Lisa Wang',
-            rating: 5,
-            date: '2 weeks ago',
-            text: 'Best in the area! Professional, friendly staff and excellent quality. Will definitely be back.',
-            avatar: 'https://ui-avatars.com/api/?name=Lisa+Wang&background=34a853&color=fff'
-          },
-          {
-            id: Date.now().toString() + '3',
-            author: 'James Anderson',
-            rating: 4,
-            date: '3 weeks ago',
-            text: 'Very good service overall. Quick response time and great attention to detail.',
-            avatar: 'https://ui-avatars.com/api/?name=James+Anderson&background=fbbc04&color=fff'
-          },
-          {
-            id: Date.now().toString() + '4',
-            author: 'Maria Garcia',
-            rating: 5,
-            date: '1 month ago',
-            text: 'Absolutely love this place! The quality is unmatched and the customer service is exceptional.',
-            avatar: 'https://ui-avatars.com/api/?name=Maria+Garcia&background=ea4335&color=fff'
-          },
-          {
-            id: Date.now().toString() + '5',
-            author: 'Tom Wilson',
-            rating: 5,
-            date: '1 month ago',
-            text: 'Outstanding! Everything was perfect from start to finish. Couldn\'t ask for better service.',
-            avatar: 'https://ui-avatars.com/api/?name=Tom+Wilson&background=4285f4&color=fff'
-          },
-          {
-            id: Date.now().toString() + '6',
-            author: 'Rachel Kim',
-            rating: 4,
-            date: '2 months ago',
-            text: 'Great experience. Professional team and high-quality results. Very satisfied!',
-            avatar: 'https://ui-avatars.com/api/?name=Rachel+Kim&background=34a853&color=fff'
-          }
-        ];
-
-        setSettings(prevSettings => ({
-          ...prevSettings,
-          businessName: businessName,
-          reviews: sampleReviews,
-          averageRating: avgRating,
-          totalReviews: totalRevs
-        }));
-
+        setFetchError('Google Maps API not loaded or no Place ID provided.');
         setIsLoading(false);
-        setFetchError('');
       }
     } catch (error) {
       setFetchError('Failed to fetch reviews. Please try again.');
@@ -623,7 +527,6 @@ const GoogleReviewsPage: React.FC = () => {
     const layoutStyles = {
         grid: 'display: grid; grid-template-columns: repeat(' + config.columns + ', 1fr); gap: ' + config.spacing + 'px;',
         list: 'display: flex; flex-direction: column; gap: ' + config.spacing + 'px; max-width: 800px; margin: 0 auto;',
-        masonry: 'display: grid; grid-template-columns: repeat(' + config.columns + ', 1fr); gap: ' + config.spacing + 'px; grid-auto-rows: 20px;',
         carousel: 'display: flex; gap: ' + config.spacing + 'px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 20px;',
         slider: 'display: flex; gap: ' + config.spacing + 'px; overflow-x: auto; scroll-snap-type: x mandatory;',
         badge: 'display: flex; flex-wrap: wrap; gap: ' + config.spacing + 'px; justify-content: center;'
@@ -927,14 +830,6 @@ const GoogleReviewsPage: React.FC = () => {
                     {fetchError}
                   </div>
                 )}
-
-                <div className="alert-box">
-                  <div className="alert-icon">⚠️</div>
-                  <div className="alert-content">
-                    <strong>Demo Mode:</strong> This currently shows sample reviews to demonstrate functionality.
-                    To fetch real Google reviews in production, you'll need a Google Places API key.
-                  </div>
-                </div>
               </div>
 
               <div className="content-section">
@@ -1159,7 +1054,7 @@ const GoogleReviewsPage: React.FC = () => {
               <div className="content-section">
                 <h3 className="section-title">Layout Style</h3>
                 <div className="layout-options">
-                  {(['grid', 'list', 'carousel', 'masonry', 'slider', 'badge'] as const).map((layout) => (
+                  {(['grid', 'list', 'carousel', 'slider', 'badge'] as const).map((layout) => (
                     <button
                       key={layout}
                       className={`layout-option ${settings.layout === layout ? 'active' : ''}`}
@@ -1169,7 +1064,6 @@ const GoogleReviewsPage: React.FC = () => {
                         {layout === 'grid' && '▦'}
                         {layout === 'list' && '☰'}
                         {layout === 'carousel' && '⇄'}
-                        {layout === 'masonry' && '▣'}
                         {layout === 'slider' && '→'}
                         {layout === 'badge' && '◈'}
                       </div>
@@ -1179,7 +1073,7 @@ const GoogleReviewsPage: React.FC = () => {
                 </div>
               </div>
 
-              {(settings.layout === 'grid' || settings.layout === 'masonry') && (
+              {settings.layout === 'grid' && (
                 <div className="content-section">
                   <h3 className="section-title">Grid Settings</h3>
                   <div className="control-group">
