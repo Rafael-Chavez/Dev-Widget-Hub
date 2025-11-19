@@ -21,10 +21,81 @@ interface Settings {
   defaultOpen: boolean;
 }
 
+interface Template {
+  name: string;
+  accentColor: string;
+  bgColor: string;
+  textColor: string;
+  questionColor: string;
+  borderRadius: number;
+}
+
+const templates: Template[] = [
+  {
+    name: 'Classic Blue',
+    accentColor: '#3498db',
+    bgColor: '#ffffff',
+    textColor: '#333333',
+    questionColor: '#2c3e50',
+    borderRadius: 8
+  },
+  {
+    name: 'Modern Purple',
+    accentColor: '#9b59b6',
+    bgColor: '#f8f9fa',
+    textColor: '#4a5568',
+    questionColor: '#6b46c1',
+    borderRadius: 12
+  },
+  {
+    name: 'Soft Green',
+    accentColor: '#27ae60',
+    bgColor: '#ffffff',
+    textColor: '#2d3748',
+    questionColor: '#2f855a',
+    borderRadius: 16
+  },
+  {
+    name: 'Elegant Dark',
+    accentColor: '#f39c12',
+    bgColor: '#2d3748',
+    textColor: '#e2e8f0',
+    questionColor: '#f7fafc',
+    borderRadius: 10
+  },
+  {
+    name: 'Ocean Breeze',
+    accentColor: '#16a085',
+    bgColor: '#ecf8f8',
+    textColor: '#1a5f5f',
+    questionColor: '#0e4e4e',
+    borderRadius: 14
+  },
+  {
+    name: 'Sunset Orange',
+    accentColor: '#e74c3c',
+    bgColor: '#fff5f5',
+    textColor: '#742a2a',
+    questionColor: '#c53030',
+    borderRadius: 8
+  }
+];
+
 const FAQAccordionPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'content' | 'style'>('content');
   const [openFAQs, setOpenFAQs] = useState<Set<string>>(new Set());
+
+  const applyTemplate = (template: Template) => {
+    setSettings({
+      ...settings,
+      accentColor: template.accentColor,
+      bgColor: template.bgColor,
+      textColor: template.textColor,
+      questionColor: template.questionColor,
+      borderRadius: template.borderRadius
+    });
+  };
 
   const [settings, setSettings] = useState<Settings>({
     title: 'Frequently Asked Questions',
@@ -367,6 +438,29 @@ const FAQAccordionPage: React.FC = () => {
 
           {activeTab === 'style' && (
             <div className="tab-pane active">
+              <div className="content-section">
+                <h3 className="section-title">Templates</h3>
+                <div className="control-group">
+                  <label htmlFor="template">Choose a Style Template</label>
+                  <div className="template-grid">
+                    {templates.map((template, index) => (
+                      <button
+                        key={index}
+                        className="template-btn"
+                        onClick={() => applyTemplate(template)}
+                        title={`Apply ${template.name} theme`}
+                      >
+                        <div className="template-preview" style={{ background: template.bgColor, border: `2px solid ${template.accentColor}` }}>
+                          <span style={{ color: template.questionColor, fontSize: '11px', fontWeight: '600' }}>
+                            {template.name}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               <div className="content-section">
                 <h3 className="section-title">Behavior</h3>
                 <div className="control-group">

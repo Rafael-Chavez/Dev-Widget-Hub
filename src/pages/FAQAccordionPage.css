@@ -212,6 +212,40 @@
   margin-right: 8px;
 }
 
+/* Template Grid */
+.faq-accordion-page .template-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.faq-accordion-page .template-btn {
+  background: none;
+  border: 2px solid #3a3a3a;
+  border-radius: 6px;
+  padding: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  overflow: hidden;
+}
+
+.faq-accordion-page .template-btn:hover {
+  border-color: #3498db;
+  transform: scale(1.02);
+}
+
+.faq-accordion-page .template-preview {
+  padding: 16px 8px;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: 500;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* FAQ Item Cards */
 .faq-item-card {
   background: #2d2d2d;
