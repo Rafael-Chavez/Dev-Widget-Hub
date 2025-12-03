@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportForm, setReportForm] = useState({
+    issueType: 'bug',
+    widget: '',
+    description: '',
+    email: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
 
   const widgets = [
     {
@@ -97,6 +106,45 @@ const HomePage: React.FC = () => {
       available: false
     }
   ];
+
+  const handleReportSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitMessage('');
+
+    try {
+      // Create email body
+      const emailBody = `
+Issue Type: ${reportForm.issueType === 'bug' ? 'Bug' : reportForm.issueType === 'responsive' ? 'Responsive Issue' : 'Suggestion'}
+Widget: ${reportForm.widget || 'Not specified'}
+User Email: ${reportForm.email || 'Not provided'}
+
+Description:
+${reportForm.description}
+      `.trim();
+
+      // Using mailto for simplicity - this will open the user's email client
+      const mailtoLink = `mailto:info@detailatl.com?subject=Widget Hub Issue Report - ${reportForm.issueType === 'bug' ? 'Bug' : reportForm.issueType === 'responsive' ? 'Responsive Issue' : 'Suggestion'}&body=${encodeURIComponent(emailBody)}`;
+
+      window.location.href = mailtoLink;
+
+      setSubmitMessage('Opening your email client...');
+      setTimeout(() => {
+        setShowReportModal(false);
+        setReportForm({
+          issueType: 'bug',
+          widget: '',
+          description: '',
+          email: ''
+        });
+        setSubmitMessage('');
+      }, 2000);
+    } catch (error) {
+      setSubmitMessage('Error opening email client. Please email us directly at info@detailatl.com');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="home-page">
@@ -223,6 +271,119 @@ const HomePage: React.FC = () => {
           ))}
         </div>
       </section>
+
+      {/* Report Issue Button */}
+      <button
+        className="report-issue-btn"
+        onClick={() => setShowReportModal(true)}
+        aria-label="Report an issue"
+      >
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 6V10M10 14H10.01M19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        Report Issue
+      </button>
+
+      {/* Report Issue Modal */}
+      {showReportModal && (
+        <div className="modal-overlay" onClick={() => setShowReportModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Report an Issue</h2>
+              <button
+                className="modal-close"
+                onClick={() => setShowReportModal(false)}
+                aria-label="Close modal"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleReportSubmit} className="report-form">
+              <div className="form-group">
+                <label htmlFor="issueType">Issue Type</label>
+                <select
+                  id="issueType"
+                  value={reportForm.issueType}
+                  onChange={(e) => setReportForm({ ...reportForm, issueType: e.target.value })}
+                  required
+                >
+                  <option value="bug">Bug</option>
+                  <option value="responsive">Responsive Issue</option>
+                  <option value="suggestion">Suggestion</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="widget">Which Widget?</label>
+                <select
+                  id="widget"
+                  value={reportForm.widget}
+                  onChange={(e) => setReportForm({ ...reportForm, widget: e.target.value })}
+                  required
+                >
+                  <option value="">Select a widget...</option>
+                  {widgets.filter(w => w.available).map((widget) => (
+                    <option key={widget.id} value={widget.title}>
+                      {widget.title}
+                    </option>
+                  ))}
+                  <option value="general">General / Multiple Widgets</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email">Your Email (Optional)</label>
+                <input
+                  type="email"
+                  id="email"
+                  value={reportForm.email}
+                  onChange={(e) => setReportForm({ ...reportForm, email: e.target.value })}
+                  placeholder="your@email.com"
+                />
+                <small>We'll only use this to follow up on your report</small>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="description">Description</label>
+                <textarea
+                  id="description"
+                  value={reportForm.description}
+                  onChange={(e) => setReportForm({ ...reportForm, description: e.target.value })}
+                  placeholder="Please describe the issue or suggestion in detail..."
+                  rows={5}
+                  required
+                />
+              </div>
+
+              {submitMessage && (
+                <div className={`submit-message ${submitMessage.includes('Error') ? 'error' : 'success'}`}>
+                  {submitMessage}
+                </div>
+              )}
+
+              <div className="form-actions">
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={() => setShowReportModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-submit"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit Report'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="home-footer">
