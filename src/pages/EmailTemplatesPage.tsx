@@ -40,107 +40,451 @@ const EmailTemplatesPage: React.FC = () => {
     lightBg: '#F9FAFB'
   });
 
-  // Production template with CSS variables for customization
+  // Production template - DecoNetwork Production Worksheet
   const productionTemplate = `<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Production Ready</title>
-  <style>
-    :root {
-      --primary-color: {{primaryColor}};
-      --primary-light: {{primaryLight}};
-      --accent-color: {{accentColor}};
-      --text-color: {{textColor}};
-      --light-text: {{lightText}};
-      --border-color: {{borderColor}};
-      --success-color: {{successColor}};
-      --danger-color: {{dangerColor}};
-      --warning-color: {{warningColor}};
-      --light-bg: {{lightBg}};
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Worksheet</title>
+    <link rel="stylesheet" href="/barcode/fre3of9x.css">
+    <style>
+        /* Note: This template uses Liquid template syntax for DecoNetwork */
+        /* Color customization variables */
+        :root {
+            --header-gradient-start: {{primaryColor}};
+            --header-gradient-end: {{textColor}};
+            --accent-color: {{accentColor}};
+            --text-color: {{textColor}};
+            --light-text: {{lightText}};
+            --border-color: {{borderColor}};
+            --success-color: {{successColor}};
+            --danger-color: {{dangerColor}};
+            --light-bg: {{lightBg}};
+        }
+
+        /* Reset and Base Styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        /* Main Container */
+        #worksheet-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, var(--header-gradient-start) 0%, var(--header-gradient-end) 100%);
+            padding: 20px;
+            color: white;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .header-logo {
+            flex: 0 0 220px;
+        }
+
+        .header-barcode {
+            flex: 1;
+            text-align: center;
+            font-family: Free3of9ExtendedRegular;
+            font-size: 42px;
+            color: white;
+        }
+
+        .header-status {
+            flex: 0 0 200px;
+            text-align: center;
+        }
+
+        .status-badge {
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-red {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .status-green {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .order-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 20px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .customer-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .order-number {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        /* Order Details Section */
+        .order-details {
+            padding: 30px;
+            background: var(--light-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+        }
+
+        .detail-section h3 {
+            color: var(--text-color);
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 15px 0;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 5px;
+            display: inline-block;
+        }
+
+        .detail-section ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .detail-section li {
+            margin: 8px 0;
+            padding: 5px 0;
+            color: var(--text-color);
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--text-color);
+            min-width: 80px;
+            display: inline-block;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        /* Notes Section */
+        .notes-section {
+            padding: 20px 30px;
+            background: #fff;
+            border-left: 4px solid var(--accent-color);
+            margin: 20px 30px;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .notes-section h3 {
+            color: var(--accent-color);
+            margin: 0 0 15px 0;
+            font-size: 16px;
+        }
+
+        /* Line Items */
+        .line-item {
+            margin: 30px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .line-item-header {
+            background: linear-gradient(135deg, var(--header-gradient-start) 0%, var(--header-gradient-end) 100%);
+            color: white;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .line-item-header.divider {
+            background: linear-gradient(135deg, #adb5bd 0%, #ced4da 100%);
+            color: #495057;
+        }
+
+        .line-item-content {
+            padding: 25px;
+        }
+
+        /* Item Summary Grid */
+        .item-summary {
+            display: grid;
+            grid-template-columns: 150px 200px 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .color-section h4,
+        .size-section h4,
+        .preview-section h4 {
+            margin: 0 0 15px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Color Display */
+        .color-display {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .color-swatch {
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            margin: 0 auto 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-swatch img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .color-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--light-text);
+        }
+
+        /* Size Table */
+        .size-table {
+            width: 100%;
+        }
+
+        .size-table th {
+            background: var(--light-bg);
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .size-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        .size-total {
+            background: #fff3cd;
+            font-weight: 600;
+        }
+
+        /* Product Images */
+        .product-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .product-view {
+            text-align: center;
+            background: var(--light-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .product-view h5 {
+            margin: 0 0 15px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .product-view img {
+            max-width: 160px;
+            max-height: 160px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .product-view img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Barcode */
+        .item-barcode {
+            font-family: Free3of9ExtendedRegular;
+            font-size: 42px;
+            text-align: center;
+            margin: 15px 0;
+            color: var(--text-color);
+        }
+
+        /* Team Names Table */
+        .team-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        .team-table th {
+            background: var(--header-gradient-start);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .team-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .team-table tr:nth-child(even) {
+            background: var(--light-bg);
+        }
+
+        /* Design Details */
+        .design-section {
+            margin-top: 30px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 25px;
+        }
+
+        .design-header {
+            background: var(--border-color);
+            color: var(--text-color);
+            padding: 12px 20px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-radius: 6px;
+        }
+
+        .design-details {
+            display: grid;
+            grid-template-columns: 200px 300px 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--light-bg);
+            border-radius: 8px;
+        }
+
+        .design-preview img {
+            max-width: 160px;
+            max-height: 160px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Extra Options */
+        .extra-options {
+            background: var(--light-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .extra-options h4 {
+            color: var(--text-color);
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .extra-options ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .extra-options li {
+            margin: 8px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .item-summary {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .design-details {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .product-images {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+    </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif; background-color: #f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-    <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
-          <!-- Header -->
-          <tr>
-            <td style="background-color: var(--primary-color); padding: 40px 30px; text-align: center;">
-              <h1 style="color: white; margin: 0 0 8px; font-size: 28px; font-weight: 700;">Your Company Name</h1>
-              <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 14px;">Production Ready Email Template</p>
-            </td>
-          </tr>
-
-          <!-- Content -->
-          <tr>
-            <td style="padding: 40px 30px;">
-              <h2 style="color: var(--text-color); margin: 0 0 16px; font-size: 24px; font-weight: 600;">Hello, [Customer Name]</h2>
-              <p style="color: var(--light-text); font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
-                This is a production-ready email template with fully customizable colors. Adjust the color palette in the sidebar to match your brand.
-              </p>
-
-              <!-- Info Box -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: var(--primary-light); border-left: 4px solid var(--primary-color); border-radius: 6px; margin-bottom: 24px;">
-                <tr>
-                  <td style="padding: 20px;">
-                    <p style="color: var(--text-color); font-size: 14px; line-height: 1.6; margin: 0;">
-                      <strong>💡 Pro Tip:</strong> Use this template as a starting point and customize it to match your brand identity.
-                    </p>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- CTA Button -->
-              <table cellpadding="0" cellspacing="0" style="margin: 0 0 24px;">
-                <tr>
-                  <td align="center" style="background-color: var(--primary-color); border-radius: 6px; padding: 14px 32px;">
-                    <a href="#" style="color: white; text-decoration: none; font-weight: 600; font-size: 16px; display: block;">
-                      Get Started
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Stats Section -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 24px;">
-                <tr>
-                  <td style="padding: 24px; border-right: 1px solid var(--border-color); text-align: center; width: 50%;">
-                    <div style="color: var(--primary-color); font-size: 32px; font-weight: 700; margin-bottom: 8px;">99%</div>
-                    <div style="color: var(--light-text); font-size: 14px;">Satisfaction Rate</div>
-                  </td>
-                  <td style="padding: 24px; text-align: center; width: 50%;">
-                    <div style="color: var(--success-color); font-size: 32px; font-weight: 700; margin-bottom: 8px;">24/7</div>
-                    <div style="color: var(--light-text); font-size: 14px;">Support Available</div>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="color: var(--light-text); font-size: 14px; line-height: 1.6; margin: 0;">
-                Best regards,<br>
-                <strong style="color: var(--text-color);">The Team</strong>
-              </p>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="background-color: var(--light-bg); padding: 30px; text-align: center; border-top: 1px solid var(--border-color);">
-              <p style="color: var(--light-text); font-size: 13px; margin: 0 0 12px;">
-                Questions? Email us at <a href="mailto:support@company.com" style="color: var(--primary-color); text-decoration: none;">support@company.com</a>
-              </p>
-              <p style="color: var(--light-text); font-size: 12px; margin: 0;">
-                © 2025 Your Company. All rights reserved.
-              </p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
+<body>
+    <div id="worksheet-container">
+        <p style="text-align: center; padding: 20px; color: var(--light-text); font-size: 14px;">
+            This is a DecoNetwork production worksheet template. The actual content uses Liquid template syntax and will be populated with order data from DecoNetwork.
+        </p>
+        <p style="text-align: center; padding: 0 20px 20px; color: var(--light-text); font-size: 14px;">
+            Customize the colors using the sidebar to match your brand identity.
+        </p>
+    </div>
 </body>
 </html>`;
 
