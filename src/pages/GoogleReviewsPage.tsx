@@ -481,8 +481,76 @@ const GoogleReviewsPage: React.FC = () => {
       columns: settings.columns
     }, null, 2)};
 
+    // Add responsive styles
+    const style = document.createElement('style');
+    style.textContent = \`
+      #google-reviews-container * {
+        box-sizing: border-box;
+      }
+      @media (max-width: 768px) {
+        #google-reviews-container .widget-wrapper {
+          padding: 24px 16px !important;
+        }
+        #google-reviews-container .business-name {
+          font-size: 24px !important;
+        }
+        #google-reviews-container .avg-rating {
+          font-size: 36px !important;
+        }
+        #google-reviews-container .reviews-grid {
+          grid-template-columns: 1fr !important;
+        }
+        #google-reviews-container .review-card {
+          padding: 16px !important;
+        }
+        #google-reviews-container .carousel-card,
+        #google-reviews-container .slider-card {
+          min-width: 260px !important;
+        }
+      }
+      @media (max-width: 480px) {
+        #google-reviews-container .widget-wrapper {
+          padding: 16px 10px !important;
+        }
+        #google-reviews-container .business-name {
+          font-size: 20px !important;
+        }
+        #google-reviews-container .avg-rating {
+          font-size: 28px !important;
+        }
+        #google-reviews-container .star-large {
+          font-size: 18px !important;
+        }
+        #google-reviews-container .review-card {
+          padding: 14px !important;
+        }
+        #google-reviews-container .reviewer-avatar {
+          width: 36px !important;
+          height: 36px !important;
+        }
+        #google-reviews-container .reviewer-name {
+          font-size: 13px !important;
+        }
+        #google-reviews-container .review-text {
+          font-size: 12px !important;
+        }
+        #google-reviews-container .review-button {
+          width: 100% !important;
+          padding: 10px 20px !important;
+          font-size: 14px !important;
+        }
+        #google-reviews-container .carousel-card,
+        #google-reviews-container .slider-card {
+          min-width: calc(100vw - 60px) !important;
+          max-width: 300px !important;
+        }
+      }
+    \`;
+    document.head.appendChild(style);
+
     const container = document.getElementById('google-reviews-container');
     const widget = document.createElement('div');
+    widget.className = 'widget-wrapper';
     widget.style.cssText = 'font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: ' + config.bgColor + '; padding: 40px 20px; border-radius: ' + config.borderRadius + 'px;';
 
     // Business Info Header
@@ -491,6 +559,7 @@ const GoogleReviewsPage: React.FC = () => {
         header.style.cssText = 'text-align: center; margin-bottom: 40px;';
 
         const businessName = document.createElement('h2');
+        businessName.className = 'business-name';
         businessName.textContent = config.businessName;
         businessName.style.cssText = 'font-size: 32px; font-weight: 700; margin: 0 0 15px; color: #202124;';
         header.appendChild(businessName);
@@ -499,6 +568,7 @@ const GoogleReviewsPage: React.FC = () => {
         ratingContainer.style.cssText = 'display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;';
 
         const avgRating = document.createElement('span');
+        avgRating.className = 'avg-rating';
         avgRating.textContent = config.averageRating.toFixed(1);
         avgRating.style.cssText = 'font-size: 48px; font-weight: 700; color: #202124;';
         ratingContainer.appendChild(avgRating);
@@ -507,6 +577,7 @@ const GoogleReviewsPage: React.FC = () => {
         starsDiv.style.cssText = 'display: flex; gap: 2px;';
         for (let i = 0; i < 5; i++) {
             const star = document.createElement('span');
+            star.className = 'star-large';
             star.textContent = '★';
             star.style.cssText = 'font-size: 32px; color: ' + (i < Math.floor(config.averageRating) ? config.starColor : '#e0e0e0');
             starsDiv.appendChild(star);
@@ -524,6 +595,7 @@ const GoogleReviewsPage: React.FC = () => {
 
     // Reviews Container
     const reviewsContainer = document.createElement('div');
+    reviewsContainer.className = config.layout === 'grid' ? 'reviews-grid' : 'reviews-container';
     const layoutStyles = {
         grid: 'display: grid; grid-template-columns: repeat(' + config.columns + ', 1fr); gap: ' + config.spacing + 'px;',
         list: 'display: flex; flex-direction: column; gap: ' + config.spacing + 'px; max-width: 800px; margin: 0 auto;',
@@ -535,6 +607,7 @@ const GoogleReviewsPage: React.FC = () => {
 
     config.reviews.forEach(review => {
         const card = document.createElement('div');
+        card.className = 'review-card' + (config.layout === 'carousel' ? ' carousel-card' : '') + (config.layout === 'slider' ? ' slider-card' : '');
         let cardStyle = 'background: ' + config.cardBgColor + '; border-radius: ' + config.borderRadius + 'px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s;';
 
         if (config.layout === 'carousel' || config.layout === 'slider') {
@@ -554,6 +627,7 @@ const GoogleReviewsPage: React.FC = () => {
 
         if (config.showAvatar) {
             const avatar = document.createElement('img');
+            avatar.className = 'reviewer-avatar';
             avatar.src = review.avatar;
             avatar.style.cssText = 'width: 48px; height: 48px; border-radius: 50%; object-fit: cover;';
             reviewHeader.appendChild(avatar);
@@ -563,6 +637,7 @@ const GoogleReviewsPage: React.FC = () => {
         authorInfo.style.cssText = 'flex: 1;';
 
         const authorName = document.createElement('div');
+        authorName.className = 'reviewer-name';
         authorName.textContent = review.author;
         authorName.style.cssText = 'font-weight: 600; font-size: 16px; color: #202124; margin-bottom: 4px;';
         authorInfo.appendChild(authorName);
@@ -594,6 +669,7 @@ const GoogleReviewsPage: React.FC = () => {
         // Review Text with Read More functionality
         const reviewTextContainer = document.createElement('div');
         const reviewText = document.createElement('p');
+        reviewText.className = 'review-text';
         const charLimit = 150;
         const isLongReview = review.text.length > charLimit;
 
@@ -643,6 +719,7 @@ const GoogleReviewsPage: React.FC = () => {
         buttonContainer.style.cssText = 'text-align: center; margin-top: 40px;';
 
         const button = document.createElement('a');
+        button.className = 'review-button';
         button.href = config.reviewButtonUrl;
         button.target = '_blank';
         button.textContent = config.reviewButtonText;

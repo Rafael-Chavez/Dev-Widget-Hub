@@ -913,10 +913,35 @@
     max-height: 40vh;
     border-right: none;
     border-bottom: 1px solid #e5e7eb;
+    position: relative;
+  }
+
+  .sidebar-header {
+    padding: 16px 20px;
+  }
+
+  .sidebar-header h1 {
+    font-size: 20px;
   }
 
   .main-content {
     padding: 20px;
+  }
+
+  .reviews-widget-preview {
+    padding: 24px 16px;
+  }
+
+  .business-info h2 {
+    font-size: 24px;
+  }
+
+  .average-rating {
+    font-size: 36px;
+  }
+
+  .star.large {
+    font-size: 24px;
   }
 
   .reviews-container.layout-grid,
@@ -926,5 +951,515 @@
 
   .layout-options {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .reviews-container.layout-carousel .review-card,
+  .reviews-container.layout-slider .review-card {
+    min-width: 280px;
+  }
+
+  .export-section {
+    padding: 20px;
+  }
+
+  .export-section h2 {
+    font-size: 20px;
+  }
+
+  .code-box {
+    font-size: 11px;
+    padding: 16px;
+  }
+
+  .content-section {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    max-height: 50vh;
+  }
+
+  .tab-navigation {
+    padding: 8px 16px;
+    gap: 2px;
+  }
+
+  .tab-nav-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .main-content {
+    padding: 16px;
+  }
+
+  .reviews-widget-preview {
+    padding: 20px 12px;
+  }
+
+  .business-info h2 {
+    font-size: 22px;
+  }
+
+  .average-rating {
+    font-size: 32px;
+  }
+
+  .star.large {
+    font-size: 20px;
+  }
+
+  .rating-display {
+    gap: 8px;
+  }
+
+  .review-card {
+    padding: 16px;
+  }
+
+  .reviewer-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .reviewer-name {
+    font-size: 14px;
+  }
+
+  .review-text {
+    font-size: 13px;
+  }
+
+  .review-button {
+    padding: 12px 24px;
+    font-size: 15px;
+  }
+
+  .reviews-container.layout-carousel .review-card,
+  .reviews-container.layout-slider .review-card {
+    min-width: 260px;
+  }
+
+  .reviews-container.layout-badge .review-card {
+    max-width: 100%;
+  }
+
+  .layout-options {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .layout-option {
+    padding: 12px 8px;
+  }
+
+  .layout-icon {
+    font-size: 24px;
+  }
+
+  .layout-name {
+    font-size: 12px;
+  }
+
+  .control-group {
+    margin-bottom: 14px;
+  }
+
+  .control-group label {
+    font-size: 13px;
+  }
+
+  .control-group input[type="text"],
+  .control-group input[type="number"],
+  .control-group input[type="url"],
+  .control-group textarea,
+  .control-group select {
+    padding: 9px 11px;
+    font-size: 13px;
+  }
+
+  .search-btn {
+    padding: 12px 18px;
+    font-size: 15px;
+  }
+
+  .search-results-dropdown {
+    max-height: 300px;
+  }
+
+  .search-result-item {
+    padding: 12px;
+  }
+
+  .result-name {
+    font-size: 14px;
+  }
+
+  .result-address {
+    font-size: 13px;
+  }
+
+  .info-box,
+  .alert-box {
+    padding: 12px;
+  }
+
+  .info-content,
+  .alert-content {
+    font-size: 12px;
+  }
+
+  .review-item-card {
+    padding: 14px;
+  }
+
+  .export-section {
+    padding: 16px;
+  }
+
+  .export-section h2 {
+    font-size: 18px;
+  }
+
+  .code-box {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar-header {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .sidebar-header h1 {
+    font-size: 18px;
+    width: 100%;
+  }
+
+  .home-btn {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+
+  .home-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .tab-navigation {
+    padding: 6px 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .tab-navigation::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-nav-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+    flex: 0 0 auto;
+    min-width: 80px;
+  }
+
+  .main-content {
+    padding: 12px;
+  }
+
+  .reviews-widget-preview {
+    padding: 16px 10px;
+    border-radius: 12px;
+  }
+
+  .business-info {
+    margin-bottom: 24px;
+  }
+
+  .business-info h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  .average-rating {
+    font-size: 28px;
+  }
+
+  .star.large {
+    font-size: 18px;
+  }
+
+  .rating-display {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .total-reviews {
+    font-size: 14px;
+  }
+
+  .reviews-container {
+    margin-bottom: 24px;
+  }
+
+  .review-card {
+    padding: 14px;
+  }
+
+  .review-header {
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .reviewer-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .reviewer-name {
+    font-size: 13px;
+  }
+
+  .review-stars .star {
+    font-size: 14px;
+  }
+
+  .review-date {
+    font-size: 12px;
+  }
+
+  .review-text {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .read-more-btn {
+    font-size: 12px;
+  }
+
+  .review-button-container {
+    margin-top: 24px;
+  }
+
+  .review-button {
+    padding: 10px 20px;
+    font-size: 14px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .reviews-container.layout-carousel .review-card,
+  .reviews-container.layout-slider .review-card {
+    min-width: calc(100vw - 60px);
+    max-width: 300px;
+  }
+
+  .reviews-container.layout-badge .review-card {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .layout-options {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .layout-option {
+    padding: 10px 6px;
+  }
+
+  .layout-icon {
+    font-size: 20px;
+  }
+
+  .layout-name {
+    font-size: 11px;
+  }
+
+  .content-section {
+    padding: 16px;
+  }
+
+  .section-title {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+
+  .section-description {
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .control-group {
+    margin-bottom: 12px;
+  }
+
+  .control-group label {
+    font-size: 12px;
+  }
+
+  .control-group input[type="text"],
+  .control-group input[type="number"],
+  .control-group input[type="url"],
+  .control-group textarea,
+  .control-group select {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .control-group input[type="color"] {
+    height: 40px;
+  }
+
+  .control-value {
+    font-size: 12px;
+  }
+
+  .search-btn {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .search-results-dropdown {
+    max-height: 250px;
+  }
+
+  .search-result-item {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .result-icon {
+    font-size: 20px;
+  }
+
+  .result-name {
+    font-size: 13px;
+  }
+
+  .result-address {
+    font-size: 12px;
+  }
+
+  .rating-stars {
+    font-size: 12px;
+  }
+
+  .rating-text {
+    font-size: 12px;
+  }
+
+  .info-box,
+  .alert-box {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .info-icon,
+  .alert-icon {
+    font-size: 18px;
+  }
+
+  .info-content,
+  .alert-content {
+    font-size: 11px;
+  }
+
+  .info-content ol,
+  .alert-content ol {
+    padding-left: 16px;
+  }
+
+  .divider-text {
+    margin: 16px 0;
+  }
+
+  .divider-text span {
+    font-size: 12px;
+    padding: 0 12px;
+  }
+
+  .review-item-card {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .review-number {
+    font-size: 13px;
+  }
+
+  .remove-review {
+    width: 24px;
+    height: 24px;
+    font-size: 18px;
+  }
+
+  .add-review-btn {
+    padding: 10px;
+    font-size: 13px;
+    margin-top: 12px;
+  }
+
+  .export-section {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .export-section h2 {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .export-section p {
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
+  .code-box {
+    padding: 12px;
+    font-size: 10px;
+    max-height: 250px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+
+  .copy-btn {
+    padding: 10px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .tab-nav-btn,
+  .layout-option,
+  .search-btn,
+  .add-review-btn,
+  .copy-btn,
+  .review-button,
+  .home-btn {
+    min-height: 44px;
+  }
+
+  .control-group input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+  }
+
+  .remove-review {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .read-more-btn {
+    padding: 8px 4px;
+    min-height: 36px;
   }
 }
