@@ -7,6 +7,7 @@ interface Settings {
   buttonText: string;
   buttonUrl: string;
   showButton: boolean;
+  buttonPosition: 'left' | 'right';
   showCloseButton: boolean;
   position: 'top' | 'bottom';
   bgColor: string;
@@ -17,6 +18,18 @@ interface Settings {
   padding: number;
   animation: 'none' | 'slide' | 'fade';
   closeable: boolean;
+  fontFamily: string;
+  actionType: 'none' | 'link' | 'button' | 'form';
+  actionUrl: string;
+  actionButtonText: string;
+  formPlaceholder: string;
+  formButtonText: string;
+  visualElement: 'none' | 'badge' | 'icon' | 'image';
+  visualBadgeText: string;
+  visualIcon: string;
+  visualImageUrl: string;
+  barLinkType: 'none' | 'url' | 'email' | 'phone';
+  barLinkValue: string;
 }
 
 interface Template {
@@ -93,6 +106,7 @@ const AnnouncementBarPage: React.FC = () => {
     buttonText: templates[0].buttonText,
     buttonUrl: templates[0].buttonUrl,
     showButton: true,
+    buttonPosition: 'right',
     showCloseButton: true,
     position: 'top',
     bgColor: templates[0].bgColor,
@@ -102,7 +116,19 @@ const AnnouncementBarPage: React.FC = () => {
     fontSize: 16,
     padding: 12,
     animation: 'slide',
-    closeable: true
+    closeable: true,
+    fontFamily: 'system-ui',
+    actionType: 'none',
+    actionUrl: '',
+    actionButtonText: 'Click Here',
+    formPlaceholder: 'Enter your email...',
+    formButtonText: 'Submit',
+    visualElement: 'none',
+    visualBadgeText: 'NEW',
+    visualIcon: '🎉',
+    visualImageUrl: '',
+    barLinkType: 'none',
+    barLinkValue: ''
   });
 
   const applyTemplate = (template: Template) => {
@@ -125,6 +151,7 @@ const AnnouncementBarPage: React.FC = () => {
         buttonText: '${settings.buttonText.replace(/'/g, "\\'")}',
         buttonUrl: '${settings.buttonUrl}',
         showButton: ${settings.showButton},
+        buttonPosition: '${settings.buttonPosition}',
         showCloseButton: ${settings.showCloseButton},
         position: '${settings.position}',
         bgColor: '${settings.bgColor}',
@@ -134,7 +161,19 @@ const AnnouncementBarPage: React.FC = () => {
         fontSize: ${settings.fontSize},
         padding: ${settings.padding},
         animation: '${settings.animation}',
-        closeable: ${settings.closeable}
+        closeable: ${settings.closeable},
+        fontFamily: '${settings.fontFamily}',
+        actionType: '${settings.actionType}',
+        actionUrl: '${settings.actionUrl}',
+        actionButtonText: '${settings.actionButtonText.replace(/'/g, "\\'")}',
+        formPlaceholder: '${settings.formPlaceholder.replace(/'/g, "\\'")}',
+        formButtonText: '${settings.formButtonText.replace(/'/g, "\\'")}',
+        visualElement: '${settings.visualElement}',
+        visualBadgeText: '${settings.visualBadgeText.replace(/'/g, "\\'")}',
+        visualIcon: '${settings.visualIcon}',
+        visualImageUrl: '${settings.visualImageUrl}',
+        barLinkType: '${settings.barLinkType}',
+        barLinkValue: '${settings.barLinkValue}'
     };
 
     // Check if already dismissed
@@ -145,7 +184,21 @@ const AnnouncementBarPage: React.FC = () => {
 
     const bar = document.createElement('div');
     bar.id = 'announcement-bar-widget';
-    bar.style.cssText = 'position: fixed; ' + (config.position === 'top' ? 'top: 0;' : 'bottom: 0;') + ' left: 0; right: 0; background: ' + config.bgColor + '; color: ' + config.textColor + '; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: ' + config.padding + 'px 20px; gap: 15px; font-size: ' + config.fontSize + 'px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);';
+    bar.style.cssText = 'position: fixed; ' + (config.position === 'top' ? 'top: 0;' : 'bottom: 0;') + ' left: 0; right: 0; background: ' + config.bgColor + '; color: ' + config.textColor + '; font-family: ' + config.fontFamily + '; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: ' + config.padding + 'px 20px; gap: 15px; font-size: ' + config.fontSize + 'px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); cursor: ' + (config.barLinkType !== 'none' ? 'pointer' : 'default') + ';';
+
+    // Bar link functionality
+    if (config.barLinkType !== 'none' && config.barLinkValue) {
+        bar.onclick = function(e) {
+            if (e.target !== bar && !bar.contains(e.target)) return;
+            if (config.barLinkType === 'url') {
+                window.location.href = config.barLinkValue;
+            } else if (config.barLinkType === 'email') {
+                window.location.href = 'mailto:' + config.barLinkValue;
+            } else if (config.barLinkType === 'phone') {
+                window.location.href = 'tel:' + config.barLinkValue;
+            }
+        };
+    }
 
     // Animation
     if (config.animation === 'slide') {
@@ -163,17 +216,45 @@ const AnnouncementBarPage: React.FC = () => {
     }
 
     const container = document.createElement('div');
-    container.style.cssText = 'display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; width: 100%;';
+    const flexDirection = config.actionType === 'button' && config.buttonPosition === 'left' ? 'row-reverse' : 'row';
+    container.style.cssText = 'display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; width: 100%; flex-direction: ' + flexDirection + ';';
 
+    // Visual Element
+    if (config.visualElement === 'badge') {
+        const badge = document.createElement('span');
+        badge.textContent = config.visualBadgeText;
+        badge.style.cssText = 'background: ' + config.buttonBgColor + '; color: ' + config.buttonTextColor + '; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; text-transform: uppercase;';
+        container.appendChild(badge);
+    } else if (config.visualElement === 'icon') {
+        const icon = document.createElement('span');
+        icon.textContent = config.visualIcon;
+        icon.style.cssText = 'font-size: 24px;';
+        container.appendChild(icon);
+    } else if (config.visualElement === 'image' && config.visualImageUrl) {
+        const img = document.createElement('img');
+        img.src = config.visualImageUrl;
+        img.alt = 'Visual element';
+        img.style.cssText = 'height: 30px; width: auto; border-radius: 4px;';
+        container.appendChild(img);
+    }
+
+    // Message
     const message = document.createElement('span');
     message.textContent = config.message;
-    message.style.cssText = 'text-align: center; line-height: 1.5;';
+    message.style.cssText = 'text-align: center; line-height: 1.5; flex: ' + (config.actionType === 'form' ? '0 1 auto' : '1 1 auto') + ';';
     container.appendChild(message);
 
-    if (config.showButton) {
+    // Action Element
+    if (config.actionType === 'link' && config.actionUrl) {
+        const link = document.createElement('a');
+        link.href = config.actionUrl;
+        link.textContent = 'Learn More →';
+        link.style.cssText = 'color: ' + config.buttonBgColor + '; text-decoration: underline; font-weight: bold;';
+        container.appendChild(link);
+    } else if (config.actionType === 'button' && config.actionUrl) {
         const button = document.createElement('a');
-        button.href = config.buttonUrl;
-        button.textContent = config.buttonText;
+        button.href = config.actionUrl;
+        button.textContent = config.actionButtonText;
         button.style.cssText = 'background: ' + config.buttonBgColor + '; color: ' + config.buttonTextColor + '; padding: 8px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; white-space: nowrap; transition: all 0.2s; border: 2px solid transparent;';
         button.onmouseenter = function() {
             this.style.transform = 'scale(1.05)';
@@ -188,6 +269,28 @@ const AnnouncementBarPage: React.FC = () => {
             this.style.color = config.buttonTextColor;
         };
         container.appendChild(button);
+    } else if (config.actionType === 'form') {
+        const form = document.createElement('form');
+        form.style.cssText = 'display: flex; gap: 8px; align-items: center; flex-wrap: wrap;';
+
+        const input = document.createElement('input');
+        input.type = 'email';
+        input.placeholder = config.formPlaceholder;
+        input.style.cssText = 'padding: 8px 16px; border-radius: 6px; border: none; font-size: 14px; min-width: 200px;';
+
+        const submitBtn = document.createElement('button');
+        submitBtn.type = 'submit';
+        submitBtn.textContent = config.formButtonText;
+        submitBtn.style.cssText = 'background: ' + config.buttonBgColor + '; color: ' + config.buttonTextColor + '; padding: 8px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; font-size: 14px;';
+
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            alert('Form submitted! Email: ' + input.value);
+        };
+
+        form.appendChild(input);
+        form.appendChild(submitBtn);
+        container.appendChild(form);
     }
 
     bar.appendChild(container);
@@ -311,39 +414,151 @@ const AnnouncementBarPage: React.FC = () => {
               </div>
 
               <div className="content-section">
-                <h3 className="section-title">Call to Action</h3>
+                <h3 className="section-title">Visual Element</h3>
                 <div className="control-group">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={settings.showButton}
-                      onChange={(e) => setSettings({...settings, showButton: e.target.checked})}
-                    />
-                    <span>Show Button</span>
-                  </label>
+                  <label htmlFor="visualElement">Element Type</label>
+                  <select
+                    id="visualElement"
+                    value={settings.visualElement}
+                    onChange={(e) => setSettings({...settings, visualElement: e.target.value as any})}
+                  >
+                    <option value="none">None</option>
+                    <option value="badge">Badge</option>
+                    <option value="icon">Icon</option>
+                    <option value="image">Image</option>
+                  </select>
                 </div>
 
-                {settings.showButton && (
+                {settings.visualElement === 'badge' && (
+                  <div className="control-group">
+                    <label htmlFor="visualBadgeText">Badge Text</label>
+                    <input
+                      type="text"
+                      id="visualBadgeText"
+                      value={settings.visualBadgeText}
+                      onChange={(e) => setSettings({...settings, visualBadgeText: e.target.value})}
+                      placeholder="NEW"
+                    />
+                  </div>
+                )}
+
+                {settings.visualElement === 'icon' && (
+                  <div className="control-group">
+                    <label htmlFor="visualIcon">Icon (Emoji)</label>
+                    <input
+                      type="text"
+                      id="visualIcon"
+                      value={settings.visualIcon}
+                      onChange={(e) => setSettings({...settings, visualIcon: e.target.value})}
+                      placeholder="🎉"
+                    />
+                  </div>
+                )}
+
+                {settings.visualElement === 'image' && (
+                  <div className="control-group">
+                    <label htmlFor="visualImageUrl">Image URL</label>
+                    <input
+                      type="text"
+                      id="visualImageUrl"
+                      value={settings.visualImageUrl}
+                      onChange={(e) => setSettings({...settings, visualImageUrl: e.target.value})}
+                      placeholder="https://example.com/image.png"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="content-section">
+                <h3 className="section-title">Action Element</h3>
+                <div className="control-group">
+                  <label htmlFor="actionType">Action Type</label>
+                  <select
+                    id="actionType"
+                    value={settings.actionType}
+                    onChange={(e) => setSettings({...settings, actionType: e.target.value as any})}
+                  >
+                    <option value="none">None</option>
+                    <option value="link">Link</option>
+                    <option value="button">Button</option>
+                    <option value="form">Form</option>
+                  </select>
+                </div>
+
+                {settings.actionType === 'link' && (
                   <>
                     <div className="control-group">
-                      <label htmlFor="buttonText">Button Text</label>
+                      <label htmlFor="actionUrl">Link URL</label>
                       <input
                         type="text"
-                        id="buttonText"
-                        value={settings.buttonText}
-                        onChange={(e) => setSettings({...settings, buttonText: e.target.value})}
-                        placeholder="Shop Now"
+                        id="actionUrl"
+                        value={settings.actionUrl}
+                        onChange={(e) => setSettings({...settings, actionUrl: e.target.value})}
+                        placeholder="https://example.com"
+                      />
+                    </div>
+                  </>
+                )}
+
+                {settings.actionType === 'button' && (
+                  <>
+                    <div className="control-group">
+                      <label htmlFor="actionButtonText">Button Text</label>
+                      <input
+                        type="text"
+                        id="actionButtonText"
+                        value={settings.actionButtonText}
+                        onChange={(e) => setSettings({...settings, actionButtonText: e.target.value})}
+                        placeholder="Click Here"
                       />
                     </div>
 
                     <div className="control-group">
-                      <label htmlFor="buttonUrl">Button URL</label>
+                      <label htmlFor="actionUrl">Button URL</label>
                       <input
                         type="text"
-                        id="buttonUrl"
-                        value={settings.buttonUrl}
-                        onChange={(e) => setSettings({...settings, buttonUrl: e.target.value})}
+                        id="actionUrl"
+                        value={settings.actionUrl}
+                        onChange={(e) => setSettings({...settings, actionUrl: e.target.value})}
                         placeholder="https://example.com"
+                      />
+                    </div>
+
+                    <div className="control-group">
+                      <label htmlFor="buttonPosition">Button Position</label>
+                      <select
+                        id="buttonPosition"
+                        value={settings.buttonPosition}
+                        onChange={(e) => setSettings({...settings, buttonPosition: e.target.value as 'left' | 'right'})}
+                      >
+                        <option value="left">Left</option>
+                        <option value="right">Right</option>
+                      </select>
+                    </div>
+                  </>
+                )}
+
+                {settings.actionType === 'form' && (
+                  <>
+                    <div className="control-group">
+                      <label htmlFor="formPlaceholder">Input Placeholder</label>
+                      <input
+                        type="text"
+                        id="formPlaceholder"
+                        value={settings.formPlaceholder}
+                        onChange={(e) => setSettings({...settings, formPlaceholder: e.target.value})}
+                        placeholder="Enter your email..."
+                      />
+                    </div>
+
+                    <div className="control-group">
+                      <label htmlFor="formButtonText">Submit Button Text</label>
+                      <input
+                        type="text"
+                        id="formButtonText"
+                        value={settings.formButtonText}
+                        onChange={(e) => setSettings({...settings, formButtonText: e.target.value})}
+                        placeholder="Submit"
                       />
                     </div>
                   </>
@@ -351,7 +566,7 @@ const AnnouncementBarPage: React.FC = () => {
               </div>
 
               <div className="content-section">
-                <h3 className="section-title">Behavior</h3>
+                <h3 className="section-title">Additional Settings</h3>
                 <div className="control-group">
                   <label>
                     <input
@@ -373,6 +588,41 @@ const AnnouncementBarPage: React.FC = () => {
                     <span>Remember When Dismissed</span>
                   </label>
                 </div>
+
+                <div className="control-group">
+                  <label htmlFor="barLinkType">Bar Link</label>
+                  <select
+                    id="barLinkType"
+                    value={settings.barLinkType}
+                    onChange={(e) => setSettings({...settings, barLinkType: e.target.value as any})}
+                  >
+                    <option value="none">None</option>
+                    <option value="url">URL</option>
+                    <option value="email">Email</option>
+                    <option value="phone">Phone</option>
+                  </select>
+                </div>
+
+                {settings.barLinkType !== 'none' && (
+                  <div className="control-group">
+                    <label htmlFor="barLinkValue">
+                      {settings.barLinkType === 'url' && 'URL'}
+                      {settings.barLinkType === 'email' && 'Email Address'}
+                      {settings.barLinkType === 'phone' && 'Phone Number'}
+                    </label>
+                    <input
+                      type="text"
+                      id="barLinkValue"
+                      value={settings.barLinkValue}
+                      onChange={(e) => setSettings({...settings, barLinkValue: e.target.value})}
+                      placeholder={
+                        settings.barLinkType === 'url' ? 'https://example.com' :
+                        settings.barLinkType === 'email' ? 'contact@example.com' :
+                        '+1 (555) 123-4567'
+                      }
+                    />
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -403,6 +653,25 @@ const AnnouncementBarPage: React.FC = () => {
                     <option value="none">None</option>
                     <option value="slide">Slide</option>
                     <option value="fade">Fade</option>
+                  </select>
+                </div>
+
+                <div className="control-group">
+                  <label htmlFor="fontFamily">Font Family</label>
+                  <select
+                    id="fontFamily"
+                    value={settings.fontFamily}
+                    onChange={(e) => setSettings({...settings, fontFamily: e.target.value})}
+                  >
+                    <option value="system-ui">System UI</option>
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="'Georgia', serif">Georgia</option>
+                    <option value="'Courier New', monospace">Courier New</option>
+                    <option value="'Times New Roman', serif">Times New Roman</option>
+                    <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                    <option value="'Verdana', sans-serif">Verdana</option>
+                    <option value="'Helvetica', sans-serif">Helvetica</option>
+                    <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
                   </select>
                 </div>
 
@@ -508,30 +777,157 @@ const AnnouncementBarPage: React.FC = () => {
                     background: settings.bgColor,
                     color: settings.textColor,
                     fontSize: `${settings.fontSize}px`,
-                    padding: `${settings.padding}px 20px`
+                    padding: `${settings.padding}px 20px`,
+                    fontFamily: settings.fontFamily,
+                    cursor: settings.barLinkType !== 'none' ? 'pointer' : 'default'
+                  }}
+                  onClick={(e) => {
+                    if (settings.barLinkType !== 'none' && settings.barLinkValue) {
+                      e.preventDefault();
+                      if (settings.barLinkType === 'url') {
+                        alert(`Would navigate to: ${settings.barLinkValue}`);
+                      } else if (settings.barLinkType === 'email') {
+                        alert(`Would open email to: ${settings.barLinkValue}`);
+                      } else if (settings.barLinkType === 'phone') {
+                        alert(`Would call: ${settings.barLinkValue}`);
+                      }
+                    }
                   }}
                 >
-                  <div className="bar-content">
-                    <span>{settings.message}</span>
-                    {settings.showButton && (
-                      <a
-                        href={settings.buttonUrl}
-                        className="bar-button"
+                  <div className="bar-content" style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '15px',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    flexDirection: settings.actionType === 'button' && settings.buttonPosition === 'left' ? 'row-reverse' : 'row'
+                  }}>
+                    {settings.visualElement === 'badge' && (
+                      <span style={{
+                        background: settings.buttonBgColor,
+                        color: settings.buttonTextColor,
+                        padding: '4px 12px',
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase'
+                      }}>
+                        {settings.visualBadgeText}
+                      </span>
+                    )}
+                    {settings.visualElement === 'icon' && (
+                      <span style={{ fontSize: '24px' }}>{settings.visualIcon}</span>
+                    )}
+                    {settings.visualElement === 'image' && settings.visualImageUrl && (
+                      <img
+                        src={settings.visualImageUrl}
+                        alt="Visual element"
                         style={{
-                          background: settings.buttonBgColor,
-                          color: settings.buttonTextColor
+                          height: '30px',
+                          width: 'auto',
+                          borderRadius: '4px'
+                        }}
+                      />
+                    )}
+                    <span style={{ flex: settings.actionType === 'form' ? '0 1 auto' : '1 1 auto', textAlign: 'center' }}>
+                      {settings.message}
+                    </span>
+                    {settings.actionType === 'link' && settings.actionUrl && (
+                      <a
+                        href={settings.actionUrl}
+                        style={{
+                          color: settings.buttonBgColor,
+                          textDecoration: 'underline',
+                          fontWeight: 'bold'
                         }}
                         onClick={(e) => e.preventDefault()}
                       >
-                        {settings.buttonText}
+                        Learn More →
                       </a>
+                    )}
+                    {settings.actionType === 'button' && (
+                      <a
+                        href={settings.actionUrl}
+                        className="bar-button"
+                        style={{
+                          background: settings.buttonBgColor,
+                          color: settings.buttonTextColor,
+                          padding: '8px 20px',
+                          borderRadius: '6px',
+                          textDecoration: 'none',
+                          fontWeight: '600',
+                          whiteSpace: 'nowrap'
+                        }}
+                        onClick={(e) => e.preventDefault()}
+                      >
+                        {settings.actionButtonText}
+                      </a>
+                    )}
+                    {settings.actionType === 'form' && (
+                      <form
+                        style={{
+                          display: 'flex',
+                          gap: '8px',
+                          alignItems: 'center',
+                          flexWrap: 'wrap'
+                        }}
+                        onSubmit={(e) => e.preventDefault()}
+                      >
+                        <input
+                          type="email"
+                          placeholder={settings.formPlaceholder}
+                          style={{
+                            padding: '8px 16px',
+                            borderRadius: '6px',
+                            border: 'none',
+                            fontSize: '14px',
+                            minWidth: '200px'
+                          }}
+                        />
+                        <button
+                          type="submit"
+                          style={{
+                            background: settings.buttonBgColor,
+                            color: settings.buttonTextColor,
+                            padding: '8px 20px',
+                            borderRadius: '6px',
+                            border: 'none',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            fontSize: '14px'
+                          }}
+                        >
+                          {settings.formButtonText}
+                        </button>
+                      </form>
                     )}
                   </div>
                   {settings.showCloseButton && (
                     <button
                       className="close-button"
-                      onClick={() => setIsVisible(false)}
-                      style={{ color: settings.textColor }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsVisible(false);
+                      }}
+                      style={{
+                        color: settings.textColor,
+                        position: 'absolute',
+                        right: '10px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'transparent',
+                        border: 'none',
+                        fontSize: '24px',
+                        cursor: 'pointer',
+                        padding: '0',
+                        width: '30px',
+                        height: '30px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '4px',
+                        transition: 'background 0.2s'
+                      }}
                     >
                       ×
                     </button>

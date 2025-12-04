@@ -70,15 +70,6 @@ const HomePage: React.FC = () => {
       available: true
     },
     {
-      id: 'testimonials',
-      route: null,
-      icon: '⭐',
-      title: 'Testimonial Carousel',
-      description: 'Display customer testimonials in an elegant sliding carousel',
-      badge: 'Soon',
-      available: false
-    },
-    {
       id: 'countdown-timer',
       route: '/countdown-timer',
       icon: '⏰',
@@ -97,13 +88,13 @@ const HomePage: React.FC = () => {
       available: true
     },
     {
-      id: 'social-proof',
-      route: null,
-      icon: '🔔',
-      title: 'Social Proof',
-      description: 'Show recent activity notifications to build trust and credibility',
-      badge: 'Soon',
-      available: false
+      id: 'popup-widget',
+      route: '/popup-widget',
+      icon: '🪟',
+      title: 'Pop-up Widget',
+      description: 'Create customizable pop-up modals for promotions, announcements, and lead capture',
+      badge: 'New',
+      available: true
     }
   ];
 

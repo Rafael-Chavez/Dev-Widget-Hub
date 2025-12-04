@@ -32,7 +32,7 @@ interface Template {
 
 const templates: Template[] = [
   {
-    name: 'Classic Blue',
+    name: 'Modern',
     accentColor: '#3498db',
     bgColor: '#ffffff',
     textColor: '#333333',
@@ -40,76 +40,20 @@ const templates: Template[] = [
     borderRadius: 8
   },
   {
-    name: 'Frontend Mentor',
-    accentColor: '#a729f5',
-    bgColor: '#ffffff',
-    textColor: '#6b6b6b',
-    questionColor: '#1a1a1a',
-    borderRadius: 8
-  },
-  {
-    name: 'Clean Minimal',
+    name: 'Minimal',
     accentColor: '#2c2c2c',
     bgColor: '#fafafa',
     textColor: '#6c6c6c',
     questionColor: '#1f1f1f',
-    borderRadius: 12
-  },
-  {
-    name: 'Soft Purple',
-    accentColor: '#8b7fb8',
-    bgColor: '#f5f3ff',
-    textColor: '#5f5f5f',
-    questionColor: '#2d2d2d',
-    borderRadius: 8
-  },
-  {
-    name: 'Professional Blue',
-    accentColor: '#4361ee',
-    bgColor: '#f8f9fa',
-    textColor: '#6c757d',
-    questionColor: '#333333',
-    borderRadius: 8
-  },
-  {
-    name: 'Modern Purple',
-    accentColor: '#9b59b6',
-    bgColor: '#f8f9fa',
-    textColor: '#4a5568',
-    questionColor: '#6b46c1',
-    borderRadius: 12
-  },
-  {
-    name: 'Soft Green',
-    accentColor: '#27ae60',
-    bgColor: '#ffffff',
-    textColor: '#2d3748',
-    questionColor: '#2f855a',
     borderRadius: 16
   },
   {
-    name: 'Elegant Dark',
+    name: 'Dark',
     accentColor: '#f39c12',
     bgColor: '#2d3748',
     textColor: '#e2e8f0',
     questionColor: '#f7fafc',
     borderRadius: 10
-  },
-  {
-    name: 'Ocean Breeze',
-    accentColor: '#16a085',
-    bgColor: '#ecf8f8',
-    textColor: '#1a5f5f',
-    questionColor: '#0e4e4e',
-    borderRadius: 14
-  },
-  {
-    name: 'Sunset Orange',
-    accentColor: '#e74c3c',
-    bgColor: '#fff5f5',
-    textColor: '#742a2a',
-    questionColor: '#c53030',
-    borderRadius: 8
   }
 ];
 
