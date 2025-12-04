@@ -18,6 +18,8 @@ interface ProfileSettings {
   following: string;
   postsCount: string;
   verified: boolean;
+  accessToken: string;
+  useAPI: boolean;
 }
 
 interface StyleSettings {
@@ -44,10 +46,14 @@ const InstagramFeedPage: React.FC = () => {
     followers: '10.5K',
     following: '250',
     postsCount: '342',
-    verified: false
+    verified: false,
+    accessToken: '',
+    useAPI: false
   });
 
   const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>('');
 
   const [styleSettings, setStyleSettings] = useState<StyleSettings>({
     layout: 'grid',
@@ -77,6 +83,65 @@ const InstagramFeedPage: React.FC = () => {
       profilePicUrl: createProfilePicture(prev.displayName)
     }));
   }, []);
+
+  const fetchInstagramPosts = async () => {
+    if (!profileSettings.accessToken) {
+      setError('Please enter your Instagram Access Token');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      // Fetch user profile info
+      const userResponse = await fetch(
+        `https://graph.instagram.com/me?fields=id,username,account_type,media_count&access_token=${profileSettings.accessToken}`
+      );
+
+      if (!userResponse.ok) {
+        throw new Error('Failed to fetch profile. Please check your access token.');
+      }
+
+      const userData = await userResponse.json();
+
+      // Fetch user's media
+      const mediaResponse = await fetch(
+        `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&limit=12&access_token=${profileSettings.accessToken}`
+      );
+
+      if (!mediaResponse.ok) {
+        throw new Error('Failed to fetch posts.');
+      }
+
+      const mediaData = await mediaResponse.json();
+
+      // Update profile settings
+      setProfileSettings(prev => ({
+        ...prev,
+        username: userData.username,
+        postsCount: userData.media_count?.toString() || '0'
+      }));
+
+      // Transform Instagram posts to our Post format
+      const instagramPosts: Post[] = mediaData.data
+        .filter((item: any) => item.media_type === 'IMAGE' || item.media_type === 'CAROUSEL_ALBUM')
+        .map((item: any) => ({
+          id: item.id,
+          imageUrl: item.media_url || item.thumbnail_url,
+          likes: item.like_count || 0,
+          comments: item.comments_count || 0
+        }));
+
+      setPosts(instagramPosts);
+      setError('');
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch Instagram data. Please check your access token and try again.');
+      console.error('Instagram API Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const createPlaceholderImage = (num: number): string => {
     const canvas = document.createElement('canvas');
@@ -175,6 +240,8 @@ const InstagramFeedPage: React.FC = () => {
 
     const scriptContent = `(function() {
     const config = {
+        useAPI: ${profileSettings.useAPI},
+        accessToken: '${profileSettings.useAPI ? profileSettings.accessToken : ''}',
         profile: {
             username: '${profileSettings.username}',
             displayName: '${profileSettings.displayName}',
@@ -198,9 +265,36 @@ const InstagramFeedPage: React.FC = () => {
         }
     };
 
+    async function fetchInstagramData() {
+        if (!config.useAPI || !config.accessToken) return config.posts;
+
+        try {
+            const response = await fetch(
+                'https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&limit=12&access_token=' + config.accessToken
+            );
+
+            if (!response.ok) return config.posts;
+
+            const data = await response.json();
+            return data.data
+                .filter(item => item.media_type === 'IMAGE' || item.media_type === 'CAROUSEL_ALBUM')
+                .map(item => ({
+                    image: item.media_url || item.thumbnail_url,
+                    likes: item.like_count || 0,
+                    comments: item.comments_count || 0
+                }));
+        } catch (err) {
+            console.error('Failed to fetch Instagram posts:', err);
+            return config.posts;
+        }
+    }
+
     const container = document.getElementById('instagram-feed-container');
     const widget = document.createElement('div');
     widget.style.cssText = 'font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: ' + config.style.bgColor + '; border-radius: ' + config.style.borderRadius + 'px; padding: 20px; max-width: 600px; margin: 0 auto;';
+
+    async function renderWidget() {
+        const postsToRender = await fetchInstagramData();
 
     // Profile Section
     const profileHTML = \`
@@ -228,7 +322,7 @@ const InstagramFeedPage: React.FC = () => {
     const postsContainer = document.createElement('div');
     postsContainer.style.cssText = 'display: grid; grid-template-columns: repeat(' + config.style.columns + ', 1fr); gap: ' + config.style.spacing + 'px;';
 
-    config.posts.forEach(post => {
+    postsToRender.forEach(post => {
         const postDiv = document.createElement('div');
         postDiv.style.cssText = 'position: relative; aspect-ratio: 1; overflow: hidden; border-radius: ' + config.style.borderRadius + 'px; cursor: pointer;';
 
@@ -276,6 +370,9 @@ const InstagramFeedPage: React.FC = () => {
         style.textContent = '@media (max-width: 768px) { #instagram-feed-container > div { max-width: 100% !important; } }';
         document.head.appendChild(style);
     }
+    }
+
+    renderWidget();
 })();`;
 
     return '<!-- Instagram Feed Widget -->\n<div id="instagram-feed-container"></div>\n<script>\n' + scriptContent + '\n</script>';
@@ -327,6 +424,81 @@ const InstagramFeedPage: React.FC = () => {
         <div className="tab-content">
           {activeTab === 'profile' && (
             <div className="tab-pane active">
+              <div className="content-section">
+                <h3 className="section-title">Instagram API Connection</h3>
+                <div className="control-group">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={profileSettings.useAPI}
+                      onChange={(e) => setProfileSettings({...profileSettings, useAPI: e.target.checked})}
+                    />
+                    <span>Use Instagram API to fetch real posts</span>
+                  </label>
+                </div>
+
+                {profileSettings.useAPI && (
+                  <>
+                    <div className="control-group">
+                      <label htmlFor="accessToken">Instagram Access Token</label>
+                      <input
+                        type="text"
+                        id="accessToken"
+                        value={profileSettings.accessToken}
+                        onChange={(e) => setProfileSettings({...profileSettings, accessToken: e.target.value})}
+                        placeholder="Enter your Instagram Access Token"
+                      />
+                      <small style={{display: 'block', marginTop: '8px', color: '#666', fontSize: '12px'}}>
+                        Get your access token from{' '}
+                        <a
+                          href="https://developers.facebook.com/docs/instagram-basic-display-api/getting-started"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{color: '#E1306C'}}
+                        >
+                          Instagram Basic Display API
+                        </a>
+                      </small>
+                    </div>
+
+                    <button
+                      className="upload-btn"
+                      onClick={fetchInstagramPosts}
+                      disabled={loading || !profileSettings.accessToken}
+                      style={{width: '100%', marginTop: '10px'}}
+                    >
+                      {loading ? 'Fetching Posts...' : 'Fetch Instagram Posts'}
+                    </button>
+
+                    {error && (
+                      <div style={{
+                        marginTop: '10px',
+                        padding: '10px',
+                        background: '#fee',
+                        color: '#c33',
+                        borderRadius: '4px',
+                        fontSize: '14px'
+                      }}>
+                        {error}
+                      </div>
+                    )}
+
+                    {!loading && !error && posts.length > 0 && profileSettings.accessToken && (
+                      <div style={{
+                        marginTop: '10px',
+                        padding: '10px',
+                        background: '#efe',
+                        color: '#363',
+                        borderRadius: '4px',
+                        fontSize: '14px'
+                      }}>
+                        Successfully loaded {posts.length} posts from Instagram!
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+
               <div className="content-section">
                 <h3 className="section-title">Profile Picture</h3>
                 <div className="profile-pic-upload">
