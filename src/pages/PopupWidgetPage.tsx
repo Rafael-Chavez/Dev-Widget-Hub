@@ -1211,18 +1211,16 @@ const BlockPreview: React.FC<{ block: Block }> = ({ block }) => {
   const renderBlock = () => {
     switch (block.type) {
       case 'heading':
-        const HeadingTag = block.settings.level as keyof JSX.IntrinsicElements;
-        return (
-          <HeadingTag style={{
+        const HeadingTag = block.settings.level as 'h1' | 'h2' | 'h3' | 'h4';
+        return React.createElement(HeadingTag, {
+          style: {
             color: block.settings.color,
             fontSize: block.settings.fontSize,
             textAlign: block.settings.align,
             fontWeight: block.settings.fontWeight,
             margin: 0
-          }}>
-            {block.content}
-          </HeadingTag>
-        );
+          }
+        }, block.content);
 
       case 'text':
         return (
