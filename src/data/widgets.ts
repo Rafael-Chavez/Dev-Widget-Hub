@@ -49,7 +49,7 @@ export const widgets: Widget[] = [
   // Branding Widgets
   {
     id: 'logo-ticker',
-    name: 'Logo Ticker',
+    name: 'Logo Showcase',
     description: 'Animated logo carousel with customizable speed, spacing, and styling',
     category: 'branding',
     icon: 'film',

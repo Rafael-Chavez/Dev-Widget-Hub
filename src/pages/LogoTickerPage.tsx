@@ -20,6 +20,7 @@ interface Settings {
   gradientDirection: number;
   cornerStyle: string;
   cornerRadius: number;
+  logoColorScheme: 'original' | 'grayscale';
 }
 
 const LogoTickerPage: React.FC = () => {
@@ -38,7 +39,8 @@ const LogoTickerPage: React.FC = () => {
     gradientColor2: '#9b59b6',
     gradientDirection: 90,
     cornerStyle: '0',
-    cornerRadius: 0
+    cornerRadius: 0,
+    logoColorScheme: 'original'
   });
 
   const gradientPresets = [
@@ -133,7 +135,8 @@ const LogoTickerPage: React.FC = () => {
         gradientColor2: '#9b59b6',
         gradientDirection: 90,
         cornerStyle: '0',
-        cornerRadius: 0
+        cornerRadius: 0,
+        logoColorScheme: 'original'
       });
     }
   };
@@ -154,7 +157,8 @@ const LogoTickerPage: React.FC = () => {
         spacing: ${settings.spacing},
         spacingMobile: ${settings.spacingMobile},
         background: '${background.replace(/'/g, "\\'")}',
-        cornerRadius: ${cornerRadius}
+        cornerRadius: ${cornerRadius},
+        logoColorScheme: '${settings.logoColorScheme}'
     };
 
     const container = document.getElementById('logo-ticker-container');
@@ -165,21 +169,12 @@ const LogoTickerPage: React.FC = () => {
     track.style.cssText = 'display: flex; width: max-content; animation: ticker-scroll ' + config.speed + 's linear infinite; padding: 40px 0;';
 
     const logos = [...config.logos, ...config.logos];
+    const filterStyle = config.logoColorScheme === 'grayscale' ? 'grayscale(100%)' : 'none';
     logos.forEach(url => {
         const img = document.createElement('img');
         img.src = url;
         img.alt = 'Logo';
-        img.style.cssText = 'height: ' + config.logoSize + 'px; width: auto; object-fit: contain; margin-right: ' + config.spacing + 'px; filter: grayscale(100%); opacity: 0.7; transition: all 0.3s;';
-        img.onmouseenter = function() {
-            this.style.filter = 'grayscale(0%)';
-            this.style.opacity = '1';
-            this.style.transform = 'scale(1.1)';
-        };
-        img.onmouseleave = function() {
-            this.style.filter = 'grayscale(100%)';
-            this.style.opacity = '0.7';
-            this.style.transform = 'scale(1)';
-        };
+        img.style.cssText = 'height: ' + config.logoSize + 'px; width: auto; object-fit: contain; margin-right: ' + config.spacing + 'px; filter: ' + filterStyle + '; transition: all 0.3s;';
         track.appendChild(img);
     });
 
@@ -197,7 +192,7 @@ const LogoTickerPage: React.FC = () => {
     }
 })();`;
 
-    return '<!-- Logo Ticker Widget -->\n<div id="logo-ticker-container"></div>\n<script>\n' + scriptContent + '\n</script>';
+    return '<!-- Logo Showcase Widget -->\n<div id="logo-ticker-container"></div>\n<script>\n' + scriptContent + '\n</script>';
   };
 
   const copyEmbedCode = () => {
@@ -225,7 +220,7 @@ const LogoTickerPage: React.FC = () => {
     <div className="logo-ticker-container">
       <div className="sidebar">
         <div className="sidebar-header">
-          <h1>Logo Ticker</h1>
+          <h1>Logo Showcase</h1>
           <button className="home-btn" onClick={() => navigate('/')}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z"/>
@@ -380,6 +375,32 @@ const LogoTickerPage: React.FC = () => {
 
           {activeTab === 'style' && (
             <div className="tab-pane active">
+              <div className="content-section">
+                <h3 className="section-title">Logo Color Scheme</h3>
+                <div className="segmented-control">
+                  <div className="segmented-option">
+                    <input
+                      type="radio"
+                      id="colorOriginal"
+                      name="logoColorScheme"
+                      checked={settings.logoColorScheme === 'original'}
+                      onChange={() => setSettings({...settings, logoColorScheme: 'original'})}
+                    />
+                    <label htmlFor="colorOriginal">Original</label>
+                  </div>
+                  <div className="segmented-option">
+                    <input
+                      type="radio"
+                      id="colorGrayscale"
+                      name="logoColorScheme"
+                      checked={settings.logoColorScheme === 'grayscale'}
+                      onChange={() => setSettings({...settings, logoColorScheme: 'grayscale'})}
+                    />
+                    <label htmlFor="colorGrayscale">Grayscale</label>
+                  </div>
+                </div>
+              </div>
+
               <div className="content-section">
                 <h3 className="section-title">Background</h3>
                 <div className="segmented-control">
@@ -596,7 +617,10 @@ const LogoTickerPage: React.FC = () => {
                     <img
                       src={logo.url}
                       alt="Logo"
-                      style={{height: `${settings.logoSize}px`}}
+                      style={{
+                        height: `${settings.logoSize}px`,
+                        filter: settings.logoColorScheme === 'grayscale' ? 'grayscale(100%)' : 'none'
+                      }}
                     />
                   </div>
                 ))}
