@@ -20,8 +20,9 @@ interface ProfileSettings {
   verified: boolean;
   accessToken: string;
   useAPI: boolean;
-  fetchMethod: 'api' | 'username' | 'hashtag';
-  hashtag: string;
+  source: 'account' | 'hashtag';
+  accountInput: string;
+  hashtagInput: string;
 }
 
 interface StyleSettings {
@@ -51,8 +52,9 @@ const InstagramFeedPage: React.FC = () => {
     verified: false,
     accessToken: '',
     useAPI: false,
-    fetchMethod: 'username',
-    hashtag: ''
+    source: 'account',
+    accountInput: '',
+    hashtagInput: ''
   });
 
   const [posts, setPosts] = useState<Post[]>([]);
@@ -88,9 +90,23 @@ const InstagramFeedPage: React.FC = () => {
     }));
   }, []);
 
-  const fetchByUsername = async () => {
-    if (!profileSettings.username) {
-      setError('Please enter an Instagram username');
+  const extractUsername = (input: string): string => {
+    // Remove whitespace
+    const trimmed = input.trim();
+
+    // If it's a URL, extract username
+    if (trimmed.includes('instagram.com/')) {
+      const match = trimmed.match(/instagram\.com\/([^/?#]+)/);
+      return match ? match[1] : trimmed;
+    }
+
+    // Remove @ if present
+    return trimmed.replace(/^@/, '');
+  };
+
+  const fetchByUsername = async (username: string) => {
+    if (!username) {
+      setError('Please enter an Instagram username or URL');
       return;
     }
 
@@ -100,7 +116,7 @@ const InstagramFeedPage: React.FC = () => {
     try {
       // Try to fetch from Instagram's public endpoint
       // Note: This approach may be blocked by CORS in browser
-      const response = await fetch(`https://www.instagram.com/${profileSettings.username}/?__a=1&__d=dis`);
+      const response = await fetch(`https://www.instagram.com/${username}/?__a=1&__d=dis`);
 
       if (!response.ok) {
         throw new Error('Unable to fetch Instagram data. The account may be private or Instagram is blocking the request.');
@@ -116,6 +132,7 @@ const InstagramFeedPage: React.FC = () => {
       // Update profile info
       setProfileSettings(prev => ({
         ...prev,
+        username: username,
         displayName: userData.full_name || prev.displayName,
         bio: userData.biography || prev.bio,
         profilePicUrl: userData.profile_pic_url || prev.profilePicUrl,
@@ -157,66 +174,15 @@ const InstagramFeedPage: React.FC = () => {
   };
 
   const fetchInstagramPosts = async () => {
-    if (profileSettings.fetchMethod === 'username') {
-      await fetchByUsername();
+    if (profileSettings.source === 'account') {
+      const username = extractUsername(profileSettings.accountInput);
+      await fetchByUsername(username);
       return;
     }
 
-    if (!profileSettings.accessToken) {
-      setError('Please enter your Instagram Access Token');
+    if (profileSettings.source === 'hashtag') {
+      setError('Hashtag fetching is coming soon! Please use account source for now.');
       return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      // Fetch user profile info
-      const userResponse = await fetch(
-        `https://graph.instagram.com/me?fields=id,username,account_type,media_count&access_token=${profileSettings.accessToken}`
-      );
-
-      if (!userResponse.ok) {
-        throw new Error('Failed to fetch profile. Please check your access token.');
-      }
-
-      const userData = await userResponse.json();
-
-      // Fetch user's media
-      const mediaResponse = await fetch(
-        `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&limit=12&access_token=${profileSettings.accessToken}`
-      );
-
-      if (!mediaResponse.ok) {
-        throw new Error('Failed to fetch posts.');
-      }
-
-      const mediaData = await mediaResponse.json();
-
-      // Update profile settings
-      setProfileSettings(prev => ({
-        ...prev,
-        username: userData.username,
-        postsCount: userData.media_count?.toString() || '0'
-      }));
-
-      // Transform Instagram posts to our Post format
-      const instagramPosts: Post[] = mediaData.data
-        .filter((item: any) => item.media_type === 'IMAGE' || item.media_type === 'CAROUSEL_ALBUM')
-        .map((item: any) => ({
-          id: item.id,
-          imageUrl: item.media_url || item.thumbnail_url,
-          likes: item.like_count || 0,
-          comments: item.comments_count || 0
-        }));
-
-      setPosts(instagramPosts);
-      setError('');
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch Instagram data. Please check your access token and try again.');
-      console.error('Instagram API Error:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -317,8 +283,9 @@ const InstagramFeedPage: React.FC = () => {
 
     const scriptContent = `(function() {
     const config = {
-        useAPI: ${profileSettings.useAPI},
-        accessToken: '${profileSettings.useAPI ? profileSettings.accessToken : ''}',
+        source: '${profileSettings.source}',
+        accountInput: '${profileSettings.accountInput}',
+        hashtagInput: '${profileSettings.hashtagInput}',
         profile: {
             username: '${profileSettings.username}',
             displayName: '${profileSettings.displayName}',
@@ -343,27 +310,9 @@ const InstagramFeedPage: React.FC = () => {
     };
 
     async function fetchInstagramData() {
-        if (!config.useAPI || !config.accessToken) return config.posts;
-
-        try {
-            const response = await fetch(
-                'https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&limit=12&access_token=' + config.accessToken
-            );
-
-            if (!response.ok) return config.posts;
-
-            const data = await response.json();
-            return data.data
-                .filter(item => item.media_type === 'IMAGE' || item.media_type === 'CAROUSEL_ALBUM')
-                .map(item => ({
-                    image: item.media_url || item.thumbnail_url,
-                    likes: item.like_count || 0,
-                    comments: item.comments_count || 0
-                }));
-        } catch (err) {
-            console.error('Failed to fetch Instagram posts:', err);
-            return config.posts;
-        }
+        // For now, just use the pre-configured posts
+        // In production, you would implement server-side fetching
+        return config.posts;
     }
 
     const container = document.getElementById('instagram-feed-container');
@@ -502,143 +451,98 @@ const InstagramFeedPage: React.FC = () => {
           {activeTab === 'profile' && (
             <div className="tab-pane active">
               <div className="content-section">
-                <h3 className="section-title">Instagram Data Source</h3>
+                <h3 className="section-title">Content Source</h3>
                 <div className="control-group">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={profileSettings.useAPI}
-                      onChange={(e) => setProfileSettings({...profileSettings, useAPI: e.target.checked})}
-                    />
-                    <span>Fetch real Instagram data</span>
-                  </label>
+                  <label htmlFor="source">Source Type</label>
+                  <select
+                    id="source"
+                    value={profileSettings.source}
+                    onChange={(e) => setProfileSettings({...profileSettings, source: e.target.value as 'account' | 'hashtag'})}
+                  >
+                    <option value="account">Account</option>
+                    <option value="hashtag">Hashtag</option>
+                  </select>
                 </div>
 
-                {profileSettings.useAPI && (
+                {profileSettings.source === 'account' && (
                   <>
                     <div className="control-group">
-                      <label htmlFor="fetchMethod">Fetch Method</label>
-                      <select
-                        id="fetchMethod"
-                        value={profileSettings.fetchMethod}
-                        onChange={(e) => setProfileSettings({...profileSettings, fetchMethod: e.target.value as any})}
-                      >
-                        <option value="username">By Username (Simple)</option>
-                        <option value="api">Instagram API (Reliable)</option>
-                        <option value="hashtag">By Hashtag (Coming Soon)</option>
-                      </select>
+                      <label htmlFor="accountInput">Instagram Username or URL</label>
+                      <input
+                        type="text"
+                        id="accountInput"
+                        value={profileSettings.accountInput}
+                        onChange={(e) => setProfileSettings({...profileSettings, accountInput: e.target.value})}
+                        placeholder="username or https://instagram.com/username"
+                      />
                       <small style={{display: 'block', marginTop: '8px', color: '#666', fontSize: '12px'}}>
-                        {profileSettings.fetchMethod === 'username' && '✨ Easiest method - just enter a username'}
-                        {profileSettings.fetchMethod === 'api' && '🔒 Most reliable - requires API token'}
-                        {profileSettings.fetchMethod === 'hashtag' && '🏷️ Fetch posts by hashtag'}
+                        Enter a username (e.g., "natgeo") or paste an Instagram profile URL
                       </small>
                     </div>
-
-                    {profileSettings.fetchMethod === 'username' && (
-                      <>
-                        <div className="control-group">
-                          <label htmlFor="usernameInput">Instagram Username</label>
-                          <input
-                            type="text"
-                            id="usernameInput"
-                            value={profileSettings.username}
-                            onChange={(e) => setProfileSettings({...profileSettings, username: e.target.value})}
-                            placeholder="@username (without @)"
-                          />
-                          <small style={{display: 'block', marginTop: '8px', color: '#666', fontSize: '12px'}}>
-                            ⚠️ Note: This method may be blocked by CORS in preview. It works when embedded on a website.
-                          </small>
-                        </div>
-                      </>
-                    )}
-
-                    {profileSettings.fetchMethod === 'api' && (
-                      <>
-                        <div className="control-group">
-                          <label htmlFor="accessToken">Instagram Access Token</label>
-                          <input
-                            type="text"
-                            id="accessToken"
-                            value={profileSettings.accessToken}
-                            onChange={(e) => setProfileSettings({...profileSettings, accessToken: e.target.value})}
-                            placeholder="Enter your Instagram Access Token"
-                          />
-                          <small style={{display: 'block', marginTop: '8px', color: '#666', fontSize: '12px'}}>
-                            Get your access token from{' '}
-                            <a
-                              href="https://developers.facebook.com/docs/instagram-basic-display-api/getting-started"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{color: '#E1306C'}}
-                            >
-                              Instagram Basic Display API
-                            </a>
-                          </small>
-                        </div>
-                      </>
-                    )}
-
-                    {profileSettings.fetchMethod === 'hashtag' && (
-                      <>
-                        <div className="control-group">
-                          <label htmlFor="hashtag">Hashtag</label>
-                          <input
-                            type="text"
-                            id="hashtag"
-                            value={profileSettings.hashtag}
-                            onChange={(e) => setProfileSettings({...profileSettings, hashtag: e.target.value})}
-                            placeholder="trending (without #)"
-                            disabled
-                          />
-                          <small style={{display: 'block', marginTop: '8px', color: '#666', fontSize: '12px'}}>
-                            Coming soon! This feature will fetch posts by hashtag.
-                          </small>
-                        </div>
-                      </>
-                    )}
-
-                    <button
-                      className="upload-btn"
-                      onClick={fetchInstagramPosts}
-                      disabled={
-                        loading ||
-                        (profileSettings.fetchMethod === 'api' && !profileSettings.accessToken) ||
-                        (profileSettings.fetchMethod === 'username' && !profileSettings.username) ||
-                        profileSettings.fetchMethod === 'hashtag'
-                      }
-                      style={{width: '100%', marginTop: '10px'}}
-                    >
-                      {loading ? 'Fetching Posts...' : 'Fetch Instagram Posts'}
-                    </button>
-
-                    {error && (
-                      <div style={{
-                        marginTop: '10px',
-                        padding: '10px',
-                        background: '#fee',
-                        color: '#c33',
-                        borderRadius: '4px',
-                        fontSize: '14px',
-                        lineHeight: '1.5'
-                      }}>
-                        {error}
-                      </div>
-                    )}
-
-                    {!loading && !error && posts.length > 0 && profileSettings.useAPI && (
-                      <div style={{
-                        marginTop: '10px',
-                        padding: '10px',
-                        background: '#efe',
-                        color: '#363',
-                        borderRadius: '4px',
-                        fontSize: '14px'
-                      }}>
-                        ✅ Successfully loaded {posts.length} posts from @{profileSettings.username}!
-                      </div>
-                    )}
                   </>
                 )}
+
+                {profileSettings.source === 'hashtag' && (
+                  <>
+                    <div className="control-group">
+                      <label htmlFor="hashtagInput">Hashtag</label>
+                      <input
+                        type="text"
+                        id="hashtagInput"
+                        value={profileSettings.hashtagInput}
+                        onChange={(e) => setProfileSettings({...profileSettings, hashtagInput: e.target.value})}
+                        placeholder="travel"
+                      />
+                      <small style={{display: 'block', marginTop: '8px', color: '#666', fontSize: '12px'}}>
+                        Enter a hashtag without the # symbol (e.g., "travel")
+                      </small>
+                    </div>
+                  </>
+                )}
+
+                <button
+                  className="upload-btn"
+                  onClick={fetchInstagramPosts}
+                  disabled={
+                    loading ||
+                    (profileSettings.source === 'account' && !profileSettings.accountInput.trim()) ||
+                    (profileSettings.source === 'hashtag' && !profileSettings.hashtagInput.trim())
+                  }
+                  style={{width: '100%', marginTop: '10px'}}
+                >
+                  {loading ? 'Fetching Posts...' : 'Fetch Instagram Posts'}
+                </button>
+
+                {error && (
+                  <div style={{
+                    marginTop: '10px',
+                    padding: '10px',
+                    background: '#fee',
+                    color: '#c33',
+                    borderRadius: '4px',
+                    fontSize: '14px',
+                    lineHeight: '1.5'
+                  }}>
+                    {error}
+                  </div>
+                )}
+
+                {!loading && !error && posts.length > 0 && (profileSettings.accountInput || profileSettings.hashtagInput) && (
+                  <div style={{
+                    marginTop: '10px',
+                    padding: '10px',
+                    background: '#efe',
+                    color: '#363',
+                    borderRadius: '4px',
+                    fontSize: '14px'
+                  }}>
+                    ✅ Successfully loaded {posts.length} posts!
+                  </div>
+                )}
+
+                <small style={{display: 'block', marginTop: '12px', color: '#666', fontSize: '12px', lineHeight: '1.5'}}>
+                  ⚠️ Note: This method may be blocked by CORS in preview. It works when embedded on a website.
+                </small>
               </div>
 
               <div className="content-section">
