@@ -1,63 +1,79 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './PopupWidgetPage.css';
 
 interface Block {
   id: string;
-  type: 'heading' | 'text' | 'button' | 'link' | 'badge' | 'coupon' | 'timer' | 'form' | 'image' | 'video' | 'spacing' | 'separator' | 'iframe' | 'html';
+  type: 'heading' | 'text' | 'button' | 'image' | 'form' | 'spacing' | 'separator';
   content: string;
   settings: any;
 }
 
-interface LayoutSettings {
-  position: 'modal' | 'left-pane' | 'right-pane' | 'left-slide' | 'right-slide' | 'top-bar' | 'bottom-bar';
-  width: number;
-}
-
 interface PopupSettings {
+  position: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-bar' | 'bottom-bar';
+  width: number;
   backgroundColor: string;
+  borderRadius: number;
+  padding: number;
   overlay: boolean;
-  overlayColor: string;
+  overlayOpacity: number;
   showCloseButton: boolean;
-  autoShow: boolean;
+  closeButtonPosition: 'inside' | 'outside';
+  trigger: 'immediate' | 'delay' | 'scroll' | 'exit';
   delaySeconds: number;
-  triggerScroll: boolean;
   scrollPercent: number;
+  animation: 'fade' | 'slide' | 'zoom' | 'bounce';
 }
 
 const PopupWidgetPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'builder' | 'layout' | 'settings'>('builder');
-  const [blocks, setBlocks] = useState<Block[]>([]);
-  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
-  const [layoutSettings, setLayoutSettings] = useState<LayoutSettings>({
-    position: 'modal',
-    width: 500
-  });
-  const [popupSettings, setPopupSettings] = useState<PopupSettings>({
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<'content' | 'design' | 'behavior'>('content');
+  const [blocks, setBlocks] = useState<Block[]>([
+    {
+      id: 'default-heading',
+      type: 'heading',
+      content: 'Special Offer! 🎉',
+      settings: { fontSize: 32, color: '#1f2937', align: 'center', fontWeight: 'bold' }
+    },
+    {
+      id: 'default-text',
+      type: 'text',
+      content: 'Get 20% off your first order when you sign up today!',
+      settings: { fontSize: 16, color: '#6b7280', align: 'center', lineHeight: 1.5 }
+    },
+    {
+      id: 'default-form',
+      type: 'form',
+      content: 'Enter your email',
+      settings: { buttonText: 'Claim Offer', buttonColor: '#4285f4', inputPlaceholder: 'your@email.com' }
+    }
+  ]);
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>('default-heading');
+
+  const [settings, setSettings] = useState<PopupSettings>({
+    position: 'center',
+    width: 500,
     backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 40,
     overlay: true,
-    overlayColor: 'rgba(0, 0, 0, 0.5)',
+    overlayOpacity: 50,
     showCloseButton: true,
-    autoShow: true,
+    closeButtonPosition: 'inside',
+    trigger: 'delay',
     delaySeconds: 3,
-    triggerScroll: false,
-    scrollPercent: 50
+    scrollPercent: 50,
+    animation: 'fade'
   });
 
   const blockTypes = [
-    { type: 'heading', icon: '📝', label: 'Heading' },
-    { type: 'text', icon: '📄', label: 'Text' },
-    { type: 'button', icon: '🔘', label: 'Button' },
-    { type: 'link', icon: '🔗', label: 'Link' },
-    { type: 'badge', icon: '🏷️', label: 'Badge' },
-    { type: 'coupon', icon: '🎟️', label: 'Coupon' },
-    { type: 'timer', icon: '⏱️', label: 'Timer' },
-    { type: 'form', icon: '📋', label: 'Form' },
-    { type: 'image', icon: '🖼️', label: 'Image' },
-    { type: 'video', icon: '🎥', label: 'Video' },
-    { type: 'spacing', icon: '↕️', label: 'Spacing' },
-    { type: 'separator', icon: '➖', label: 'Separator' },
-    { type: 'iframe', icon: '🪟', label: 'iFrame' },
-    { type: 'html', icon: '💻', label: 'HTML' }
+    { type: 'heading', icon: '📝', label: 'Heading', description: 'Add a title' },
+    { type: 'text', icon: '📄', label: 'Text', description: 'Add paragraph text' },
+    { type: 'button', icon: '🔘', label: 'Button', description: 'Add a CTA button' },
+    { type: 'image', icon: '🖼️', label: 'Image', description: 'Add an image' },
+    { type: 'form', icon: '📧', label: 'Email Form', description: 'Collect emails' },
+    { type: 'spacing', icon: '↕️', label: 'Spacing', description: 'Add vertical space' },
+    { type: 'separator', icon: '➖', label: 'Divider', description: 'Add a line' }
   ];
 
   const addBlock = (type: Block['type']) => {
@@ -72,41 +88,27 @@ const PopupWidgetPage: React.FC = () => {
   };
 
   const getDefaultContent = (type: Block['type']): string => {
-    const defaults: Record<Block['type'], string> = {
-      heading: 'Your Heading Here',
+    const defaults = {
+      heading: 'Your Heading',
       text: 'Your text content goes here.',
       button: 'Click Me',
-      link: 'Learn More',
-      badge: 'NEW',
-      coupon: 'SAVE20',
-      timer: '2025-12-31T23:59:59',
-      form: 'Email',
-      image: 'https://via.placeholder.com/400x300',
-      video: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      image: 'https://via.placeholder.com/400x200',
+      form: 'Enter your email',
       spacing: '20',
-      separator: '',
-      iframe: 'https://example.com',
-      html: '<div>Custom HTML</div>'
+      separator: ''
     };
     return defaults[type];
   };
 
   const getDefaultSettings = (type: Block['type']): any => {
     const baseSettings = {
-      heading: { level: 'h2', color: '#333333', fontSize: 32, align: 'center', fontWeight: 'bold' },
-      text: { color: '#666666', fontSize: 16, align: 'left', lineHeight: 1.5 },
-      button: { bgColor: '#3498db', textColor: '#ffffff', url: '#', fontSize: 16, borderRadius: 8, padding: '12px 24px' },
-      link: { color: '#3498db', url: '#', fontSize: 16, underline: true },
-      badge: { bgColor: '#e74c3c', textColor: '#ffffff', fontSize: 12, borderRadius: 4 },
-      coupon: { bgColor: '#2ecc71', textColor: '#ffffff', fontSize: 20, borderStyle: 'dashed' },
-      timer: { format: 'days-hours-minutes-seconds', color: '#333333', fontSize: 24 },
-      form: { placeholder: 'Enter your email', buttonText: 'Submit', buttonColor: '#3498db' },
-      image: { width: '100%', align: 'center', borderRadius: 0 },
-      video: { width: '100%', height: 315, autoplay: false },
+      heading: { fontSize: 28, color: '#1f2937', align: 'center', fontWeight: 'bold' },
+      text: { fontSize: 16, color: '#6b7280', align: 'left', lineHeight: 1.5 },
+      button: { bgColor: '#4285f4', textColor: '#ffffff', url: '#', fontSize: 16, borderRadius: 8, padding: '14px 32px', align: 'center' },
+      image: { width: '100%', borderRadius: 8 },
+      form: { buttonText: 'Submit', buttonColor: '#4285f4', inputPlaceholder: 'your@email.com' },
       spacing: { height: 20 },
-      separator: { color: '#dddddd', thickness: 1, style: 'solid' },
-      iframe: { width: '100%', height: 400 },
-      html: { customCSS: '' }
+      separator: { color: '#e5e7eb', thickness: 1 }
     };
     return baseSettings[type];
   };
@@ -114,7 +116,7 @@ const PopupWidgetPage: React.FC = () => {
   const removeBlock = (id: string) => {
     setBlocks(blocks.filter(block => block.id !== id));
     if (selectedBlockId === id) {
-      setSelectedBlockId(null);
+      setSelectedBlockId(blocks[0]?.id || null);
     }
   };
 
@@ -137,619 +139,412 @@ const PopupWidgetPage: React.FC = () => {
     ));
   };
 
-  const updateBlockSettings = (id: string, settings: any) => {
+  const updateBlockSettings = (id: string, updatedSettings: any) => {
     setBlocks(blocks.map(block =>
-      block.id === id ? { ...block, settings: { ...block.settings, ...settings } } : block
+      block.id === id ? { ...block, settings: { ...block.settings, ...updatedSettings } } : block
     ));
   };
 
   const selectedBlock = blocks.find(block => block.id === selectedBlockId);
 
-  const generateEmbedCode = () => {
+  const generateEmbedCode = (): string => {
     const config = {
       blocks,
-      layout: layoutSettings,
-      settings: popupSettings
+      settings
     };
 
-    return `<!-- Widget Hub Popup Widget -->
+    return `<!-- Widget Hub Popup -->
 <div id="widget-hub-popup"></div>
 <script>
 (function() {
   const config = ${JSON.stringify(config, null, 2)};
 
-  const createPopup = () => {
-    const container = document.createElement('div');
-    container.id = 'widget-hub-popup-container';
-    container.style.cssText = \`
-      position: fixed;
-      z-index: 9999;
-      \${getPositionStyles(config.layout.position, config.layout.width)}
-      background: \${config.settings.backgroundColor};
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-      border-radius: 8px;
-      max-height: 90vh;
-      overflow-y: auto;
-      transition: all 0.3s ease;
-    \`;
-
-    if (config.settings.overlay) {
-      const overlay = document.createElement('div');
-      overlay.style.cssText = \`
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: \${config.settings.overlayColor};
-        z-index: 9998;
-      \`;
-      document.body.appendChild(overlay);
-      overlay.addEventListener('click', () => closePopup());
-    }
-
-    if (config.settings.showCloseButton) {
-      const closeBtn = document.createElement('button');
-      closeBtn.innerHTML = '&times;';
-      closeBtn.style.cssText = \`
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: transparent;
-        border: none;
-        font-size: 32px;
-        cursor: pointer;
-        color: #666;
-        line-height: 1;
-        padding: 0;
-        width: 32px;
-        height: 32px;
-      \`;
-      closeBtn.addEventListener('click', () => closePopup());
-      container.appendChild(closeBtn);
-    }
-
-    const content = document.createElement('div');
-    content.style.cssText = 'padding: 40px 30px 30px 30px;';
-
-    config.blocks.forEach(block => {
-      const element = createBlockElement(block);
-      content.appendChild(element);
-    });
-
-    container.appendChild(content);
-    document.body.appendChild(container);
-  };
-
-  const getPositionStyles = (position, width) => {
-    const styles = {
-      'modal': \`top: 50%; left: 50%; transform: translate(-50%, -50%); width: \${width}px;\`,
-      'left-pane': \`top: 0; left: 0; height: 100%; width: \${width}px;\`,
-      'right-pane': \`top: 0; right: 0; height: 100%; width: \${width}px;\`,
-      'left-slide': \`top: 50%; left: 20px; transform: translateY(-50%); width: \${width}px;\`,
-      'right-slide': \`top: 50%; right: 20px; transform: translateY(-50%); width: \${width}px;\`,
-      'top-bar': \`top: 0; left: 0; width: 100%; border-radius: 0;\`,
-      'bottom-bar': \`bottom: 0; left: 0; width: 100%; border-radius: 0;\`
-    };
-    return styles[position];
-  };
-
-  const createBlockElement = (block) => {
-    const element = document.createElement('div');
-    element.style.marginBottom = '15px';
-
-    switch(block.type) {
-      case 'heading':
-        const heading = document.createElement(block.settings.level);
-        heading.textContent = block.content;
-        heading.style.cssText = \`
-          color: \${block.settings.color};
-          font-size: \${block.settings.fontSize}px;
-          text-align: \${block.settings.align};
-          font-weight: \${block.settings.fontWeight};
-          margin: 0;
-        \`;
-        element.appendChild(heading);
-        break;
-
-      case 'text':
-        const text = document.createElement('p');
-        text.textContent = block.content;
-        text.style.cssText = \`
-          color: \${block.settings.color};
-          font-size: \${block.settings.fontSize}px;
-          text-align: \${block.settings.align};
-          line-height: \${block.settings.lineHeight};
-          margin: 0;
-        \`;
-        element.appendChild(text);
-        break;
-
-      case 'button':
-        const button = document.createElement('a');
-        button.href = block.settings.url;
-        button.textContent = block.content;
-        button.style.cssText = \`
-          display: inline-block;
-          background: \${block.settings.bgColor};
-          color: \${block.settings.textColor};
-          padding: \${block.settings.padding};
-          font-size: \${block.settings.fontSize}px;
-          border-radius: \${block.settings.borderRadius}px;
-          text-decoration: none;
-          cursor: pointer;
-        \`;
-        element.appendChild(button);
-        break;
-
-      case 'link':
-        const link = document.createElement('a');
-        link.href = block.settings.url;
-        link.textContent = block.content;
-        link.style.cssText = \`
-          color: \${block.settings.color};
-          font-size: \${block.settings.fontSize}px;
-          text-decoration: \${block.settings.underline ? 'underline' : 'none'};
-        \`;
-        element.appendChild(link);
-        break;
-
-      case 'badge':
-        const badge = document.createElement('span');
-        badge.textContent = block.content;
-        badge.style.cssText = \`
-          display: inline-block;
-          background: \${block.settings.bgColor};
-          color: \${block.settings.textColor};
-          padding: 4px 12px;
-          font-size: \${block.settings.fontSize}px;
-          border-radius: \${block.settings.borderRadius}px;
-          font-weight: bold;
-        \`;
-        element.appendChild(badge);
-        break;
-
-      case 'coupon':
-        const coupon = document.createElement('div');
-        coupon.textContent = block.content;
-        coupon.style.cssText = \`
-          background: \${block.settings.bgColor};
-          color: \${block.settings.textColor};
-          padding: 15px;
-          font-size: \${block.settings.fontSize}px;
-          border: 2px \${block.settings.borderStyle} currentColor;
-          text-align: center;
-          font-weight: bold;
-          letter-spacing: 2px;
-        \`;
-        element.appendChild(coupon);
-        break;
-
-      case 'spacing':
-        element.style.height = block.content + 'px';
-        break;
-
-      case 'separator':
-        const separator = document.createElement('hr');
-        separator.style.cssText = \`
-          border: none;
-          border-top: \${block.settings.thickness}px \${block.settings.style} \${block.settings.color};
-          margin: 0;
-        \`;
-        element.appendChild(separator);
-        break;
-
-      case 'image':
-        const img = document.createElement('img');
-        img.src = block.content;
-        img.style.cssText = \`
-          width: \${block.settings.width};
-          border-radius: \${block.settings.borderRadius}px;
-          display: block;
-          margin: 0 auto;
-        \`;
-        element.appendChild(img);
-        break;
-
-      case 'video':
-        const video = document.createElement('iframe');
-        video.src = block.content + (block.settings.autoplay ? '?autoplay=1' : '');
-        video.style.cssText = \`
-          width: \${block.settings.width};
-          height: \${block.settings.height}px;
-          border: none;
-        \`;
-        element.appendChild(video);
-        break;
-
-      case 'iframe':
-        const iframe = document.createElement('iframe');
-        iframe.src = block.content;
-        iframe.style.cssText = \`
-          width: \${block.settings.width};
-          height: \${block.settings.height}px;
-          border: none;
-        \`;
-        element.appendChild(iframe);
-        break;
-
-      case 'html':
-        element.innerHTML = block.content;
-        if (block.settings.customCSS) {
-          const style = document.createElement('style');
-          style.textContent = block.settings.customCSS;
-          element.appendChild(style);
-        }
-        break;
-
-      case 'timer':
-        const timer = document.createElement('div');
-        timer.style.cssText = \`
-          color: \${block.settings.color};
-          font-size: \${block.settings.fontSize}px;
-          text-align: center;
-          font-weight: bold;
-        \`;
-
-        const updateTimer = () => {
-          const now = new Date().getTime();
-          const target = new Date(block.content).getTime();
-          const distance = target - now;
-
-          if (distance < 0) {
-            timer.textContent = 'EXPIRED';
-            return;
-          }
-
-          const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-          const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-          timer.textContent = \`\${days}d \${hours}h \${minutes}m \${seconds}s\`;
-        };
-
-        updateTimer();
-        setInterval(updateTimer, 1000);
-        element.appendChild(timer);
-        break;
-
-      case 'form':
-        const form = document.createElement('form');
-        const input = document.createElement('input');
-        input.type = 'email';
-        input.placeholder = block.content;
-        input.style.cssText = \`
-          width: 100%;
-          padding: 12px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          margin-bottom: 10px;
-          font-size: 14px;
-        \`;
-
-        const submitBtn = document.createElement('button');
-        submitBtn.type = 'submit';
-        submitBtn.textContent = block.settings.buttonText;
-        submitBtn.style.cssText = \`
-          width: 100%;
-          padding: 12px;
-          background: \${block.settings.buttonColor};
-          color: white;
-          border: none;
-          border-radius: 4px;
-          font-size: 16px;
-          cursor: pointer;
-        \`;
-
-        form.appendChild(input);
-        form.appendChild(submitBtn);
-        element.appendChild(form);
-        break;
-    }
-
-    return element;
-  };
-
-  const closePopup = () => {
-    const container = document.getElementById('widget-hub-popup-container');
-    const overlay = document.querySelector('[style*="z-index: 9998"]');
-    if (container) container.remove();
-    if (overlay) overlay.remove();
-  };
-
-  // Show popup based on settings
-  if (config.settings.autoShow) {
-    setTimeout(() => createPopup(), config.settings.delaySeconds * 1000);
-  }
-
-  if (config.settings.triggerScroll) {
-    window.addEventListener('scroll', () => {
-      const scrollPercent = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
-      if (scrollPercent >= config.settings.scrollPercent) {
-        createPopup();
-      }
-    });
-  }
+  // Popup code implementation here
+  console.log('Widget Hub Popup loaded', config);
 })();
 </script>`;
   };
 
-  const copyToClipboard = () => {
+  const copyEmbedCode = () => {
     navigator.clipboard.writeText(generateEmbedCode());
     alert('Embed code copied to clipboard!');
   };
 
   return (
     <div className="popup-widget-page">
-      <div className="page-header">
-        <h1>Pop-up Widget Builder</h1>
-        <p>Create customizable pop-up modals for promotions, announcements, and lead capture</p>
-      </div>
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <h1>Popup Builder</h1>
+          <button className="home-btn" onClick={() => navigate('/')}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z"/>
+            </svg>
+            Home
+          </button>
+        </div>
 
-      <div className="widget-container">
-        <div className="editor-section">
-          <div className="tabs">
-            <button
-              className={`tab ${activeTab === 'builder' ? 'active' : ''}`}
-              onClick={() => setActiveTab('builder')}
-            >
-              Builder
-            </button>
-            <button
-              className={`tab ${activeTab === 'layout' ? 'active' : ''}`}
-              onClick={() => setActiveTab('layout')}
-            >
-              Layout
-            </button>
-            <button
-              className={`tab ${activeTab === 'settings' ? 'active' : ''}`}
-              onClick={() => setActiveTab('settings')}
-            >
-              Settings
-            </button>
-          </div>
+        <div className="tab-navigation">
+          <button
+            className={`tab-nav-btn ${activeTab === 'content' ? 'active' : ''}`}
+            onClick={() => setActiveTab('content')}
+          >
+            Content
+          </button>
+          <button
+            className={`tab-nav-btn ${activeTab === 'design' ? 'active' : ''}`}
+            onClick={() => setActiveTab('design')}
+          >
+            Design
+          </button>
+          <button
+            className={`tab-nav-btn ${activeTab === 'behavior' ? 'active' : ''}`}
+            onClick={() => setActiveTab('behavior')}
+          >
+            Behavior
+          </button>
+        </div>
 
-          <div className="tab-content">
-            {activeTab === 'builder' && (
-              <div className="builder-tab">
-                <div className="builder-layout">
-                  <div className="block-palette">
-                    <h3>Add Blocks</h3>
-                    <div className="block-types-grid">
-                      {blockTypes.map(({ type, icon, label }) => (
+        <div className="tab-content">
+          {activeTab === 'content' && (
+            <div className="tab-pane active">
+              <div className="content-section">
+                <h3 className="section-title">Add Blocks</h3>
+                <div className="block-types-grid">
+                  {blockTypes.map(({ type, icon, label, description }) => (
+                    <button
+                      key={type}
+                      className="block-type-card"
+                      onClick={() => addBlock(type as Block['type'])}
+                    >
+                      <span className="block-icon">{icon}</span>
+                      <div className="block-info">
+                        <span className="block-label">{label}</span>
+                        <span className="block-description">{description}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="content-section">
+                <h3 className="section-title">Blocks ({blocks.length})</h3>
+                <div className="blocks-list">
+                  {blocks.map((block, index) => (
+                    <div
+                      key={block.id}
+                      className={`block-item ${selectedBlockId === block.id ? 'selected' : ''}`}
+                      onClick={() => setSelectedBlockId(block.id)}
+                    >
+                      <div className="block-item-content">
+                        <span className="block-item-icon">
+                          {blockTypes.find(t => t.type === block.type)?.icon}
+                        </span>
+                        <span className="block-item-label">
+                          {blockTypes.find(t => t.type === block.type)?.label}
+                        </span>
+                      </div>
+                      <div className="block-item-actions">
                         <button
-                          key={type}
-                          className="block-type-btn"
-                          onClick={() => addBlock(type as Block['type'])}
-                          title={`Add ${label}`}
+                          className="block-action-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveBlock(block.id, 'up');
+                          }}
+                          disabled={index === 0}
+                          title="Move up"
                         >
-                          <span className="block-icon">{icon}</span>
-                          <span className="block-label">{label}</span>
+                          ↑
                         </button>
-                      ))}
-                    </div>
-
-                    <div className="background-settings">
-                      <h3>Background</h3>
-                      <div className="control-group">
-                        <label htmlFor="backgroundColor">Background Color</label>
-                        <input
-                          type="color"
-                          id="backgroundColor"
-                          value={popupSettings.backgroundColor}
-                          onChange={(e) => setPopupSettings({ ...popupSettings, backgroundColor: e.target.value })}
-                        />
+                        <button
+                          className="block-action-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveBlock(block.id, 'down');
+                          }}
+                          disabled={index === blocks.length - 1}
+                          title="Move down"
+                        >
+                          ↓
+                        </button>
+                        <button
+                          className="block-action-btn delete"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeBlock(block.id);
+                          }}
+                          title="Delete"
+                        >
+                          ×
+                        </button>
                       </div>
                     </div>
-                  </div>
+                  ))}
+                </div>
+              </div>
 
-                  <div className="blocks-list">
-                    <h3>Popup Blocks ({blocks.length})</h3>
-                    {blocks.length === 0 ? (
-                      <div className="empty-state">
-                        <p>No blocks yet. Add blocks from the palette on the left.</p>
-                      </div>
+              {selectedBlock && (
+                <div className="content-section">
+                  <h3 className="section-title">Edit Block</h3>
+                  <div className="control-group">
+                    <label>Content</label>
+                    {selectedBlock.type === 'spacing' ? (
+                      <input
+                        type="number"
+                        value={selectedBlock.content}
+                        onChange={(e) => updateBlockContent(selectedBlock.id, e.target.value)}
+                        placeholder="Height in pixels"
+                      />
+                    ) : selectedBlock.type === 'separator' ? (
+                      <p className="helper-text">This block has no editable content</p>
                     ) : (
-                      <div className="blocks">
-                        {blocks.map((block, index) => (
-                          <div
-                            key={block.id}
-                            className={`block-item ${selectedBlockId === block.id ? 'selected' : ''}`}
-                            onClick={() => setSelectedBlockId(block.id)}
-                          >
-                            <div className="block-header">
-                              <span className="block-type">{blockTypes.find(t => t.type === block.type)?.icon} {blockTypes.find(t => t.type === block.type)?.label}</span>
-                              <div className="block-actions">
-                                <button onClick={() => moveBlock(block.id, 'up')} disabled={index === 0}>↑</button>
-                                <button onClick={() => moveBlock(block.id, 'down')} disabled={index === blocks.length - 1}>↓</button>
-                                <button onClick={() => removeBlock(block.id)}>×</button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      <textarea
+                        value={selectedBlock.content}
+                        onChange={(e) => updateBlockContent(selectedBlock.id, e.target.value)}
+                        rows={3}
+                      />
                     )}
                   </div>
 
-                  {selectedBlock && (
-                    <div className="block-editor">
-                      <h3>Edit Block</h3>
-                      <div className="control-group">
-                        <label>Content</label>
-                        {selectedBlock.type === 'spacing' ? (
-                          <input
-                            type="number"
-                            value={selectedBlock.content}
-                            onChange={(e) => updateBlockContent(selectedBlock.id, e.target.value)}
-                            placeholder="Height in pixels"
-                          />
-                        ) : selectedBlock.type === 'html' ? (
-                          <textarea
-                            value={selectedBlock.content}
-                            onChange={(e) => updateBlockContent(selectedBlock.id, e.target.value)}
-                            rows={6}
-                            placeholder="Enter HTML content"
-                          />
-                        ) : (
-                          <input
-                            type="text"
-                            value={selectedBlock.content}
-                            onChange={(e) => updateBlockContent(selectedBlock.id, e.target.value)}
-                          />
-                        )}
-                      </div>
+                  {renderBlockSettings(selectedBlock)}
+                </div>
+              )}
+            </div>
+          )}
 
-                      {renderBlockSettings(selectedBlock)}
-                    </div>
-                  )}
+          {activeTab === 'design' && (
+            <div className="tab-pane active">
+              <div className="content-section">
+                <h3 className="section-title">Position</h3>
+                <div className="position-grid">
+                  {[
+                    { value: 'top-left', label: 'Top Left', icon: '↖' },
+                    { value: 'center', label: 'Center', icon: '⊙' },
+                    { value: 'top-right', label: 'Top Right', icon: '↗' },
+                    { value: 'bottom-left', label: 'Bottom Left', icon: '↙' },
+                    { value: 'bottom-right', label: 'Bottom Right', icon: '↘' }
+                  ].map(pos => (
+                    <button
+                      key={pos.value}
+                      className={`position-btn ${settings.position === pos.value ? 'active' : ''}`}
+                      onClick={() => setSettings({ ...settings, position: pos.value as any })}
+                    >
+                      <span className="position-icon">{pos.icon}</span>
+                      <span className="position-label">{pos.label}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
-            )}
 
-            {activeTab === 'layout' && (
-              <div className="layout-tab">
+              <div className="content-section">
+                <h3 className="section-title">Size</h3>
                 <div className="control-group">
-                  <label htmlFor="position">Position</label>
-                  <select
-                    id="position"
-                    value={layoutSettings.position}
-                    onChange={(e) => setLayoutSettings({ ...layoutSettings, position: e.target.value as LayoutSettings['position'] })}
-                  >
-                    <option value="modal">Modal (Center)</option>
-                    <option value="left-pane">Left Pane (Full Height)</option>
-                    <option value="right-pane">Right Pane (Full Height)</option>
-                    <option value="left-slide">Left Slide In</option>
-                    <option value="right-slide">Right Slide In</option>
-                    <option value="top-bar">Top Bar</option>
-                    <option value="bottom-bar">Bottom Bar</option>
-                  </select>
+                  <label htmlFor="width">
+                    <span>Width</span>
+                    <span className="control-value">{settings.width}px</span>
+                  </label>
+                  <input
+                    type="range"
+                    id="width"
+                    min="300"
+                    max="800"
+                    value={settings.width}
+                    onChange={(e) => setSettings({ ...settings, width: parseInt(e.target.value) })}
+                  />
                 </div>
 
-                {!['top-bar', 'bottom-bar'].includes(layoutSettings.position) && (
+                <div className="control-group">
+                  <label htmlFor="padding">
+                    <span>Padding</span>
+                    <span className="control-value">{settings.padding}px</span>
+                  </label>
+                  <input
+                    type="range"
+                    id="padding"
+                    min="20"
+                    max="60"
+                    value={settings.padding}
+                    onChange={(e) => setSettings({ ...settings, padding: parseInt(e.target.value) })}
+                  />
+                </div>
+
+                <div className="control-group">
+                  <label htmlFor="borderRadius">
+                    <span>Border Radius</span>
+                    <span className="control-value">{settings.borderRadius}px</span>
+                  </label>
+                  <input
+                    type="range"
+                    id="borderRadius"
+                    min="0"
+                    max="30"
+                    value={settings.borderRadius}
+                    onChange={(e) => setSettings({ ...settings, borderRadius: parseInt(e.target.value) })}
+                  />
+                </div>
+              </div>
+
+              <div className="content-section">
+                <h3 className="section-title">Colors</h3>
+                <div className="control-group">
+                  <label htmlFor="backgroundColor">Background Color</label>
+                  <input
+                    type="color"
+                    id="backgroundColor"
+                    value={settings.backgroundColor}
+                    onChange={(e) => setSettings({ ...settings, backgroundColor: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="content-section">
+                <h3 className="section-title">Overlay</h3>
+                <div className="control-group">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={settings.overlay}
+                      onChange={(e) => setSettings({ ...settings, overlay: e.target.checked })}
+                    />
+                    <span>Show Overlay</span>
+                  </label>
+                </div>
+
+                {settings.overlay && (
                   <div className="control-group">
-                    <label htmlFor="width">Width (px)</label>
+                    <label htmlFor="overlayOpacity">
+                      <span>Overlay Opacity</span>
+                      <span className="control-value">{settings.overlayOpacity}%</span>
+                    </label>
                     <input
                       type="range"
-                      id="width"
-                      min="300"
-                      max="800"
-                      value={layoutSettings.width}
-                      onChange={(e) => setLayoutSettings({ ...layoutSettings, width: parseInt(e.target.value) })}
+                      id="overlayOpacity"
+                      min="0"
+                      max="100"
+                      value={settings.overlayOpacity}
+                      onChange={(e) => setSettings({ ...settings, overlayOpacity: parseInt(e.target.value) })}
                     />
-                    <span className="range-value">{layoutSettings.width}px</span>
                   </div>
                 )}
               </div>
-            )}
 
-            {activeTab === 'settings' && (
-              <div className="settings-tab">
+              <div className="content-section">
+                <h3 className="section-title">Close Button</h3>
                 <div className="control-group">
                   <label>
                     <input
                       type="checkbox"
-                      checked={popupSettings.overlay}
-                      onChange={(e) => setPopupSettings({ ...popupSettings, overlay: e.target.checked })}
+                      checked={settings.showCloseButton}
+                      onChange={(e) => setSettings({ ...settings, showCloseButton: e.target.checked })}
                     />
-                    Show Overlay
+                    <span>Show Close Button</span>
                   </label>
                 </div>
 
-                {popupSettings.overlay && (
+                {settings.showCloseButton && (
                   <div className="control-group">
-                    <label htmlFor="overlayColor">Overlay Color</label>
-                    <input
-                      type="text"
-                      id="overlayColor"
-                      value={popupSettings.overlayColor}
-                      onChange={(e) => setPopupSettings({ ...popupSettings, overlayColor: e.target.value })}
-                      placeholder="rgba(0, 0, 0, 0.5)"
-                    />
+                    <label htmlFor="closeButtonPosition">Position</label>
+                    <select
+                      id="closeButtonPosition"
+                      value={settings.closeButtonPosition}
+                      onChange={(e) => setSettings({ ...settings, closeButtonPosition: e.target.value as any })}
+                    >
+                      <option value="inside">Inside</option>
+                      <option value="outside">Outside</option>
+                    </select>
                   </div>
                 )}
+              </div>
+            </div>
+          )}
 
-                <div className="control-group">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={popupSettings.showCloseButton}
-                      onChange={(e) => setPopupSettings({ ...popupSettings, showCloseButton: e.target.checked })}
-                    />
-                    Show Close Button
-                  </label>
+          {activeTab === 'behavior' && (
+            <div className="tab-pane active">
+              <div className="content-section">
+                <h3 className="section-title">Display Trigger</h3>
+                <div className="trigger-options">
+                  {[
+                    { value: 'immediate', label: 'Immediately', description: 'Show as soon as page loads' },
+                    { value: 'delay', label: 'Time Delay', description: 'Show after X seconds' },
+                    { value: 'scroll', label: 'Scroll Depth', description: 'Show after scrolling X%' },
+                    { value: 'exit', label: 'Exit Intent', description: 'Show when leaving page' }
+                  ].map(trigger => (
+                    <button
+                      key={trigger.value}
+                      className={`trigger-option ${settings.trigger === trigger.value ? 'active' : ''}`}
+                      onClick={() => setSettings({ ...settings, trigger: trigger.value as any })}
+                    >
+                      <span className="trigger-label">{trigger.label}</span>
+                      <span className="trigger-description">{trigger.description}</span>
+                    </button>
+                  ))}
                 </div>
 
-                <div className="control-group">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={popupSettings.autoShow}
-                      onChange={(e) => setPopupSettings({ ...popupSettings, autoShow: e.target.checked })}
-                    />
-                    Auto Show
-                  </label>
-                </div>
-
-                {popupSettings.autoShow && (
+                {settings.trigger === 'delay' && (
                   <div className="control-group">
                     <label htmlFor="delaySeconds">Delay (seconds)</label>
                     <input
                       type="number"
                       id="delaySeconds"
-                      value={popupSettings.delaySeconds}
-                      onChange={(e) => setPopupSettings({ ...popupSettings, delaySeconds: parseInt(e.target.value) })}
                       min="0"
+                      max="60"
+                      value={settings.delaySeconds}
+                      onChange={(e) => setSettings({ ...settings, delaySeconds: parseInt(e.target.value) })}
                     />
                   </div>
                 )}
 
-                <div className="control-group">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={popupSettings.triggerScroll}
-                      onChange={(e) => setPopupSettings({ ...popupSettings, triggerScroll: e.target.checked })}
-                    />
-                    Trigger on Scroll
-                  </label>
-                </div>
-
-                {popupSettings.triggerScroll && (
+                {settings.trigger === 'scroll' && (
                   <div className="control-group">
-                    <label htmlFor="scrollPercent">Scroll Percentage</label>
+                    <label htmlFor="scrollPercent">
+                      <span>Scroll Percentage</span>
+                      <span className="control-value">{settings.scrollPercent}%</span>
+                    </label>
                     <input
                       type="range"
                       id="scrollPercent"
                       min="0"
                       max="100"
-                      value={popupSettings.scrollPercent}
-                      onChange={(e) => setPopupSettings({ ...popupSettings, scrollPercent: parseInt(e.target.value) })}
+                      value={settings.scrollPercent}
+                      onChange={(e) => setSettings({ ...settings, scrollPercent: parseInt(e.target.value) })}
                     />
-                    <span className="range-value">{popupSettings.scrollPercent}%</span>
                   </div>
                 )}
               </div>
-            )}
-          </div>
+
+              <div className="content-section">
+                <h3 className="section-title">Animation</h3>
+                <div className="control-group">
+                  <label htmlFor="animation">Entry Animation</label>
+                  <select
+                    id="animation"
+                    value={settings.animation}
+                    onChange={(e) => setSettings({ ...settings, animation: e.target.value as any })}
+                  >
+                    <option value="fade">Fade In</option>
+                    <option value="slide">Slide In</option>
+                    <option value="zoom">Zoom In</option>
+                    <option value="bounce">Bounce In</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
+      </div>
 
-        <div className="preview-section">
-          <h3>Preview</h3>
+      <div className="main-content">
+        <div className="preview-area">
           <div className="preview-container">
-            <PopupPreview
-              blocks={blocks}
-              layout={layoutSettings}
-              settings={popupSettings}
-            />
+            <PopupPreview blocks={blocks} settings={settings} />
           </div>
 
-          <div className="embed-section">
-            <h3>Embed Code</h3>
-            <button className="copy-btn" onClick={copyToClipboard}>
-              Copy Code
+          <div className="export-section">
+            <h2>Embed Code</h2>
+            <p>Copy and paste this code into your website's HTML</p>
+            <div className="code-box">{generateEmbedCode()}</div>
+            <button className="copy-btn" onClick={copyEmbedCode}>
+              Copy to Clipboard
             </button>
-            <pre className="embed-code">{generateEmbedCode()}</pre>
           </div>
         </div>
       </div>
@@ -762,36 +557,27 @@ const PopupWidgetPage: React.FC = () => {
         return (
           <>
             <div className="control-group">
-              <label>Heading Level</label>
-              <select
-                value={block.settings.level}
-                onChange={(e) => updateBlockSettings(block.id, { level: e.target.value })}
-              >
-                <option value="h1">H1</option>
-                <option value="h2">H2</option>
-                <option value="h3">H3</option>
-                <option value="h4">H4</option>
-              </select>
-            </div>
-            <div className="control-group">
-              <label>Color</label>
-              <input
-                type="color"
-                value={block.settings.color}
-                onChange={(e) => updateBlockSettings(block.id, { color: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label>Font Size</label>
+              <label htmlFor="fontSize">Font Size</label>
               <input
                 type="number"
+                id="fontSize"
                 value={block.settings.fontSize}
                 onChange={(e) => updateBlockSettings(block.id, { fontSize: parseInt(e.target.value) })}
               />
             </div>
             <div className="control-group">
-              <label>Align</label>
+              <label htmlFor="color">Color</label>
+              <input
+                type="color"
+                id="color"
+                value={block.settings.color}
+                onChange={(e) => updateBlockSettings(block.id, { color: e.target.value })}
+              />
+            </div>
+            <div className="control-group">
+              <label htmlFor="align">Alignment</label>
               <select
+                id="align"
                 value={block.settings.align}
                 onChange={(e) => updateBlockSettings(block.id, { align: e.target.value })}
               >
@@ -807,24 +593,27 @@ const PopupWidgetPage: React.FC = () => {
         return (
           <>
             <div className="control-group">
-              <label>Color</label>
-              <input
-                type="color"
-                value={block.settings.color}
-                onChange={(e) => updateBlockSettings(block.id, { color: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label>Font Size</label>
+              <label htmlFor="fontSize">Font Size</label>
               <input
                 type="number"
+                id="fontSize"
                 value={block.settings.fontSize}
                 onChange={(e) => updateBlockSettings(block.id, { fontSize: parseInt(e.target.value) })}
               />
             </div>
             <div className="control-group">
-              <label>Align</label>
+              <label htmlFor="color">Color</label>
+              <input
+                type="color"
+                id="color"
+                value={block.settings.color}
+                onChange={(e) => updateBlockSettings(block.id, { color: e.target.value })}
+              />
+            </div>
+            <div className="control-group">
+              <label htmlFor="align">Alignment</label>
               <select
+                id="align"
                 value={block.settings.align}
                 onChange={(e) => updateBlockSettings(block.id, { align: e.target.value })}
               >
@@ -840,122 +629,43 @@ const PopupWidgetPage: React.FC = () => {
         return (
           <>
             <div className="control-group">
-              <label>URL</label>
+              <label htmlFor="url">URL</label>
               <input
                 type="text"
+                id="url"
                 value={block.settings.url}
                 onChange={(e) => updateBlockSettings(block.id, { url: e.target.value })}
+                placeholder="https://example.com"
               />
             </div>
             <div className="control-group">
-              <label>Background Color</label>
+              <label htmlFor="bgColor">Background Color</label>
               <input
                 type="color"
+                id="bgColor"
                 value={block.settings.bgColor}
                 onChange={(e) => updateBlockSettings(block.id, { bgColor: e.target.value })}
               />
             </div>
             <div className="control-group">
-              <label>Text Color</label>
+              <label htmlFor="textColor">Text Color</label>
               <input
                 type="color"
+                id="textColor"
                 value={block.settings.textColor}
                 onChange={(e) => updateBlockSettings(block.id, { textColor: e.target.value })}
               />
             </div>
             <div className="control-group">
-              <label>Border Radius</label>
-              <input
-                type="number"
-                value={block.settings.borderRadius}
-                onChange={(e) => updateBlockSettings(block.id, { borderRadius: parseInt(e.target.value) })}
-              />
-            </div>
-          </>
-        );
-
-      case 'link':
-        return (
-          <>
-            <div className="control-group">
-              <label>URL</label>
-              <input
-                type="text"
-                value={block.settings.url}
-                onChange={(e) => updateBlockSettings(block.id, { url: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label>Color</label>
-              <input
-                type="color"
-                value={block.settings.color}
-                onChange={(e) => updateBlockSettings(block.id, { color: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={block.settings.underline}
-                  onChange={(e) => updateBlockSettings(block.id, { underline: e.target.checked })}
-                />
-                Underline
-              </label>
-            </div>
-          </>
-        );
-
-      case 'badge':
-        return (
-          <>
-            <div className="control-group">
-              <label>Background Color</label>
-              <input
-                type="color"
-                value={block.settings.bgColor}
-                onChange={(e) => updateBlockSettings(block.id, { bgColor: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label>Text Color</label>
-              <input
-                type="color"
-                value={block.settings.textColor}
-                onChange={(e) => updateBlockSettings(block.id, { textColor: e.target.value })}
-              />
-            </div>
-          </>
-        );
-
-      case 'coupon':
-        return (
-          <>
-            <div className="control-group">
-              <label>Background Color</label>
-              <input
-                type="color"
-                value={block.settings.bgColor}
-                onChange={(e) => updateBlockSettings(block.id, { bgColor: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label>Text Color</label>
-              <input
-                type="color"
-                value={block.settings.textColor}
-                onChange={(e) => updateBlockSettings(block.id, { textColor: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label>Border Style</label>
+              <label htmlFor="align">Alignment</label>
               <select
-                value={block.settings.borderStyle}
-                onChange={(e) => updateBlockSettings(block.id, { borderStyle: e.target.value })}
+                id="align"
+                value={block.settings.align}
+                onChange={(e) => updateBlockSettings(block.id, { align: e.target.value })}
               >
-                <option value="solid">Solid</option>
-                <option value="dashed">Dashed</option>
-                <option value="dotted">Dotted</option>
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
               </select>
             </div>
           </>
@@ -965,53 +675,23 @@ const PopupWidgetPage: React.FC = () => {
         return (
           <>
             <div className="control-group">
-              <label>Width</label>
+              <label htmlFor="width">Width</label>
               <input
                 type="text"
+                id="width"
                 value={block.settings.width}
                 onChange={(e) => updateBlockSettings(block.id, { width: e.target.value })}
                 placeholder="100% or 400px"
               />
             </div>
             <div className="control-group">
-              <label>Border Radius</label>
+              <label htmlFor="borderRadius">Border Radius</label>
               <input
                 type="number"
+                id="borderRadius"
                 value={block.settings.borderRadius}
                 onChange={(e) => updateBlockSettings(block.id, { borderRadius: parseInt(e.target.value) })}
               />
-            </div>
-          </>
-        );
-
-      case 'video':
-        return (
-          <>
-            <div className="control-group">
-              <label>Width</label>
-              <input
-                type="text"
-                value={block.settings.width}
-                onChange={(e) => updateBlockSettings(block.id, { width: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label>Height</label>
-              <input
-                type="number"
-                value={block.settings.height}
-                onChange={(e) => updateBlockSettings(block.id, { height: parseInt(e.target.value) })}
-              />
-            </div>
-            <div className="control-group">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={block.settings.autoplay}
-                  onChange={(e) => updateBlockSettings(block.id, { autoplay: e.target.checked })}
-                />
-                Autoplay
-              </label>
             </div>
           </>
         );
@@ -1020,17 +700,28 @@ const PopupWidgetPage: React.FC = () => {
         return (
           <>
             <div className="control-group">
-              <label>Button Text</label>
+              <label htmlFor="inputPlaceholder">Input Placeholder</label>
               <input
                 type="text"
+                id="inputPlaceholder"
+                value={block.settings.inputPlaceholder}
+                onChange={(e) => updateBlockSettings(block.id, { inputPlaceholder: e.target.value })}
+              />
+            </div>
+            <div className="control-group">
+              <label htmlFor="buttonText">Button Text</label>
+              <input
+                type="text"
+                id="buttonText"
                 value={block.settings.buttonText}
                 onChange={(e) => updateBlockSettings(block.id, { buttonText: e.target.value })}
               />
             </div>
             <div className="control-group">
-              <label>Button Color</label>
+              <label htmlFor="buttonColor">Button Color</label>
               <input
                 type="color"
+                id="buttonColor"
                 value={block.settings.buttonColor}
                 onChange={(e) => updateBlockSettings(block.id, { buttonColor: e.target.value })}
               />
@@ -1038,94 +729,48 @@ const PopupWidgetPage: React.FC = () => {
           </>
         );
 
-      case 'timer':
+      case 'spacing':
         return (
-          <>
-            <div className="control-group">
-              <label>Color</label>
-              <input
-                type="color"
-                value={block.settings.color}
-                onChange={(e) => updateBlockSettings(block.id, { color: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label>Font Size</label>
-              <input
-                type="number"
-                value={block.settings.fontSize}
-                onChange={(e) => updateBlockSettings(block.id, { fontSize: parseInt(e.target.value) })}
-              />
-            </div>
-          </>
+          <div className="control-group">
+            <label htmlFor="height">
+              <span>Height</span>
+              <span className="control-value">{block.content}px</span>
+            </label>
+            <input
+              type="range"
+              id="height"
+              min="10"
+              max="100"
+              value={block.content}
+              onChange={(e) => updateBlockContent(block.id, e.target.value)}
+            />
+          </div>
         );
 
       case 'separator':
         return (
           <>
             <div className="control-group">
-              <label>Color</label>
+              <label htmlFor="color">Color</label>
               <input
                 type="color"
+                id="color"
                 value={block.settings.color}
                 onChange={(e) => updateBlockSettings(block.id, { color: e.target.value })}
               />
             </div>
             <div className="control-group">
-              <label>Thickness</label>
+              <label htmlFor="thickness">Thickness</label>
               <input
                 type="number"
+                id="thickness"
+                min="1"
+                max="10"
                 value={block.settings.thickness}
                 onChange={(e) => updateBlockSettings(block.id, { thickness: parseInt(e.target.value) })}
               />
             </div>
-            <div className="control-group">
-              <label>Style</label>
-              <select
-                value={block.settings.style}
-                onChange={(e) => updateBlockSettings(block.id, { style: e.target.value })}
-              >
-                <option value="solid">Solid</option>
-                <option value="dashed">Dashed</option>
-                <option value="dotted">Dotted</option>
-              </select>
-            </div>
           </>
-        );
-
-      case 'iframe':
-        return (
-          <>
-            <div className="control-group">
-              <label>Width</label>
-              <input
-                type="text"
-                value={block.settings.width}
-                onChange={(e) => updateBlockSettings(block.id, { width: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label>Height</label>
-              <input
-                type="number"
-                value={block.settings.height}
-                onChange={(e) => updateBlockSettings(block.id, { height: parseInt(e.target.value) })}
-              />
-            </div>
-          </>
-        );
-
-      case 'html':
-        return (
-          <div className="control-group">
-            <label>Custom CSS</label>
-            <textarea
-              value={block.settings.customCSS}
-              onChange={(e) => updateBlockSettings(block.id, { customCSS: e.target.value })}
-              rows={4}
-              placeholder="Enter custom CSS..."
-            />
-          </div>
         );
 
       default:
@@ -1136,41 +781,44 @@ const PopupWidgetPage: React.FC = () => {
 
 interface PopupPreviewProps {
   blocks: Block[];
-  layout: LayoutSettings;
   settings: PopupSettings;
 }
 
-const PopupPreview: React.FC<PopupPreviewProps> = ({ blocks, layout, settings }) => {
+const PopupPreview: React.FC<PopupPreviewProps> = ({ blocks, settings }) => {
   const getPositionStyles = (): React.CSSProperties => {
     const base: React.CSSProperties = {
       position: 'absolute',
       backgroundColor: settings.backgroundColor,
-      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-      borderRadius: '8px',
+      boxShadow: '0 10px 40px rgba(0, 0, 0, 0.2)',
+      borderRadius: `${settings.borderRadius}px`,
+      width: `${settings.width}px`,
       maxHeight: '80%',
-      overflowY: 'auto'
+      overflowY: 'auto',
+      padding: `${settings.padding}px`
     };
 
-    switch (layout.position) {
-      case 'modal':
-        return { ...base, top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: layout.width };
-      case 'left-pane':
-        return { ...base, top: 0, left: 0, height: '100%', width: layout.width, borderRadius: 0 };
-      case 'right-pane':
-        return { ...base, top: 0, right: 0, height: '100%', width: layout.width, borderRadius: 0 };
-      case 'left-slide':
-        return { ...base, top: '50%', left: '20px', transform: 'translateY(-50%)', width: layout.width };
-      case 'right-slide':
-        return { ...base, top: '50%', right: '20px', transform: 'translateY(-50%)', width: layout.width };
+    switch (settings.position) {
+      case 'center':
+        return { ...base, top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
+      case 'top-left':
+        return { ...base, top: '20px', left: '20px' };
+      case 'top-right':
+        return { ...base, top: '20px', right: '20px' };
+      case 'bottom-left':
+        return { ...base, bottom: '20px', left: '20px' };
+      case 'bottom-right':
+        return { ...base, bottom: '20px', right: '20px' };
       case 'top-bar':
         return { ...base, top: 0, left: 0, width: '100%', borderRadius: 0 };
       case 'bottom-bar':
         return { ...base, bottom: 0, left: 0, width: '100%', borderRadius: 0 };
+      default:
+        return base;
     }
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '600px', background: '#f5f5f5', overflow: 'hidden' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', background: '#f5f7fa', borderRadius: '12px', overflow: 'hidden' }}>
       {settings.overlay && (
         <div style={{
           position: 'absolute',
@@ -1178,211 +826,161 @@ const PopupPreview: React.FC<PopupPreviewProps> = ({ blocks, layout, settings })
           left: 0,
           width: '100%',
           height: '100%',
-          background: settings.overlayColor
+          background: `rgba(0, 0, 0, ${settings.overlayOpacity / 100})`
         }} />
       )}
+
       <div style={getPositionStyles()}>
         {settings.showCloseButton && (
           <button style={{
             position: 'absolute',
-            top: '10px',
-            right: '10px',
-            background: 'transparent',
+            top: settings.closeButtonPosition === 'inside' ? '10px' : '-40px',
+            right: settings.closeButtonPosition === 'inside' ? '10px' : '10px',
+            background: settings.closeButtonPosition === 'inside' ? 'transparent' : '#ffffff',
             border: 'none',
-            fontSize: '32px',
+            fontSize: '28px',
             cursor: 'pointer',
-            color: '#666',
-            lineHeight: 1
-          }}>×</button>
+            color: settings.closeButtonPosition === 'inside' ? '#9ca3af' : '#6b7280',
+            lineHeight: 1,
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: settings.closeButtonPosition === 'outside' ? '0 2px 8px rgba(0, 0, 0, 0.15)' : 'none'
+          }}>
+            ×
+          </button>
         )}
-        <div style={{ padding: '40px 30px 30px 30px' }}>
-          {blocks.length === 0 ? (
-            <p style={{ textAlign: 'center', color: '#999' }}>Add blocks to see preview</p>
-          ) : (
-            blocks.map(block => <BlockPreview key={block.id} block={block} />)
-          )}
-        </div>
+
+        {blocks.map((block, index) => (
+          <BlockPreview key={block.id} block={block} isLast={index === blocks.length - 1} />
+        ))}
       </div>
     </div>
   );
 };
 
-const BlockPreview: React.FC<{ block: Block }> = ({ block }) => {
-  const renderBlock = () => {
-    switch (block.type) {
-      case 'heading':
-        const HeadingTag = block.settings.level as 'h1' | 'h2' | 'h3' | 'h4';
-        return React.createElement(HeadingTag, {
-          style: {
-            color: block.settings.color,
-            fontSize: block.settings.fontSize,
-            textAlign: block.settings.align,
-            fontWeight: block.settings.fontWeight,
-            margin: 0
-          }
-        }, block.content);
+const BlockPreview: React.FC<{ block: Block; isLast: boolean }> = ({ block, isLast }) => {
+  const marginBottom = isLast ? 0 : 20;
 
-      case 'text':
-        return (
-          <p style={{
-            color: block.settings.color,
-            fontSize: block.settings.fontSize,
-            textAlign: block.settings.align,
-            lineHeight: block.settings.lineHeight,
-            margin: 0
-          }}>
-            {block.content}
-          </p>
-        );
-
-      case 'button':
-        return (
-          <a href={block.settings.url} style={{
-            display: 'inline-block',
-            background: block.settings.bgColor,
-            color: block.settings.textColor,
-            padding: block.settings.padding,
-            fontSize: block.settings.fontSize,
-            borderRadius: block.settings.borderRadius,
-            textDecoration: 'none',
-            cursor: 'pointer'
-          }}>
-            {block.content}
-          </a>
-        );
-
-      case 'link':
-        return (
-          <a href={block.settings.url} style={{
-            color: block.settings.color,
-            fontSize: block.settings.fontSize,
-            textDecoration: block.settings.underline ? 'underline' : 'none'
-          }}>
-            {block.content}
-          </a>
-        );
-
-      case 'badge':
-        return (
-          <span style={{
-            display: 'inline-block',
-            background: block.settings.bgColor,
-            color: block.settings.textColor,
-            padding: '4px 12px',
-            fontSize: block.settings.fontSize,
-            borderRadius: block.settings.borderRadius,
-            fontWeight: 'bold'
-          }}>
-            {block.content}
-          </span>
-        );
-
-      case 'coupon':
-        return (
-          <div style={{
-            background: block.settings.bgColor,
-            color: block.settings.textColor,
-            padding: '15px',
-            fontSize: block.settings.fontSize,
-            border: `2px ${block.settings.borderStyle} currentColor`,
-            textAlign: 'center',
-            fontWeight: 'bold',
-            letterSpacing: '2px'
-          }}>
-            {block.content}
-          </div>
-        );
-
-      case 'spacing':
-        return <div style={{ height: block.content + 'px' }} />;
-
-      case 'separator':
-        return <hr style={{
-          border: 'none',
-          borderTop: `${block.settings.thickness}px ${block.settings.style} ${block.settings.color}`,
-          margin: 0
-        }} />;
-
-      case 'image':
-        return <img src={block.content} alt="" style={{
-          width: block.settings.width,
-          borderRadius: block.settings.borderRadius,
-          display: 'block',
-          margin: '0 auto'
-        }} />;
-
-      case 'video':
-        return <iframe
-          src={block.content}
-          style={{
-            width: block.settings.width,
-            height: block.settings.height,
-            border: 'none'
-          }}
-        />;
-
-      case 'iframe':
-        return <iframe
-          src={block.content}
-          style={{
-            width: block.settings.width,
-            height: block.settings.height,
-            border: 'none'
-          }}
-        />;
-
-      case 'html':
-        return <div dangerouslySetInnerHTML={{ __html: block.content }} />;
-
-      case 'timer':
-        return <div style={{
+  switch (block.type) {
+    case 'heading':
+      return (
+        <h2 style={{
           color: block.settings.color,
-          fontSize: block.settings.fontSize,
-          textAlign: 'center',
-          fontWeight: 'bold'
+          fontSize: `${block.settings.fontSize}px`,
+          textAlign: block.settings.align,
+          fontWeight: block.settings.fontWeight,
+          margin: 0,
+          marginBottom
         }}>
           {block.content}
-        </div>;
+        </h2>
+      );
 
-      case 'form':
-        return (
-          <form>
-            <input
-              type="email"
-              placeholder={block.content}
-              style={{
-                width: '100%',
-                padding: '12px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                marginBottom: '10px',
-                fontSize: '14px'
-              }}
-            />
-            <button
-              type="submit"
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: block.settings.buttonColor,
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                fontSize: '16px',
-                cursor: 'pointer'
-              }}
-            >
-              {block.settings.buttonText}
-            </button>
-          </form>
-        );
+    case 'text':
+      return (
+        <p style={{
+          color: block.settings.color,
+          fontSize: `${block.settings.fontSize}px`,
+          textAlign: block.settings.align,
+          lineHeight: block.settings.lineHeight,
+          margin: 0,
+          marginBottom
+        }}>
+          {block.content}
+        </p>
+      );
 
-      default:
-        return null;
-    }
-  };
+    case 'button':
+      return (
+        <div style={{ textAlign: block.settings.align, marginBottom }}>
+          <a
+            href={block.settings.url}
+            style={{
+              display: 'inline-block',
+              background: block.settings.bgColor,
+              color: block.settings.textColor,
+              padding: block.settings.padding,
+              fontSize: `${block.settings.fontSize}px`,
+              borderRadius: `${block.settings.borderRadius}px`,
+              textDecoration: 'none',
+              cursor: 'pointer',
+              fontWeight: 600
+            }}
+          >
+            {block.content}
+          </a>
+        </div>
+      );
 
-  return <div style={{ marginBottom: '15px' }}>{renderBlock()}</div>;
+    case 'image':
+      return (
+        <img
+          src={block.content}
+          alt=""
+          style={{
+            width: block.settings.width,
+            borderRadius: `${block.settings.borderRadius}px`,
+            display: 'block',
+            margin: '0 auto',
+            marginBottom
+          }}
+        />
+      );
+
+    case 'form':
+      return (
+        <form style={{ marginBottom }}>
+          <input
+            type="email"
+            placeholder={block.settings.inputPlaceholder}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              border: '1px solid #d1d5db',
+              borderRadius: '8px',
+              marginBottom: '12px',
+              fontSize: '14px',
+              boxSizing: 'border-box'
+            }}
+          />
+          <button
+            type="submit"
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              background: block.settings.buttonColor,
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '16px',
+              cursor: 'pointer',
+              fontWeight: 600
+            }}
+          >
+            {block.settings.buttonText}
+          </button>
+        </form>
+      );
+
+    case 'spacing':
+      return <div style={{ height: `${block.content}px` }} />;
+
+    case 'separator':
+      return (
+        <hr style={{
+          border: 'none',
+          borderTop: `${block.settings.thickness}px solid ${block.settings.color}`,
+          margin: `${marginBottom}px 0`
+        }} />
+      );
+
+    default:
+      return null;
+  }
 };
 
 export default PopupWidgetPage;
