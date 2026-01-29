@@ -2,15 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './EmailTemplatesPage.css';
 
-interface EmailTemplate {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  code: string;
-  previewImage?: string;
-}
-
 interface ColorSettings {
   primaryColor: string;
   primaryLight: string;
