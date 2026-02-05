@@ -186,7 +186,6 @@
   flex: 1;
   overflow-y: auto;
   background: #ffffff;
-  width: 400px;
 }
 
 .tab-pane {
@@ -202,7 +201,6 @@
   padding: 20px;
   border-bottom: 1px solid #f3f4f6;
   background: #ffffff;
-  width: 400px;
 }
 
 .content-section:last-child {
