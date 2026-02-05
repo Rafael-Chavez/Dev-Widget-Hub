@@ -2,19 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './EmailTemplatesPage.css';
 
-interface ColorSettings {
-  primaryColor: string;
-  primaryLight: string;
-  accentColor: string;
-  textColor: string;
-  lightText: string;
-  borderColor: string;
-  successColor: string;
-  dangerColor: string;
-  warningColor: string;
-  lightBg: string;
-}
-
 interface Template {
   id: string;
   name: string;
@@ -28,18 +15,6 @@ const EmailTemplatesPage: React.FC = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [colors, setColors] = useState<ColorSettings>({
-    primaryColor: '#137fec',
-    primaryLight: '#EEF2FF',
-    accentColor: '#06B6D4',
-    textColor: '#1F2937',
-    lightText: '#6B7280',
-    borderColor: '#E5E7EB',
-    successColor: '#10B981',
-    dangerColor: '#EF4444',
-    warningColor: '#F59E0B',
-    lightBg: '#F9FAFB'
-  });
 
   const templates: Template[] = [
     {
@@ -57,9 +32,9 @@ const EmailTemplatesPage: React.FC = () => {
       preview: '✅'
     },
     {
-      id: 'shipping-notification',
-      name: 'Shipping Notification',
-      description: 'Track your package with detailed shipping information',
+      id: 'local-pickup',
+      name: 'Local Pickup',
+      description: 'Order ready for pickup notification with location details',
       category: 'Transactional',
       preview: '📦'
     },
@@ -89,49 +64,161 @@ const EmailTemplatesPage: React.FC = () => {
   };
 
   const generateTemplateCode = (templateId: string): string => {
-    // Generate template code with color substitutions
+    if (templateId === 'local-pickup') {
+      return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Ready for Pickup</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .company-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .content {
+            padding: 15px 0;
+        }
+        h3 {
+            color: #2c3e50;
+            font-size: 16px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        .pickup-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        .pickup-table th {
+            background-color: #2c3e50;
+            color: #ffffff;
+            text-align: left;
+            padding: 10px;
+            font-size: 13px;
+        }
+        .pickup-table td {
+            border-bottom: 1px solid #eeeeee;
+            padding: 10px;
+            text-align: left;
+            font-size: 13px;
+        }
+        .pickup-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .pickup-section {
+            background-color: #f0fff0;
+            border-left: 4px solid #27ae60;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 3px;
+        }
+        .address-box {
+            background-color: #f9f9f9;
+            border-left: 4px solid #2c3e50;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .footer {
+            border-top: 1px solid #eeeeee;
+            padding-top: 15px;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #666666;
+        }
+        .contact-info {
+            margin-top: 10px;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .invoice-notice {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                {% logo 200 200 %}
+            </div>
+            <div class="company-name">{{site.name}}</div>
+        </div>
+
+        <div class="content">
+            <h3>Hello {{ customer.first_name }},</h3>
+
+            <p>Good news! Your order is ready for pickup.</p>
+
+            <div class="pickup-section">
+                <h3>Pickup Information</h3>
+                <p>Your order is now available for collection. Please reference your invoice number when you arrive:</p>
+                <p class="invoice-notice">Invoice #: <strong>{{ order.invoice_number }}</strong>
+                {% if order.po_number != blank %}<br>PO #: <strong>{{ order.po_number }}</strong>{% endif %}</p>
+            </div>
+            <div class="address-box">
+                <h3>Pickup Location & Hours</h3>
+                <p><strong>Address:</strong>Suwanee, GA 30005</p>
+                <p><strong>Business Hours:</strong></p>
+                <ul style="margin-top: 0; padding-left: 20px;">
+                    <li>Monday - Friday: 9:00 AM - 5:00 PM</li>
+                    <li>Saturday: 9:00 AM - 2:00 PM</li>
+                    <li>Sunday: Closed</li>
+                </ul>
+            </div>
+
+            <p>Thank you for your business,</p>
+            <p><strong>{{ site.name }}</strong></p>
+        </div>
+
+        <div class="footer">
+            <div class="contact-info">
+                <p>Website: <a href="http://{{ site.primary_domain }}">{{ site.primary_domain }}</a></p>
+                {{ message_html }}
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
+    }
+
+    // Default template
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${templateId}</title>
-    <style>
-        :root {
-            --primary-color: ${colors.primaryColor};
-            --accent-color: ${colors.accentColor};
-            --text-color: ${colors.textColor};
-            --light-text: ${colors.lightText};
-            --border-color: ${colors.borderColor};
-            --success-color: ${colors.successColor};
-            --danger-color: ${colors.dangerColor};
-            --light-bg: ${colors.lightBg};
-        }
-    </style>
 </head>
 <body>
     <!-- Template: ${templateId} -->
 </body>
 </html>`;
-  };
-
-  const handleColorChange = (key: keyof ColorSettings, value: string) => {
-    setColors(prev => ({ ...prev, [key]: value }));
-  };
-
-  const resetColors = () => {
-    setColors({
-      primaryColor: '#137fec',
-      primaryLight: '#EEF2FF',
-      accentColor: '#06B6D4',
-      textColor: '#1F2937',
-      lightText: '#6B7280',
-      borderColor: '#E5E7EB',
-      successColor: '#10B981',
-      dangerColor: '#EF4444',
-      warningColor: '#F59E0B',
-      lightBg: '#F9FAFB'
-    });
   };
 
   return (
@@ -303,43 +390,6 @@ const EmailTemplatesPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Color Palette Section */}
-          <div className="palette-section">
-            <h3 className="section-title">Color Palette Customization</h3>
-            <p className="section-description">Customize the color scheme for all templates</p>
-
-            <div className="color-grid">
-              {(Object.keys(colors) as Array<keyof ColorSettings>).map((key) => (
-                <div key={key} className="color-item">
-                  <label className="color-label">
-                    <span className="color-name">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                    <span className="color-value">{colors[key]}</span>
-                  </label>
-                  <div className="color-input-group">
-                    <input
-                      type="color"
-                      value={colors[key]}
-                      onChange={(e) => handleColorChange(key, e.target.value)}
-                      className="color-picker"
-                    />
-                    <input
-                      type="text"
-                      value={colors[key]}
-                      onChange={(e) => handleColorChange(key, e.target.value)}
-                      className="color-text"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <button className="reset-button" onClick={resetColors}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Reset to Defaults
-            </button>
-          </div>
         </div>
       </main>
     </div>
