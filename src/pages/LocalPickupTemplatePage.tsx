@@ -2,11 +2,24 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LocalPickupTemplatePage.css';
 
+interface CodeSection {
+  id: string;
+  name: string;
+  description: string;
+  code: string;
+}
+
 const LocalPickupTemplatePage: React.FC = () => {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
+  const [activeSection, setActiveSection] = useState('full-template');
 
-  const templateCode = `<!DOCTYPE html>
+  const codeSections: CodeSection[] = [
+    {
+      id: 'full-template',
+      name: 'Full Template',
+      description: 'Complete HTML email template with all sections',
+      code: `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -141,10 +154,146 @@ const LocalPickupTemplatePage: React.FC = () => {
         </div>
     </div>
 </body>
-</html>`;
+</html>`
+    },
+    {
+      id: 'header-section',
+      name: 'Header Section',
+      description: 'Email header with logo and company name',
+      code: `<div class="header">
+    {% logo 200 200 %}
+    <div class="company-name">{{site.name}}</div>
+</div>`
+    },
+    {
+      id: 'pickup-notice',
+      name: 'Pickup Notice',
+      description: 'Main pickup notification content',
+      code: `<h3>Hello {{ customer.first_name }},</h3>
+
+<p>Good news! Your order is ready for pickup.</p>
+
+<div class="pickup-section">
+    <p class="invoice-notice">Invoice #: <strong>{{ order.invoice_number }}</strong></p>
+
+    <div class="address">
+        <strong>Pickup Location:</strong>
+        123 Main Street<br>
+        Suite 100<br>
+        City, State 12345
+    </div>
+
+    <div class="hours">
+        <strong>Pickup Hours:</strong><br>
+        Monday - Friday: 9:00 AM - 6:00 PM<br>
+        Saturday: 10:00 AM - 4:00 PM<br>
+        Sunday: Closed
+    </div>
+</div>`
+    },
+    {
+      id: 'footer-section',
+      name: 'Footer Section',
+      description: 'Email footer with copyright and address',
+      code: `<div class="footer">
+    <p>&copy; {{ "now" | date: "%Y" }} {{site.name}}. All rights reserved.</p>
+    <p>{{site.address}}</p>
+</div>`
+    },
+    {
+      id: 'styles',
+      name: 'CSS Styles',
+      description: 'Complete stylesheet for the email template',
+      code: `<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+    }
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+    }
+    .header {
+        background-color: #4CAF50;
+        padding: 30px;
+        text-align: center;
+    }
+    .company-name {
+        color: #ffffff;
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 15px;
+    }
+    .content {
+        padding: 40px 30px;
+    }
+    h3 {
+        color: #333333;
+        margin-top: 0;
+    }
+    p {
+        color: #666666;
+        line-height: 1.6;
+        margin: 15px 0;
+    }
+    .pickup-section {
+        background-color: #f9f9f9;
+        border-left: 4px solid #4CAF50;
+        padding: 20px;
+        margin: 25px 0;
+    }
+    .invoice-notice {
+        font-size: 16px;
+        color: #333333;
+        margin: 0 0 15px 0;
+    }
+    .address {
+        background-color: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 15px 0;
+    }
+    .address strong {
+        color: #4CAF50;
+        display: block;
+        margin-bottom: 8px;
+    }
+    .hours {
+        margin-top: 15px;
+    }
+    .button {
+        display: inline-block;
+        background-color: #4CAF50;
+        color: #ffffff;
+        text-decoration: none;
+        padding: 12px 30px;
+        border-radius: 5px;
+        margin: 20px 0;
+        font-weight: bold;
+    }
+    .footer {
+        background-color: #333333;
+        color: #ffffff;
+        padding: 20px;
+        text-align: center;
+        font-size: 12px;
+    }
+    .footer p {
+        color: #cccccc;
+        margin: 5px 0;
+    }
+</style>`
+    }
+  ];
+
+  const activeCodeSection = codeSections.find(section => section.id === activeSection) || codeSections[0];
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(templateCode).then(() => {
+    navigator.clipboard.writeText(activeCodeSection.code).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -175,33 +324,24 @@ const LocalPickupTemplatePage: React.FC = () => {
           </button>
         </div>
 
-        <div className="template-info">
-          <div className="info-section">
-            <h3>About This Template</h3>
-            <p>A professional email template for notifying customers when their order is ready for local pickup.</p>
+        <div className="template-sections">
+          <div className="sections-header">
+            <h3>Template Sections</h3>
+            <p>Click to view code snippets</p>
           </div>
-
-          <div className="info-section">
-            <h3>Features</h3>
-            <ul>
-              <li>Clean, modern design</li>
-              <li>Mobile responsive</li>
-              <li>Dynamic customer data</li>
-              <li>Invoice number display</li>
-              <li>Pickup location & hours</li>
-              <li>Contact button</li>
-            </ul>
-          </div>
-
-          <div className="info-section">
-            <h3>How to Use</h3>
-            <ol>
-              <li>Copy the template code</li>
-              <li>Paste into your email system</li>
-              <li>Update pickup location details</li>
-              <li>Customize colors if needed</li>
-              <li>Test before sending</li>
-            </ol>
+          <div className="section-list">
+            {codeSections.map((section) => (
+              <button
+                key={section.id}
+                className={`section-item ${activeSection === section.id ? 'active' : ''}`}
+                onClick={() => setActiveSection(section.id)}
+              >
+                <span className="section-name">{section.name}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/>
+                </svg>
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -209,7 +349,7 @@ const LocalPickupTemplatePage: React.FC = () => {
       <div className="main-content">
         <div className="top-header">
           <div className="header-left">
-            <h2 className="page-title">Local Pickup Email Template</h2>
+            <h2 className="page-title">Professional Email Templates</h2>
           </div>
         </div>
 
@@ -217,7 +357,10 @@ const LocalPickupTemplatePage: React.FC = () => {
           <div className="template-section">
             <div className="code-section">
               <div className="code-header">
-                <h3>Template Code</h3>
+                <div className="code-header-info">
+                  <h3>{activeCodeSection.name}</h3>
+                  <p>{activeCodeSection.description}</p>
+                </div>
                 <button className="copy-btn" onClick={copyToClipboard}>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
@@ -227,29 +370,31 @@ const LocalPickupTemplatePage: React.FC = () => {
                 </button>
               </div>
               <div className="code-box">
-                <pre><code>{templateCode}</code></pre>
+                <pre><code>{activeCodeSection.code}</code></pre>
               </div>
             </div>
 
-            <div className="preview-section">
-              <h3>Preview</h3>
-              <div className="preview-iframe-container">
-                <iframe
-                  srcDoc={templateCode.replace(/\{\{[^}]+\}\}/g, (match) => {
-                    const replacements: { [key: string]: string } = {
-                      '{{site.name}}': 'Your Store Name',
-                      '{{ customer.first_name }}': 'John',
-                      '{{ order.invoice_number }}': 'INV-2024-001',
-                      '{{site.address}}': '123 Main Street, City, State 12345',
-                      '{{ "now" | date: "%Y" }}': new Date().getFullYear().toString()
-                    };
-                    return replacements[match] || match;
-                  }).replace('{% logo 200 200 %}', '<div style="width:200px;height:200px;background:#2e7d32;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:60px;font-weight:bold;">LOGO</div>')}
-                  title="Email Template Preview"
-                  className="preview-iframe"
-                />
+            {activeSection === 'full-template' && (
+              <div className="preview-section">
+                <h3>Preview</h3>
+                <div className="preview-iframe-container">
+                  <iframe
+                    srcDoc={activeCodeSection.code.replace(/\{\{[^}]+\}\}/g, (match) => {
+                      const replacements: { [key: string]: string } = {
+                        '{{site.name}}': 'Your Store Name',
+                        '{{ customer.first_name }}': 'John',
+                        '{{ order.invoice_number }}': 'INV-2024-001',
+                        '{{site.address}}': '123 Main Street, City, State 12345',
+                        '{{ "now" | date: "%Y" }}': new Date().getFullYear().toString()
+                      };
+                      return replacements[match] || match;
+                    }).replace('{% logo 200 200 %}', '<div style="width:200px;height:200px;background:#2e7d32;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:60px;font-weight:bold;">LOGO</div>')}
+                    title="Email Template Preview"
+                    className="preview-iframe"
+                  />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
