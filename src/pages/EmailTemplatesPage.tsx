@@ -18,6 +18,13 @@ const EmailTemplatesPage: React.FC = () => {
 
   const templates: Template[] = [
     {
+      id: 'local-pickup',
+      name: 'Local Pickup',
+      description: 'Order ready for pickup notification with location details',
+      category: 'Local Pickup',
+      preview: '📦'
+    },
+    {
       id: 'production-worksheet',
       name: 'Production Worksheet',
       description: 'Professional DecoNetwork production template with barcode support',
@@ -25,32 +32,18 @@ const EmailTemplatesPage: React.FC = () => {
       preview: '📋'
     },
     {
-      id: 'order-confirmation',
-      name: 'Order Confirmation',
-      description: 'Clean order confirmation email with product details',
-      category: 'Transactional',
-      preview: '✅'
-    },
-    {
-      id: 'local-pickup',
-      name: 'Local Pickup',
-      description: 'Order ready for pickup notification with location details',
-      category: 'Transactional',
-      preview: '📦'
-    },
-    {
       id: 'welcome-email',
       name: 'Welcome Email',
       description: 'Warm welcome template for new customers',
-      category: 'Marketing',
+      category: 'Welcome',
       preview: '👋'
     }
   ];
 
-  const categories = ['all', 'Production', 'Transactional', 'Marketing'];
+  const categories = ['All Templates', 'Production', 'Local Pickup', 'Welcome'];
 
   const filteredTemplates = templates.filter(template => {
-    const matchesCategory = selectedCategory === 'all' || template.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'All Templates' || template.category === selectedCategory;
     const matchesSearch = template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          template.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
@@ -241,42 +234,29 @@ const EmailTemplatesPage: React.FC = () => {
           </div>
 
           <nav className="sidebar-nav">
-            <div className="nav-item active">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-              </svg>
-              <span>All Templates</span>
-            </div>
-            <div className="nav-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span>Production</span>
-            </div>
-            <div className="nav-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              <span>Transactional</span>
-            </div>
-            <div className="nav-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-              </svg>
-              <span>Marketing</span>
-            </div>
-
-            <div className="nav-divider">
-              <span className="nav-divider-text">Customization</span>
-            </div>
-
-            <div className="nav-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-              </svg>
-              <span>Color Palette</span>
-            </div>
+            {categories.map((category) => (
+              <div
+                key={category}
+                className={`nav-item ${selectedCategory === category ? 'active' : ''}`}
+                onClick={() => setSelectedCategory(category)}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  {category === 'All Templates' && (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  )}
+                  {category === 'Production' && (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  )}
+                  {category === 'Local Pickup' && (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  )}
+                  {category === 'Welcome' && (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                  )}
+                </svg>
+                <span>{category}</span>
+              </div>
+            ))}
           </nav>
         </div>
 
@@ -293,7 +273,7 @@ const EmailTemplatesPage: React.FC = () => {
         {/* Top Header */}
         <header className="top-header">
           <div className="header-left">
-            <h2 className="page-title">Email Templates</h2>
+            <h2 className="page-title" style={{ color: '#111827' }}>Email Templates</h2>
             <div className="search-container">
               <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
