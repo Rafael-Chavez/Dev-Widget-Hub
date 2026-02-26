@@ -10,6 +10,7 @@ import AnnouncementBarPage from './pages/AnnouncementBarPage';
 import CountdownTimerPage from './pages/CountdownTimerPage';
 import GoogleReviewsPage from './pages/GoogleReviewsPage';
 import PopupWidgetPage from './pages/PopupWidgetPage';
+import LocalPickupTemplatePage from './pages/LocalPickupTemplatePage';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/countdown-timer" element={<CountdownTimerPage />} />
         <Route path="/google-reviews" element={<GoogleReviewsPage />} />
         <Route path="/popup-widget" element={<PopupWidgetPage />} />
+        <Route path="/local-pickup-template" element={<LocalPickupTemplatePage />} />
       </Routes>
     </Router>
   );
