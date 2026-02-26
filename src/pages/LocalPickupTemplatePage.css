@@ -277,6 +277,39 @@
   margin: 0;
 }
 
+.local-pickup-page .code-header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.local-pickup-page .expand-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  height: fit-content;
+}
+
+.local-pickup-page .expand-btn:hover {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+}
+
+.local-pickup-page .expand-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
 .local-pickup-page .copy-btn {
   display: flex;
   align-items: center;
@@ -310,6 +343,11 @@
   overflow: hidden;
   max-height: 500px;
   overflow-y: auto;
+  transition: max-height 0.3s ease;
+}
+
+.local-pickup-page .code-box.expanded {
+  max-height: none;
 }
 
 .local-pickup-page .code-box pre {
