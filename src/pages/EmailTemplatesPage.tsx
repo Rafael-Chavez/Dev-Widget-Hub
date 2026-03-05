@@ -12,7 +12,7 @@ interface Template {
 
 const EmailTemplatesPage: React.FC = () => {
   const navigate = useNavigate();
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All Templates');
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const templates: Template[] = [

@@ -145,6 +145,7 @@
 .local-pickup-page .header-left {
   display: flex;
   align-items: center;
+  gap: 16px;
 }
 
 .local-pickup-page .page-title {
@@ -180,6 +181,31 @@
   height: 18px;
 }
 
+.local-pickup-page .back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.local-pickup-page .back-btn:hover {
+  background: #f9fafb;
+  border-color: #cbd5e1;
+}
+
+.local-pickup-page .back-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
 /* Content Wrapper */
 .local-pickup-page .content-wrapper {
   padding: 32px;
@@ -208,6 +234,7 @@
   align-items: flex-start;
   margin-bottom: 16px;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .local-pickup-page .code-header-info {
