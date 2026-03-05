@@ -12,7 +12,6 @@ interface CodeSection {
 const LocalPickupTemplatePage: React.FC = () => {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
-  const [activeSection, setActiveSection] = useState('full-template');
   const [isExpanded, setIsExpanded] = useState(false);
 
   const codeSections: CodeSection[] = [
@@ -291,7 +290,8 @@ const LocalPickupTemplatePage: React.FC = () => {
     }
   ];
 
-  const activeCodeSection = codeSections.find(section => section.id === activeSection) || codeSections[0];
+  // Always show the full template
+  const activeCodeSection = codeSections[0];
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(activeCodeSection.code).then(() => {
@@ -315,36 +315,6 @@ const LocalPickupTemplatePage: React.FC = () => {
           </div>
           <p className="version">Email Template</p>
         </div>
-
-        <div className="sidebar-nav">
-          <button className="nav-item" onClick={() => navigate('/')}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z"/>
-            </svg>
-            <span>Home</span>
-          </button>
-        </div>
-
-        <div className="template-sections">
-          <div className="sections-header">
-            <h3>Template Sections</h3>
-            <p>Click to view code snippets</p>
-          </div>
-          <div className="section-list">
-            {codeSections.map((section) => (
-              <button
-                key={section.id}
-                className={`section-item ${activeSection === section.id ? 'active' : ''}`}
-                onClick={() => setActiveSection(section.id)}
-              >
-                <span className="section-name">{section.name}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/>
-                </svg>
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
       <div className="main-content">
@@ -352,6 +322,12 @@ const LocalPickupTemplatePage: React.FC = () => {
           <div className="header-left">
             <h2 className="page-title">Professional Email Templates</h2>
           </div>
+          <button className="home-btn" onClick={() => navigate('/')}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z"/>
+            </svg>
+            <span>Home</span>
+          </button>
         </div>
 
         <div className="content-wrapper">
@@ -390,28 +366,6 @@ const LocalPickupTemplatePage: React.FC = () => {
                 <pre><code>{activeCodeSection.code}</code></pre>
               </div>
             </div>
-
-            {activeSection === 'full-template' && (
-              <div className="preview-section">
-                <h3>Preview</h3>
-                <div className="preview-iframe-container">
-                  <iframe
-                    srcDoc={activeCodeSection.code.replace(/\{\{[^}]+\}\}/g, (match) => {
-                      const replacements: { [key: string]: string } = {
-                        '{{site.name}}': 'Your Store Name',
-                        '{{ customer.first_name }}': 'John',
-                        '{{ order.invoice_number }}': 'INV-2024-001',
-                        '{{site.address}}': '123 Main Street, City, State 12345',
-                        '{{ "now" | date: "%Y" }}': new Date().getFullYear().toString()
-                      };
-                      return replacements[match] || match;
-                    }).replace('{% logo 200 200 %}', '<div style="width:200px;height:200px;background:#2e7d32;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:60px;font-weight:bold;">LOGO</div>')}
-                    title="Email Template Preview"
-                    className="preview-iframe"
-                  />
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
