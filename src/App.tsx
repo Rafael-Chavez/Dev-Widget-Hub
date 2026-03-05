@@ -11,6 +11,7 @@ import CountdownTimerPage from './pages/CountdownTimerPage';
 import GoogleReviewsPage from './pages/GoogleReviewsPage';
 import PopupWidgetPage from './pages/PopupWidgetPage';
 import LocalPickupTemplatePage from './pages/LocalPickupTemplatePage';
+import QuoteSentTemplatePage from './pages/QuoteSentTemplatePage';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/google-reviews" element={<GoogleReviewsPage />} />
         <Route path="/popup-widget" element={<PopupWidgetPage />} />
         <Route path="/local-pickup-template" element={<LocalPickupTemplatePage />} />
+        <Route path="/quote-sent-template" element={<QuoteSentTemplatePage />} />
       </Routes>
     </Router>
   );

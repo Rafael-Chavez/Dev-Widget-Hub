@@ -24,6 +24,13 @@ const EmailTemplatesPage: React.FC = () => {
       preview: '📦'
     },
     {
+      id: 'quote-sent',
+      name: 'Quote Sent',
+      description: 'Quote available notification with approval and payment options',
+      category: 'Quote',
+      preview: '💰'
+    },
+    {
       id: 'production-worksheet',
       name: 'Production Worksheet',
       description: 'Professional DecoNetwork production template with barcode support',
@@ -39,7 +46,7 @@ const EmailTemplatesPage: React.FC = () => {
     }
   ];
 
-  const categories = ['All Templates', 'Production', 'Local Pickup', 'Welcome'];
+  const categories = ['All Templates', 'Production', 'Local Pickup', 'Quote', 'Welcome'];
 
   const filteredTemplates = templates.filter(template => {
     const matchesCategory = selectedCategory === 'All Templates' || template.category === selectedCategory;
@@ -91,6 +98,9 @@ const EmailTemplatesPage: React.FC = () => {
                   {category === 'Local Pickup' && (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   )}
+                  {category === 'Quote' && (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  )}
                   {category === 'Welcome' && (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
                   )}
@@ -136,7 +146,7 @@ const EmailTemplatesPage: React.FC = () => {
               <div
                 key={template.id}
                 className="template-card-large"
-                onClick={() => navigate('/local-pickup-template')}
+                onClick={() => navigate(`/${template.id}-template`)}
               >
                 <div className="template-icon-large">
                   {template.preview}
