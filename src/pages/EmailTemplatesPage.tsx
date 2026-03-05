@@ -234,6 +234,13 @@ const EmailTemplatesPage: React.FC = () => {
           </div>
 
           <nav className="sidebar-nav">
+            <button className="nav-item" onClick={() => navigate('/')}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              <span>Home</span>
+            </button>
+
             {categories.map((category) => (
               <div
                 key={category}
@@ -259,13 +266,6 @@ const EmailTemplatesPage: React.FC = () => {
             ))}
           </nav>
         </div>
-
-        <button className="home-button" onClick={() => navigate('/')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
-          <span>Home</span>
-        </button>
       </aside>
 
       {/* Main Content */}
@@ -287,26 +287,6 @@ const EmailTemplatesPage: React.FC = () => {
               />
             </div>
           </div>
-          <div className="header-right">
-            <button className="icon-button">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-              </svg>
-            </button>
-            <button className="icon-button">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </button>
-            <div className="divider"></div>
-            <button className="profile-button">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              <span>Profile</span>
-            </button>
-          </div>
         </header>
 
         {/* Page Content */}
@@ -316,55 +296,26 @@ const EmailTemplatesPage: React.FC = () => {
             <p className="content-description">Copy-paste ready, fully responsive email templates for all your business needs.</p>
           </div>
 
-          {/* Category Filter */}
-          <div className="category-tabs">
-            {categories.map(category => (
-              <label key={category} className="category-tab">
-                <input
-                  type="radio"
-                  name="category"
-                  value={category}
-                  checked={selectedCategory === category}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                />
-                <div className="category-tab-content">
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </div>
-              </label>
-            ))}
-          </div>
-
           {/* Templates Grid */}
-          <div className="templates-grid">
+          <div className="templates-grid-large">
             {filteredTemplates.map((template) => (
-              <div key={template.id} className="template-card">
-                <div className="template-preview">
-                  <div className="preview-emoji">{template.preview}</div>
+              <div
+                key={template.id}
+                className="template-card-large"
+                onClick={() => navigate('/local-pickup-template')}
+              >
+                <div className="template-icon-large">
+                  {template.preview}
                 </div>
-                <div className="template-content">
-                  <div className="template-header">
-                    <div>
-                      <h4 className="template-name">{template.name}</h4>
-                      <p className="template-description">{template.description}</p>
-                    </div>
-                  </div>
-                  <div className="code-block">
-                    <div className="code-content">
-                      {generateTemplateCode(template.id).substring(0, 200)}...
-                    </div>
-                    <button
-                      className={`copy-button ${copiedId === template.id ? 'copied' : ''}`}
-                      onClick={() => handleCopy(template.id)}
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        {copiedId === template.id ? (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        ) : (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        )}
-                      </svg>
-                    </button>
-                  </div>
+                <div className="template-info-large">
+                  <h3 className="template-name-large">{template.name}</h3>
+                  <p className="template-description-large">{template.description}</p>
+                  <button className="view-template-btn">
+                    View Template
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
             ))}
