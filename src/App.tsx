@@ -12,6 +12,7 @@ import GoogleReviewsPage from './pages/GoogleReviewsPage';
 import PopupWidgetPage from './pages/PopupWidgetPage';
 import LocalPickupTemplatePage from './pages/LocalPickupTemplatePage';
 import QuoteSentTemplatePage from './pages/QuoteSentTemplatePage';
+import WelcomeEmailTemplatePage from './pages/WelcomeEmailTemplatePage';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/popup-widget" element={<PopupWidgetPage />} />
         <Route path="/local-pickup-template" element={<LocalPickupTemplatePage />} />
         <Route path="/quote-sent-template" element={<QuoteSentTemplatePage />} />
+        <Route path="/welcome-email-template" element={<WelcomeEmailTemplatePage />} />
       </Routes>
     </Router>
   );
