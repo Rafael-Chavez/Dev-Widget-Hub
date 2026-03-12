@@ -13,6 +13,7 @@ import PopupWidgetPage from './pages/PopupWidgetPage';
 import LocalPickupTemplatePage from './pages/LocalPickupTemplatePage';
 import QuoteSentTemplatePage from './pages/QuoteSentTemplatePage';
 import WelcomeEmailTemplatePage from './pages/WelcomeEmailTemplatePage';
+import AccountStatementTemplatePage from './pages/AccountStatementTemplatePage';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/local-pickup-template" element={<LocalPickupTemplatePage />} />
         <Route path="/quote-sent-template" element={<QuoteSentTemplatePage />} />
         <Route path="/welcome-email-template" element={<WelcomeEmailTemplatePage />} />
+        <Route path="/account-statement-template" element={<AccountStatementTemplatePage />} />
       </Routes>
     </Router>
   );
