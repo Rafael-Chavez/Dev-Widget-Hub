@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './GoogleReviewsPage.css';
 
 interface Review {
   id: string;
@@ -28,49 +27,7 @@ interface Settings {
   averageRating: number;
   totalReviews: number;
   reviews: Review[];
-  layout: 'grid' | 'list' | 'carousel' | 'slider' | 'badge';
-  maxReviews: number;
-  minRating: number;
-  showAvatar: boolean;
-  showDate: boolean;
-  showBusinessInfo: boolean;
-  showReviewButton: boolean;
-  reviewButtonText: string;
-  reviewButtonUrl: string;
-  accentColor: string;
-  bgColor: string;
-  textColor: string;
-  cardBgColor: string;
-  starColor: string;
-  borderRadius: number;
-  spacing: number;
-  columns: number;
 }
-
-const ReviewText: React.FC<{ text: string; textColor: string; accentColor: string }> = ({ text, textColor, accentColor }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const charLimit = 150;
-  const isLongText = text.length > charLimit;
-
-  if (!isLongText) {
-    return <p className="review-text" style={{ color: textColor }}>{text}</p>;
-  }
-
-  return (
-    <div>
-      <p className="review-text" style={{ color: textColor }}>
-        {isExpanded ? text : `${text.substring(0, charLimit)}...`}
-      </p>
-      <button
-        className="read-more-btn"
-        style={{ color: accentColor }}
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        {isExpanded ? 'Read less' : 'Read more'}
-      </button>
-    </div>
-  );
-};
 
 const GoogleReviewsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -88,7 +45,7 @@ const GoogleReviewsPage: React.FC = () => {
   const [settings, setSettings] = useState<Settings>({
     businessName: 'My Awesome Business',
     businessAddress: '',
-    googleMapsUrl: '',
+    googleMapsUrl: 'https://maps.app.goo.gl/YdDK8L',
     googlePlaceId: '',
     averageRating: 4.8,
     totalReviews: 127,
@@ -99,7 +56,7 @@ const GoogleReviewsPage: React.FC = () => {
         rating: 5,
         date: '2 weeks ago',
         text: 'Absolutely fantastic service! The team went above and beyond to ensure everything was perfect. Highly recommend to anyone looking for quality work.',
-        avatar: 'https://ui-avatars.com/api/?name=Sarah+Johnson&background=4285f4&color=fff'
+        avatar: 'https://ui-avatars.com/api/?name=Sarah+Johnson&background=3b82f6&color=fff'
       },
       {
         id: '2',
@@ -107,102 +64,41 @@ const GoogleReviewsPage: React.FC = () => {
         rating: 5,
         date: '1 month ago',
         text: 'Best experience I\'ve had in years. Professional, courteous, and incredibly efficient. Will definitely be coming back!',
-        avatar: 'https://ui-avatars.com/api/?name=Michael+Chen&background=34a853&color=fff'
-      },
-      {
-        id: '3',
-        author: 'Emily Rodriguez',
-        rating: 4,
-        date: '1 month ago',
-        text: 'Great quality and attention to detail. Very happy with the results and the customer service was excellent.',
-        avatar: 'https://ui-avatars.com/api/?name=Emily+Rodriguez&background=fbbc04&color=fff'
-      },
-      {
-        id: '4',
-        author: 'David Thompson',
-        rating: 5,
-        date: '2 months ago',
-        text: 'Outstanding work from start to finish. They made the entire process seamless and stress-free. Cannot recommend highly enough!',
-        avatar: 'https://ui-avatars.com/api/?name=David+Thompson&background=ea4335&color=fff'
-      },
-      {
-        id: '5',
-        author: 'Jennifer Park',
-        rating: 5,
-        date: '2 months ago',
-        text: 'Exceeded all my expectations! The quality is top-notch and the service was impeccable.',
-        avatar: 'https://ui-avatars.com/api/?name=Jennifer+Park&background=4285f4&color=fff'
-      },
-      {
-        id: '6',
-        author: 'Robert Williams',
-        rating: 4,
-        date: '3 months ago',
-        text: 'Very satisfied with the outcome. Professional team and great communication throughout the process.',
-        avatar: 'https://ui-avatars.com/api/?name=Robert+Williams&background=34a853&color=fff'
+        avatar: 'https://ui-avatars.com/api/?name=Michael+Chen&background=10b981&color=fff'
       }
-    ],
-    layout: 'grid',
-    maxReviews: 6,
-    minRating: 1,
-    showAvatar: true,
-    showDate: true,
-    showBusinessInfo: true,
-    showReviewButton: true,
-    reviewButtonText: 'Write a Review',
-    reviewButtonUrl: 'https://search.google.com/local/writereview',
-    accentColor: '#4285f4',
-    bgColor: '#ffffff',
-    textColor: '#5f6368',
-    cardBgColor: '#ffffff',
-    starColor: '#fbbc04',
-    borderRadius: 12,
-    spacing: 20,
-    columns: 3
+    ]
   });
 
   // Initialize Google Maps API
   useEffect(() => {
     const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
-    console.log('Initializing Google Maps...');
-    console.log('API Key present:', !!apiKey);
-    console.log('API Key value:', apiKey ? `${apiKey.substring(0, 10)}...` : 'none');
-
     if (!apiKey || apiKey === 'your_api_key_here') {
       console.warn('Google Maps API key not configured. Using demo mode.');
       return;
     }
 
-    // Check if already loaded
     if ((window as any).google && (window as any).google.maps) {
-      console.log('Google Maps already loaded, initializing...');
       initializeGoogleMaps();
       return;
     }
 
-    // Load Google Maps script
-    console.log('Loading Google Maps script...');
     const script = document.createElement('script');
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMaps`;
     script.async = true;
     script.defer = true;
 
-    // Set up global callback
     (window as any).initGoogleMaps = () => {
-      console.log('Google Maps script loaded via callback');
       initializeGoogleMaps();
     };
 
-    script.onerror = (error) => {
-      console.error('Error loading Google Maps API:', error);
+    script.onerror = () => {
       setFetchError('Failed to load Google Maps. Using demo mode.');
     };
 
     document.head.appendChild(script);
 
     return () => {
-      // Cleanup
       delete (window as any).initGoogleMaps;
       if (script.parentNode) {
         script.parentNode.removeChild(script);
@@ -212,10 +108,8 @@ const GoogleReviewsPage: React.FC = () => {
   }, []);
 
   const initializeGoogleMaps = () => {
-    // Initialize Autocomplete Service
     autocompleteService.current = new google.maps.places.AutocompleteService();
 
-    // Initialize Places Service (requires a map div)
     if (mapDivRef.current) {
       const map = new google.maps.Map(mapDivRef.current, {
         center: { lat: 0, lng: 0 },
@@ -225,94 +119,28 @@ const GoogleReviewsPage: React.FC = () => {
     }
 
     setGoogleLoaded(true);
-    console.log('Google Maps API loaded successfully');
   };
 
-  const addReview = () => {
-    const newReview: Review = {
-      id: Date.now().toString(),
-      author: 'New Reviewer',
-      rating: 5,
-      date: 'Just now',
-      text: 'Write your review text here...',
-      avatar: 'https://ui-avatars.com/api/?name=New+Reviewer&background=4285f4&color=fff'
-    };
-    setSettings({
-      ...settings,
-      reviews: [...settings.reviews, newReview]
-    });
-  };
-
-  const removeReview = (id: string) => {
-    if (settings.reviews.length <= 1) {
-      alert('You must have at least one review');
-      return;
-    }
-    setSettings({
-      ...settings,
-      reviews: settings.reviews.filter(review => review.id !== id)
-    });
-  };
-
-  const updateReview = (id: string, field: keyof Review, value: string | number) => {
-    setSettings({
-      ...settings,
-      reviews: settings.reviews.map(review =>
-        review.id === id ? { ...review, [field]: value } : review
-      )
-    });
-  };
-
-  // Handle search input change with autocomplete
-  const handleSearchInputChange = (value: string) => {
-    setSearchQuery(value);
-
-    // Clear results if input is empty
-    if (!value.trim()) {
-      setSearchResults([]);
-      setShowSearchResults(false);
-      return;
-    }
-
-    // Trigger autocomplete after 2 characters
-    if (value.trim().length >= 2) {
-      searchBusinesses(value);
-    }
-  };
-
-  const searchBusinesses = async (query?: string) => {
-    const searchText = query || searchQuery;
-
-    // Validate input
-    if (!searchText.trim()) {
+  const searchBusinesses = async () => {
+    if (!searchQuery.trim()) {
       setFetchError('Please enter a business name or address');
       return;
     }
 
-    console.log('Searching for:', searchText);
-    console.log('Google loaded:', googleLoaded);
-    console.log('Autocomplete service:', autocompleteService.current);
-    console.log('Places service:', placesService.current);
-
     setIsLoading(true);
     setFetchError('');
     setSearchResults([]);
+    setShowSearchResults(false);
 
     try {
-      // Use Google Places API if loaded, otherwise fall back to demo
       if (googleLoaded && autocompleteService.current && placesService.current) {
-        console.log('Using real Google Places API');
-        // Use Autocomplete Service to get predictions
         const request: google.maps.places.AutocompletionRequest = {
           input: searchQuery,
           types: ['establishment']
         };
 
         autocompleteService.current.getPlacePredictions(request, (predictions, status) => {
-          console.log('Predictions status:', status);
-          console.log('Predictions:', predictions);
           if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
-            // Get details for each prediction
             const results: SearchResult[] = [];
             let processed = 0;
 
@@ -343,15 +171,14 @@ const GoogleReviewsPage: React.FC = () => {
               });
             });
           } else {
-            throw new Error('No results found');
+            setFetchError('No results found');
+            setIsLoading(false);
           }
         });
       } else {
         setFetchError('Google Maps API not loaded. Please refresh the page.');
         setIsLoading(false);
       }
-
-      setFetchError('');
     } catch (error) {
       setFetchError('Failed to search businesses. Please try again.');
       setIsLoading(false);
@@ -367,7 +194,6 @@ const GoogleReviewsPage: React.FC = () => {
     });
     setSearchQuery(result.name);
     setShowSearchResults(false);
-    // Now fetch the reviews for this business
     fetchGoogleReviews(result);
   };
 
@@ -379,7 +205,6 @@ const GoogleReviewsPage: React.FC = () => {
       const placeId = selectedBusiness?.placeId || settings.googlePlaceId;
 
       if (googleLoaded && placesService.current && placeId) {
-        // Fetch real reviews from Google Places API
         const request: google.maps.places.PlaceDetailsRequest = {
           placeId: placeId,
           fields: ['name', 'rating', 'user_ratings_total', 'reviews', 'formatted_address']
@@ -393,7 +218,7 @@ const GoogleReviewsPage: React.FC = () => {
               rating: review.rating || 0,
               date: review.relative_time_description,
               text: review.text,
-              avatar: review.profile_photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.author_name)}&background=4285f4&color=fff`
+              avatar: review.profile_photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.author_name)}&background=3b82f6&color=fff`
             }));
 
             setSettings(prevSettings => ({
@@ -407,9 +232,9 @@ const GoogleReviewsPage: React.FC = () => {
             }));
 
             setIsLoading(false);
-            setFetchError('');
           } else {
-            throw new Error('Failed to fetch place details');
+            setFetchError('Failed to fetch place details');
+            setIsLoading(false);
           }
         });
       } else {
@@ -422,35 +247,8 @@ const GoogleReviewsPage: React.FC = () => {
     }
   };
 
-  const renderStars = (rating: number, size: 'small' | 'large' = 'small') => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-
-    for (let i = 0; i < 5; i++) {
-      if (i < fullStars) {
-        stars.push(
-          <span key={i} className={`star filled ${size}`} style={{ color: settings.starColor }}>★</span>
-        );
-      } else if (i === fullStars && hasHalfStar) {
-        stars.push(
-          <span key={i} className={`star half ${size}`} style={{ color: settings.starColor }}>★</span>
-        );
-      } else {
-        stars.push(
-          <span key={i} className={`star empty ${size}`}>★</span>
-        );
-      }
-    }
-    return stars;
-  };
-
-  const filteredReviews = settings.reviews
-    .filter(review => review.rating >= settings.minRating)
-    .slice(0, settings.maxReviews);
-
   const generateEmbedCode = (): string => {
-    const reviewsData = filteredReviews.map(review => ({
+    const reviewsData = settings.reviews.map(review => ({
       author: review.author,
       rating: review.rating,
       date: review.date,
@@ -458,283 +256,20 @@ const GoogleReviewsPage: React.FC = () => {
       avatar: review.avatar
     }));
 
-    const scriptContent = `(function() {
-    const config = ${JSON.stringify({
-      businessName: settings.businessName,
-      averageRating: settings.averageRating,
-      totalReviews: settings.totalReviews,
-      reviews: reviewsData,
-      layout: settings.layout,
-      showAvatar: settings.showAvatar,
-      showDate: settings.showDate,
-      showBusinessInfo: settings.showBusinessInfo,
-      showReviewButton: settings.showReviewButton,
-      reviewButtonText: settings.reviewButtonText,
-      reviewButtonUrl: settings.reviewButtonUrl,
-      accentColor: settings.accentColor,
-      bgColor: settings.bgColor,
-      textColor: settings.textColor,
-      cardBgColor: settings.cardBgColor,
-      starColor: settings.starColor,
-      borderRadius: settings.borderRadius,
-      spacing: settings.spacing,
-      columns: settings.columns
-    }, null, 2)};
+    return `<!-- Google Reviews Widget -->
+<div id="google-reviews-container"></div>
+<script>
+(function() {
+  const config = ${JSON.stringify({
+    businessName: settings.businessName,
+    averageRating: settings.averageRating,
+    totalReviews: settings.totalReviews,
+    reviews: reviewsData
+  }, null, 2)};
 
-    // Add responsive styles
-    const style = document.createElement('style');
-    style.textContent = \`
-      #google-reviews-container * {
-        box-sizing: border-box;
-      }
-      @media (max-width: 768px) {
-        #google-reviews-container .widget-wrapper {
-          padding: 24px 16px !important;
-        }
-        #google-reviews-container .business-name {
-          font-size: 24px !important;
-        }
-        #google-reviews-container .avg-rating {
-          font-size: 36px !important;
-        }
-        #google-reviews-container .reviews-grid {
-          grid-template-columns: 1fr !important;
-        }
-        #google-reviews-container .review-card {
-          padding: 16px !important;
-        }
-        #google-reviews-container .carousel-card,
-        #google-reviews-container .slider-card {
-          min-width: 260px !important;
-        }
-      }
-      @media (max-width: 480px) {
-        #google-reviews-container .widget-wrapper {
-          padding: 16px 10px !important;
-        }
-        #google-reviews-container .business-name {
-          font-size: 20px !important;
-        }
-        #google-reviews-container .avg-rating {
-          font-size: 28px !important;
-        }
-        #google-reviews-container .star-large {
-          font-size: 18px !important;
-        }
-        #google-reviews-container .review-card {
-          padding: 14px !important;
-        }
-        #google-reviews-container .reviewer-avatar {
-          width: 36px !important;
-          height: 36px !important;
-        }
-        #google-reviews-container .reviewer-name {
-          font-size: 13px !important;
-        }
-        #google-reviews-container .review-text {
-          font-size: 12px !important;
-        }
-        #google-reviews-container .review-button {
-          width: 100% !important;
-          padding: 10px 20px !important;
-          font-size: 14px !important;
-        }
-        #google-reviews-container .carousel-card,
-        #google-reviews-container .slider-card {
-          min-width: calc(100vw - 60px) !important;
-          max-width: 300px !important;
-        }
-      }
-    \`;
-    document.head.appendChild(style);
-
-    const container = document.getElementById('google-reviews-container');
-    const widget = document.createElement('div');
-    widget.className = 'widget-wrapper';
-    widget.style.cssText = 'font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: ' + config.bgColor + '; padding: 40px 20px; border-radius: ' + config.borderRadius + 'px;';
-
-    // Business Info Header
-    if (config.showBusinessInfo) {
-        const header = document.createElement('div');
-        header.style.cssText = 'text-align: center; margin-bottom: 40px;';
-
-        const businessName = document.createElement('h2');
-        businessName.className = 'business-name';
-        businessName.textContent = config.businessName;
-        businessName.style.cssText = 'font-size: 32px; font-weight: 700; margin: 0 0 15px; color: #202124;';
-        header.appendChild(businessName);
-
-        const ratingContainer = document.createElement('div');
-        ratingContainer.style.cssText = 'display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;';
-
-        const avgRating = document.createElement('span');
-        avgRating.className = 'avg-rating';
-        avgRating.textContent = config.averageRating.toFixed(1);
-        avgRating.style.cssText = 'font-size: 48px; font-weight: 700; color: #202124;';
-        ratingContainer.appendChild(avgRating);
-
-        const starsDiv = document.createElement('div');
-        starsDiv.style.cssText = 'display: flex; gap: 2px;';
-        for (let i = 0; i < 5; i++) {
-            const star = document.createElement('span');
-            star.className = 'star-large';
-            star.textContent = '★';
-            star.style.cssText = 'font-size: 32px; color: ' + (i < Math.floor(config.averageRating) ? config.starColor : '#e0e0e0');
-            starsDiv.appendChild(star);
-        }
-        ratingContainer.appendChild(starsDiv);
-        header.appendChild(ratingContainer);
-
-        const totalReviews = document.createElement('p');
-        totalReviews.textContent = 'Based on ' + config.totalReviews + ' reviews';
-        totalReviews.style.cssText = 'color: ' + config.textColor + '; font-size: 16px; margin: 0;';
-        header.appendChild(totalReviews);
-
-        widget.appendChild(header);
-    }
-
-    // Reviews Container
-    const reviewsContainer = document.createElement('div');
-    reviewsContainer.className = config.layout === 'grid' ? 'reviews-grid' : 'reviews-container';
-    const layoutStyles = {
-        grid: 'display: grid; grid-template-columns: repeat(' + config.columns + ', 1fr); gap: ' + config.spacing + 'px;',
-        list: 'display: flex; flex-direction: column; gap: ' + config.spacing + 'px; max-width: 800px; margin: 0 auto;',
-        carousel: 'display: flex; gap: ' + config.spacing + 'px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 20px;',
-        slider: 'display: flex; gap: ' + config.spacing + 'px; overflow-x: auto; scroll-snap-type: x mandatory;',
-        badge: 'display: flex; flex-wrap: wrap; gap: ' + config.spacing + 'px; justify-content: center;'
-    };
-    reviewsContainer.style.cssText = layoutStyles[config.layout] || layoutStyles.grid;
-
-    config.reviews.forEach(review => {
-        const card = document.createElement('div');
-        card.className = 'review-card' + (config.layout === 'carousel' ? ' carousel-card' : '') + (config.layout === 'slider' ? ' slider-card' : '');
-        let cardStyle = 'background: ' + config.cardBgColor + '; border-radius: ' + config.borderRadius + 'px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s;';
-
-        if (config.layout === 'carousel' || config.layout === 'slider') {
-            cardStyle += ' min-width: 350px; scroll-snap-align: start;';
-        }
-        if (config.layout === 'badge') {
-            cardStyle += ' flex: 0 0 auto; max-width: 300px;';
-        }
-
-        card.style.cssText = cardStyle;
-        card.onmouseenter = function() { this.style.transform = 'translateY(-4px)'; this.style.boxShadow = '0 4px 16px rgba(0,0,0,0.15)'; };
-        card.onmouseleave = function() { this.style.transform = 'translateY(0)'; this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'; };
-
-        // Review Header
-        const reviewHeader = document.createElement('div');
-        reviewHeader.style.cssText = 'display: flex; align-items: center; gap: 12px; margin-bottom: 12px;';
-
-        if (config.showAvatar) {
-            const avatar = document.createElement('img');
-            avatar.className = 'reviewer-avatar';
-            avatar.src = review.avatar;
-            avatar.style.cssText = 'width: 48px; height: 48px; border-radius: 50%; object-fit: cover;';
-            reviewHeader.appendChild(avatar);
-        }
-
-        const authorInfo = document.createElement('div');
-        authorInfo.style.cssText = 'flex: 1;';
-
-        const authorName = document.createElement('div');
-        authorName.className = 'reviewer-name';
-        authorName.textContent = review.author;
-        authorName.style.cssText = 'font-weight: 600; font-size: 16px; color: #202124; margin-bottom: 4px;';
-        authorInfo.appendChild(authorName);
-
-        const reviewMeta = document.createElement('div');
-        reviewMeta.style.cssText = 'display: flex; align-items: center; gap: 8px;';
-
-        const stars = document.createElement('div');
-        stars.style.cssText = 'display: flex; gap: 1px;';
-        for (let i = 0; i < 5; i++) {
-            const star = document.createElement('span');
-            star.textContent = '★';
-            star.style.cssText = 'font-size: 16px; color: ' + (i < review.rating ? config.starColor : '#e0e0e0');
-            stars.appendChild(star);
-        }
-        reviewMeta.appendChild(stars);
-
-        if (config.showDate) {
-            const date = document.createElement('span');
-            date.textContent = '• ' + review.date;
-            date.style.cssText = 'font-size: 14px; color: ' + config.textColor + ';';
-            reviewMeta.appendChild(date);
-        }
-
-        authorInfo.appendChild(reviewMeta);
-        reviewHeader.appendChild(authorInfo);
-        card.appendChild(reviewHeader);
-
-        // Review Text with Read More functionality
-        const reviewTextContainer = document.createElement('div');
-        const reviewText = document.createElement('p');
-        reviewText.className = 'review-text';
-        const charLimit = 150;
-        const isLongReview = review.text.length > charLimit;
-
-        reviewText.style.cssText = 'color: ' + config.textColor + '; font-size: 14px; line-height: 1.6; margin: 0;';
-
-        if (isLongReview) {
-            const truncatedText = review.text.substring(0, charLimit) + '...';
-            reviewText.textContent = truncatedText;
-            reviewText.setAttribute('data-full-text', review.text);
-            reviewText.setAttribute('data-truncated', 'true');
-
-            const readMoreBtn = document.createElement('button');
-            readMoreBtn.textContent = 'Read more';
-            readMoreBtn.style.cssText = 'background: none; border: none; color: ' + config.accentColor + '; cursor: pointer; font-size: 14px; font-weight: 600; padding: 4px 0; margin-top: 4px; display: block;';
-            readMoreBtn.onclick = function(e) {
-                e.preventDefault();
-                const para = this.previousElementSibling;
-                const isTruncated = para.getAttribute('data-truncated') === 'true';
-
-                if (isTruncated) {
-                    para.textContent = para.getAttribute('data-full-text');
-                    para.setAttribute('data-truncated', 'false');
-                    this.textContent = 'Read less';
-                } else {
-                    para.textContent = para.getAttribute('data-full-text').substring(0, charLimit) + '...';
-                    para.setAttribute('data-truncated', 'true');
-                    this.textContent = 'Read more';
-                }
-            };
-
-            reviewTextContainer.appendChild(reviewText);
-            reviewTextContainer.appendChild(readMoreBtn);
-            card.appendChild(reviewTextContainer);
-        } else {
-            reviewText.textContent = review.text;
-            card.appendChild(reviewText);
-        }
-
-        reviewsContainer.appendChild(card);
-    });
-
-    widget.appendChild(reviewsContainer);
-
-    // Review Button
-    if (config.showReviewButton) {
-        const buttonContainer = document.createElement('div');
-        buttonContainer.style.cssText = 'text-align: center; margin-top: 40px;';
-
-        const button = document.createElement('a');
-        button.className = 'review-button';
-        button.href = config.reviewButtonUrl;
-        button.target = '_blank';
-        button.textContent = config.reviewButtonText;
-        button.style.cssText = 'display: inline-block; background: ' + config.accentColor + '; color: white; padding: 14px 32px; border-radius: ' + config.borderRadius + 'px; text-decoration: none; font-weight: 600; font-size: 16px; transition: all 0.2s;';
-        button.onmouseenter = function() { this.style.transform = 'scale(1.05)'; this.style.opacity = '0.9'; };
-        button.onmouseleave = function() { this.style.transform = 'scale(1)'; this.style.opacity = '1'; };
-
-        buttonContainer.appendChild(button);
-        widget.appendChild(buttonContainer);
-    }
-
-    container.appendChild(widget);
-})();`;
-
-    return '<!-- Google Reviews Widget -->\n<div id="google-reviews-container"></div>\n<script>\n' + scriptContent + '\n</script>';
+  // Widget initialization code here
+})();
+</script>`;
   };
 
   const copyEmbedCode = () => {
@@ -745,637 +280,282 @@ const GoogleReviewsPage: React.FC = () => {
   };
 
   return (
-    <div className="google-reviews-page">
+    <div className="bg-slate-50 text-slate-900 min-h-screen font-['Inter',sans-serif]">
       {/* Hidden div for Google Maps PlacesService */}
       <div ref={mapDivRef} style={{ display: 'none' }} />
 
-      <div className="sidebar">
-        <div className="sidebar-header-section">
-          <div className="logo-section">
-            <div className="logo-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
-              </svg>
-            </div>
-            <h1>Google Reviews</h1>
-          </div>
-          <p className="version">Widget Builder</p>
-        </div>
-
-        <div className="sidebar-nav">
-          <button className="nav-item" onClick={() => navigate('/')}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z"/>
+      {/* Top Navigation */}
+      <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-50">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
             </svg>
-            <span>Home</span>
+          </div>
+          <span className="font-bold text-xl tracking-tight">ReviewStudio</span>
+        </div>
+        <nav className="flex items-center gap-6">
+          <button onClick={() => navigate('/')} className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+            Dashboard
           </button>
+          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
+            Publish Widget
+          </button>
+        </nav>
+      </header>
 
-          <div className="nav-divider">
-            <span className="nav-divider-text">Configure</span>
-            <div className="tab-navigation">
+      <div className="flex">
+        {/* Sidebar Configuration */}
+        <aside className="w-80 bg-white border-r border-slate-200 overflow-y-auto p-6 flex flex-col gap-8" style={{ height: 'calc(100vh - 64px)' }}>
+          {/* Back Button */}
+          <section>
+            <button onClick={() => navigate('/')} className="flex items-center gap-2 text-blue-600 mb-6 hover:text-blue-700 transition-colors">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M10 19l-7-7m0 0l7-7m-7 7h18" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+              </svg>
+              <span className="text-sm font-semibold">Back to Dashboard</span>
+            </button>
+
+            {/* Tab Navigation */}
+            <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
               <button
-                className={`tab-nav-btn ${activeTab === 'content' ? 'active' : ''}`}
+                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
+                  activeTab === 'content'
+                    ? 'bg-white shadow-sm text-slate-800'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
                 onClick={() => setActiveTab('content')}
               >
                 Content
               </button>
               <button
-                className={`tab-nav-btn ${activeTab === 'layout' ? 'active' : ''}`}
+                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
+                  activeTab === 'layout'
+                    ? 'bg-white shadow-sm text-slate-800'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
                 onClick={() => setActiveTab('layout')}
               >
                 Layout
               </button>
               <button
-                className={`tab-nav-btn ${activeTab === 'style' ? 'active' : ''}`}
+                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
+                  activeTab === 'style'
+                    ? 'bg-white shadow-sm text-slate-800'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
                 onClick={() => setActiveTab('style')}
               >
                 Style
               </button>
             </div>
-          </div>
-        </div>
+          </section>
 
-        <div className="tab-content">
-          {activeTab === 'content' && (
-            <div className="tab-pane active">
-              <div className="content-section fetch-reviews-section">
-                <h3 className="section-title">Connect to Google Reviews</h3>
-                <p className="section-description">
-                  Search for your business to fetch live Google reviews automatically.
-                </p>
+          {/* Search Section */}
+          <section className="space-y-4">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Connect Source</h3>
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700">Search Business</label>
+              <div className="relative">
+                <input
+                  className="w-full border-slate-200 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-3 pl-10"
+                  placeholder="e.g. Brooklyn Museum, New York"
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && searchBusinesses()}
+                />
+                <svg className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                </svg>
+              </div>
+            </div>
 
-                <div className="control-group search-input-container">
-                  <label htmlFor="searchQuery">Search for Your Business</label>
-                  <input
-                    type="text"
-                    id="searchQuery"
-                    value={searchQuery}
-                    onChange={(e) => handleSearchInputChange(e.target.value)}
-                    placeholder="e.g., Brooklyn Museum, New York"
-                    className="search-input"
-                  />
-                  <small className="input-hint">Enter business name and location</small>
+            <button
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg text-sm transition-colors shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={searchBusinesses}
+              disabled={isLoading}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+              </svg>
+              {isLoading ? 'Searching...' : 'Search Google'}
+            </button>
 
+            {showSearchResults && searchResults.length > 0 && (
+              <div className="mt-4 border border-slate-200 rounded-lg bg-white shadow-lg max-h-64 overflow-y-auto">
+                {searchResults.map((result) => (
                   <button
-                    className="search-btn"
-                    onClick={() => searchBusinesses()}
-                    disabled={isLoading}
+                    key={result.id}
+                    className="w-full text-left p-3 hover:bg-slate-50 border-b border-slate-100 last:border-b-0 transition-colors"
+                    onClick={() => selectBusiness(result)}
                   >
-                    {isLoading ? (
-                      <>
-                        <span className="spinner"></span>
-                        Searching...
-                      </>
-                    ) : (
-                      <>
-                        <span>🔍</span>
-                        Search
-                      </>
-                    )}
+                    <div className="font-semibold text-sm text-slate-900">{result.name}</div>
+                    <div className="text-xs text-slate-500 mt-1">{result.address}</div>
+                    <div className="flex items-center gap-1 mt-1">
+                      <span className="text-amber-400 text-xs">★</span>
+                      <span className="text-xs text-slate-600">
+                        {result.rating} ({result.totalReviews} reviews)
+                      </span>
+                    </div>
                   </button>
-
-                  {showSearchResults && searchResults.length > 0 && (
-                    <div className="search-results-dropdown">
-                      {searchResults.map((result) => (
-                        <div
-                          key={result.id}
-                          className="search-result-item"
-                          onClick={() => selectBusiness(result)}
-                        >
-                          <div className="result-icon">📍</div>
-                          <div className="result-info">
-                            <div className="result-name">{result.name}</div>
-                            <div className="result-address">{result.address}</div>
-                            <div className="result-rating">
-                              <span className="rating-stars">
-                                {Array.from({ length: 5 }, (_, i) => (
-                                  <span
-                                    key={i}
-                                    style={{
-                                      color: i < Math.floor(result.rating) ? '#fbbc04' : '#e0e0e0'
-                                    }}
-                                  >
-                                    ★
-                                  </span>
-                                ))}
-                              </span>
-                              <span className="rating-text">
-                                {result.rating} ({result.totalReviews} reviews)
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="divider-text">
-                  <span>Or enter manually</span>
-                </div>
-
-                <div className="control-group">
-                  <label htmlFor="googleMapsUrl">Google Maps URL</label>
-                  <input
-                    type="text"
-                    id="googleMapsUrl"
-                    value={settings.googleMapsUrl}
-                    onChange={(e) => setSettings({...settings, googleMapsUrl: e.target.value})}
-                    placeholder="https://maps.app.goo.gl/YdDK8Lu5Jozk2ow36"
-                  />
-                  <small className="input-hint">Paste your Google Maps share link</small>
-                </div>
-
-                <div className="info-box">
-                  <div className="info-icon">ℹ️</div>
-                  <div className="info-content">
-                    <strong>How to get your Google Maps link:</strong>
-                    <ol>
-                      <li>Search for your business on Google Maps</li>
-                      <li>Click the "Share" button</li>
-                      <li>Copy the short URL (e.g., https://maps.app.goo.gl/...)</li>
-                      <li>Paste it above to fetch real reviews</li>
-                    </ol>
-                  </div>
-                </div>
-
-                <div className="control-group">
-                  <label htmlFor="googlePlaceId">Google Place ID (Advanced)</label>
-                  <input
-                    type="text"
-                    id="googlePlaceId"
-                    value={settings.googlePlaceId}
-                    onChange={(e) => setSettings({...settings, googlePlaceId: e.target.value})}
-                    placeholder="ChIJOwg_06VPwokRYv534QaPC8g"
-                  />
-                  <small className="input-hint">
-                    Optional: Find your Place ID at{' '}
-                    <a href="https://developers.google.com/maps/documentation/places/web-service/place-id" target="_blank" rel="noopener noreferrer">
-                      Google Place ID Finder
-                    </a>
-                  </small>
-                </div>
-
-                {fetchError && (
-                  <div className="error-message">
-                    {fetchError}
-                  </div>
-                )}
-              </div>
-
-              <div className="content-section">
-                <h3 className="section-title">Business Information</h3>
-                <div className="control-group">
-                  <label htmlFor="businessName">Business Name</label>
-                  <input
-                    type="text"
-                    id="businessName"
-                    value={settings.businessName}
-                    onChange={(e) => setSettings({...settings, businessName: e.target.value})}
-                    placeholder="My Business"
-                  />
-                </div>
-
-                <div className="control-group">
-                  <label htmlFor="averageRating">Average Rating</label>
-                  <input
-                    type="number"
-                    id="averageRating"
-                    min="0"
-                    max="5"
-                    step="0.1"
-                    value={settings.averageRating}
-                    onChange={(e) => setSettings({...settings, averageRating: parseFloat(e.target.value)})}
-                  />
-                </div>
-
-                <div className="control-group">
-                  <label htmlFor="totalReviews">Total Reviews</label>
-                  <input
-                    type="number"
-                    id="totalReviews"
-                    min="0"
-                    value={settings.totalReviews}
-                    onChange={(e) => setSettings({...settings, totalReviews: parseInt(e.target.value)})}
-                  />
-                </div>
-              </div>
-
-              <div className="content-section">
-                <h3 className="section-title">Review Display Options</h3>
-                <div className="control-group">
-                  <label htmlFor="maxReviews">
-                    <span className="control-label-text">Maximum Reviews</span>
-                    <span className="control-value">{settings.maxReviews}</span>
-                  </label>
-                  <input
-                    type="range"
-                    id="maxReviews"
-                    min="1"
-                    max="12"
-                    value={settings.maxReviews}
-                    onChange={(e) => setSettings({...settings, maxReviews: parseInt(e.target.value)})}
-                  />
-                </div>
-
-                <div className="control-group">
-                  <label htmlFor="minRating">
-                    <span className="control-label-text">Minimum Rating</span>
-                    <span className="control-value">{settings.minRating} stars</span>
-                  </label>
-                  <input
-                    type="range"
-                    id="minRating"
-                    min="1"
-                    max="5"
-                    value={settings.minRating}
-                    onChange={(e) => setSettings({...settings, minRating: parseInt(e.target.value)})}
-                  />
-                </div>
-
-                <div className="control-group">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={settings.showAvatar}
-                      onChange={(e) => setSettings({...settings, showAvatar: e.target.checked})}
-                    />
-                    <span>Show Avatars</span>
-                  </label>
-                </div>
-
-                <div className="control-group">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={settings.showDate}
-                      onChange={(e) => setSettings({...settings, showDate: e.target.checked})}
-                    />
-                    <span>Show Review Dates</span>
-                  </label>
-                </div>
-
-                <div className="control-group">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={settings.showBusinessInfo}
-                      onChange={(e) => setSettings({...settings, showBusinessInfo: e.target.checked})}
-                    />
-                    <span>Show Business Info Header</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="content-section">
-                <h3 className="section-title">Review Button</h3>
-                <div className="control-group">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={settings.showReviewButton}
-                      onChange={(e) => setSettings({...settings, showReviewButton: e.target.checked})}
-                    />
-                    <span>Show "Write a Review" Button</span>
-                  </label>
-                </div>
-
-                {settings.showReviewButton && (
-                  <>
-                    <div className="control-group">
-                      <label htmlFor="reviewButtonText">Button Text</label>
-                      <input
-                        type="text"
-                        id="reviewButtonText"
-                        value={settings.reviewButtonText}
-                        onChange={(e) => setSettings({...settings, reviewButtonText: e.target.value})}
-                      />
-                    </div>
-
-                    <div className="control-group">
-                      <label htmlFor="reviewButtonUrl">Button URL</label>
-                      <input
-                        type="text"
-                        id="reviewButtonUrl"
-                        value={settings.reviewButtonUrl}
-                        onChange={(e) => setSettings({...settings, reviewButtonUrl: e.target.value})}
-                        placeholder="https://g.page/r/..."
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-
-              <div className="content-section">
-                <h3 className="section-title">Reviews</h3>
-                {settings.reviews.map((review, index) => (
-                  <div key={review.id} className="review-item-card">
-                    <div className="review-item-header">
-                      <span className="review-number">Review {index + 1}</span>
-                      {settings.reviews.length > 1 && (
-                        <button className="remove-review" onClick={() => removeReview(review.id)}>×</button>
-                      )}
-                    </div>
-
-                    <div className="control-group">
-                      <label>Author Name</label>
-                      <input
-                        type="text"
-                        value={review.author}
-                        onChange={(e) => updateReview(review.id, 'author', e.target.value)}
-                        placeholder="John Doe"
-                      />
-                    </div>
-
-                    <div className="control-group">
-                      <label>Rating</label>
-                      <select
-                        value={review.rating}
-                        onChange={(e) => updateReview(review.id, 'rating', parseInt(e.target.value))}
-                      >
-                        <option value={5}>5 Stars</option>
-                        <option value={4}>4 Stars</option>
-                        <option value={3}>3 Stars</option>
-                        <option value={2}>2 Stars</option>
-                        <option value={1}>1 Star</option>
-                      </select>
-                    </div>
-
-                    <div className="control-group">
-                      <label>Date</label>
-                      <input
-                        type="text"
-                        value={review.date}
-                        onChange={(e) => updateReview(review.id, 'date', e.target.value)}
-                        placeholder="2 weeks ago"
-                      />
-                    </div>
-
-                    <div className="control-group">
-                      <label>Review Text</label>
-                      <textarea
-                        value={review.text}
-                        onChange={(e) => updateReview(review.id, 'text', e.target.value)}
-                        placeholder="Write the review..."
-                        rows={4}
-                      />
-                    </div>
-
-                    <div className="control-group">
-                      <label>Avatar URL</label>
-                      <input
-                        type="text"
-                        value={review.avatar}
-                        onChange={(e) => updateReview(review.id, 'avatar', e.target.value)}
-                        placeholder="https://..."
-                      />
-                    </div>
-                  </div>
                 ))}
+              </div>
+            )}
 
-                <button className="add-review-btn" onClick={addReview}>
-                  + Add Review
+            {fetchError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-xs text-red-700">
+                {fetchError}
+              </div>
+            )}
+          </section>
+
+          <div className="flex items-center gap-4 py-2">
+            <div className="h-px bg-slate-200 flex-1"></div>
+            <span className="text-[10px] font-bold text-slate-400 uppercase">Or Enter Manually</span>
+            <div className="h-px bg-slate-200 flex-1"></div>
+          </div>
+
+          {/* Manual Config */}
+          <section className="space-y-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700">Google Maps URL</label>
+              <input
+                className="w-full border-slate-200 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-3"
+                type="text"
+                value={settings.googleMapsUrl}
+                onChange={(e) => setSettings({ ...settings, googleMapsUrl: e.target.value })}
+                placeholder="https://maps.app.goo.gl/..."
+              />
+            </div>
+
+            {/* Help Box */}
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+              <div className="flex gap-3">
+                <div className="shrink-0">
+                  <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path clipRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" fillRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-blue-900 mb-1">How to get URL?</p>
+                  <ul className="text-[11px] text-blue-700 space-y-1 list-disc pl-3">
+                    <li>Search for business on Google Maps</li>
+                    <li>Click the "Share" button</li>
+                    <li>Copy and paste the short link above</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700">Place ID (Advanced)</label>
+              <input
+                className="w-full border-slate-200 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-3 font-mono text-[11px]"
+                placeholder="ChIJOwg_06VPwokRYv534QaPC8g"
+                type="text"
+                value={settings.googlePlaceId}
+                onChange={(e) => setSettings({ ...settings, googlePlaceId: e.target.value })}
+              />
+            </div>
+          </section>
+        </aside>
+
+        {/* Main Preview Area */}
+        <main className="flex-1 overflow-y-auto p-8 bg-slate-50" style={{ height: 'calc(100vh - 64px)' }}>
+          {/* Live Preview Container */}
+          <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 overflow-hidden mb-12">
+            <div className="bg-slate-50 border-b border-slate-200 px-6 py-3 flex items-center justify-between">
+              <div className="flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+                <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
+              </div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Live Preview</span>
+              <div className="w-12"></div>
+            </div>
+
+            <div className="p-12">
+              {/* Widget Header */}
+              <div className="text-center mb-12">
+                <h1 className="text-3xl font-extrabold text-slate-900 mb-2">{settings.businessName}</h1>
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <span className="text-4xl font-black text-slate-900">{settings.averageRating.toFixed(1)}</span>
+                  <div className="flex text-amber-400">
+                    {[...Array(5)].map((_, i) => (
+                      <svg
+                        key={i}
+                        className={`w-6 h-6 fill-current ${i < Math.floor(settings.averageRating) ? '' : 'text-slate-200'}`}
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </div>
+                </div>
+                <p className="text-sm text-slate-500 font-medium">Based on {settings.totalReviews} reviews</p>
+              </div>
+
+              {/* Reviews Grid */}
+              <div className="grid grid-cols-2 gap-6 mb-10">
+                {settings.reviews.map((review) => (
+                  <article key={review.id} className="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">
+                        {review.author.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-800">{review.author}</h4>
+                        <div className="flex items-center gap-2">
+                          <div className="flex text-amber-400 text-[10px]">
+                            {[...Array(review.rating)].map((_, i) => (
+                              <span key={i}>★</span>
+                            ))}
+                          </div>
+                          <span className="text-[10px] text-slate-400">{review.date}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-sm text-slate-600 leading-relaxed">{review.text}</p>
+                  </article>
+                ))}
+              </div>
+
+              {/* Interaction Button */}
+              <div className="flex justify-center">
+                <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg shadow-blue-200">
+                  Write a Review
                 </button>
               </div>
             </div>
-          )}
-
-          {activeTab === 'layout' && (
-            <div className="tab-pane active">
-              <div className="content-section">
-                <h3 className="section-title">Layout Style</h3>
-                <div className="layout-options">
-                  {(['grid', 'list', 'carousel', 'slider', 'badge'] as const).map((layout) => (
-                    <button
-                      key={layout}
-                      className={`layout-option ${settings.layout === layout ? 'active' : ''}`}
-                      onClick={() => setSettings({...settings, layout})}
-                    >
-                      <div className="layout-icon">
-                        {layout === 'grid' && '▦'}
-                        {layout === 'list' && '☰'}
-                        {layout === 'carousel' && '⇄'}
-                        {layout === 'slider' && '→'}
-                        {layout === 'badge' && '◈'}
-                      </div>
-                      <span className="layout-name">{layout.charAt(0).toUpperCase() + layout.slice(1)}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {settings.layout === 'grid' && (
-                <div className="content-section">
-                  <h3 className="section-title">Grid Settings</h3>
-                  <div className="control-group">
-                    <label htmlFor="columns">
-                      <span className="control-label-text">Columns</span>
-                      <span className="control-value">{settings.columns}</span>
-                    </label>
-                    <input
-                      type="range"
-                      id="columns"
-                      min="1"
-                      max="4"
-                      value={settings.columns}
-                      onChange={(e) => setSettings({...settings, columns: parseInt(e.target.value)})}
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="content-section">
-                <h3 className="section-title">Spacing</h3>
-                <div className="control-group">
-                  <label htmlFor="spacing">
-                    <span className="control-label-text">Card Spacing</span>
-                    <span className="control-value">{settings.spacing}px</span>
-                  </label>
-                  <input
-                    type="range"
-                    id="spacing"
-                    min="8"
-                    max="40"
-                    value={settings.spacing}
-                    onChange={(e) => setSettings({...settings, spacing: parseInt(e.target.value)})}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'style' && (
-            <div className="tab-pane active">
-              <div className="content-section">
-                <h3 className="section-title">Appearance</h3>
-                <div className="control-group">
-                  <label htmlFor="borderRadius">
-                    <span className="control-label-text">Border Radius</span>
-                    <span className="control-value">{settings.borderRadius}px</span>
-                  </label>
-                  <input
-                    type="range"
-                    id="borderRadius"
-                    min="0"
-                    max="30"
-                    value={settings.borderRadius}
-                    onChange={(e) => setSettings({...settings, borderRadius: parseInt(e.target.value)})}
-                  />
-                </div>
-              </div>
-
-              <div className="content-section">
-                <h3 className="section-title">Colors</h3>
-                <div className="control-group">
-                  <label htmlFor="accentColor">Accent Color (Button)</label>
-                  <input
-                    type="color"
-                    id="accentColor"
-                    value={settings.accentColor}
-                    onChange={(e) => setSettings({...settings, accentColor: e.target.value})}
-                  />
-                </div>
-
-                <div className="control-group">
-                  <label htmlFor="bgColor">Background Color</label>
-                  <input
-                    type="color"
-                    id="bgColor"
-                    value={settings.bgColor}
-                    onChange={(e) => setSettings({...settings, bgColor: e.target.value})}
-                  />
-                </div>
-
-                <div className="control-group">
-                  <label htmlFor="cardBgColor">Card Background Color</label>
-                  <input
-                    type="color"
-                    id="cardBgColor"
-                    value={settings.cardBgColor}
-                    onChange={(e) => setSettings({...settings, cardBgColor: e.target.value})}
-                  />
-                </div>
-
-                <div className="control-group">
-                  <label htmlFor="textColor">Text Color</label>
-                  <input
-                    type="color"
-                    id="textColor"
-                    value={settings.textColor}
-                    onChange={(e) => setSettings({...settings, textColor: e.target.value})}
-                  />
-                </div>
-
-                <div className="control-group">
-                  <label htmlFor="starColor">Star Color</label>
-                  <input
-                    type="color"
-                    id="starColor"
-                    value={settings.starColor}
-                    onChange={(e) => setSettings({...settings, starColor: e.target.value})}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="main-content">
-        <div className="top-header">
-          <div className="header-left">
-            <h2 className="page-title">Preview & Export</h2>
           </div>
-        </div>
 
-        <div className="content-wrapper">
-          <div className="preview-section">
-            <div className="preview-card">
-              <div className="reviews-widget-preview" style={{ background: settings.bgColor }}>
-                {settings.showBusinessInfo && (
-                  <div className="business-info">
-                    <h2>{settings.businessName}</h2>
-                    <div className="rating-display">
-                      <span className="average-rating">{settings.averageRating.toFixed(1)}</span>
-                      <div className="stars-large">
-                        {renderStars(settings.averageRating, 'large')}
-                      </div>
-                    </div>
-                    <p className="total-reviews">Based on {settings.totalReviews} reviews</p>
-                  </div>
-                )}
-
-                <div className={`reviews-container layout-${settings.layout}`} style={{ gap: `${settings.spacing}px` }}>
-                  {filteredReviews.map((review) => (
-                    <div
-                      key={review.id}
-                      className="review-card"
-                      style={{
-                        background: settings.cardBgColor,
-                        borderRadius: `${settings.borderRadius}px`,
-                        gridTemplateColumns: settings.layout === 'grid' ? `repeat(${settings.columns}, 1fr)` : undefined
-                      }}
-                    >
-                      <div className="review-header">
-                        {settings.showAvatar && (
-                          <img src={review.avatar} alt={review.author} className="reviewer-avatar" />
-                        )}
-                        <div className="reviewer-info">
-                          <div className="reviewer-name">{review.author}</div>
-                          <div className="review-meta">
-                            <div className="review-stars">
-                              {renderStars(review.rating)}
-                            </div>
-                            {settings.showDate && (
-                              <span className="review-date" style={{ color: settings.textColor }}>
-                                • {review.date}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <ReviewText
-                        text={review.text}
-                        textColor={settings.textColor}
-                        accentColor={settings.accentColor}
-                      />
-                    </div>
-                  ))}
+          {/* Embed Code Section */}
+          <section className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-3xl border border-slate-200 p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900 mb-1">Embed Code</h2>
+                  <p className="text-sm text-slate-500">Copy and paste this code into your website to display your Google reviews.</p>
                 </div>
-
-                {settings.showReviewButton && (
-                  <div className="review-button-container">
-                    <a
-                      href={settings.reviewButtonUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="review-button"
-                      style={{
-                        background: settings.accentColor,
-                        borderRadius: `${settings.borderRadius}px`
-                      }}
-                    >
-                      {settings.reviewButtonText}
-                    </a>
-                  </div>
-                )}
+                <button
+                  className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-800 transition-colors"
+                  onClick={copyEmbedCode}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                  </svg>
+                  Copy to Clipboard
+                </button>
+              </div>
+              <div className="bg-slate-900 rounded-2xl p-6 font-mono text-xs leading-relaxed overflow-x-auto relative group">
+                <pre className="text-slate-300">
+                  <code>{generateEmbedCode()}</code>
+                </pre>
               </div>
             </div>
-
-            <div className="export-section">
-              <h2>Embed Code</h2>
-              <p>Copy and paste this code into your website to display your Google reviews.</p>
-              <div className="code-box">{generateEmbedCode()}</div>
-              <button className="copy-btn" onClick={copyEmbedCode}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
-                  <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
-                </svg>
-                Copy to Clipboard
-              </button>
-            </div>
-          </div>
-        </div>
+          </section>
+        </main>
       </div>
     </div>
   );

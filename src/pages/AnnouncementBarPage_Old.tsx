@@ -1,0 +1,958 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import './AnnouncementBarPage.css';
+
+interface Settings {
+  message: string;
+  buttonText: string;
+  buttonUrl: string;
+  showButton: boolean;
+  buttonPosition: 'left' | 'right';
+  showCloseButton: boolean;
+  position: 'top' | 'bottom';
+  bgColor: string;
+  textColor: string;
+  buttonBgColor: string;
+  buttonTextColor: string;
+  fontSize: number;
+  padding: number;
+  animation: 'none' | 'slide' | 'fade';
+  closeable: boolean;
+  fontFamily: string;
+  actionType: 'none' | 'link' | 'button' | 'form';
+  actionUrl: string;
+  actionButtonText: string;
+  formPlaceholder: string;
+  formButtonText: string;
+  visualElement: 'none' | 'badge' | 'icon' | 'image';
+  visualBadgeText: string;
+  visualIcon: string;
+  visualImageUrl: string;
+  barLinkType: 'none' | 'url' | 'email' | 'phone';
+  barLinkValue: string;
+}
+
+interface Template {
+  name: string;
+  message: string;
+  buttonText: string;
+  buttonUrl: string;
+  bgColor: string;
+  textColor: string;
+  buttonBgColor: string;
+  buttonTextColor: string;
+}
+
+const templates: Template[] = [
+  {
+    name: 'Sale Promotion',
+    message: '🎉 Special Offer: Get 20% off your first order! Use code: WELCOME20',
+    buttonText: 'Shop Now',
+    buttonUrl: '#',
+    bgColor: '#3498db',
+    textColor: '#ffffff',
+    buttonBgColor: '#ffffff',
+    buttonTextColor: '#3498db'
+  },
+  {
+    name: 'Free Shipping',
+    message: '🚚 Free Shipping on Orders Over $50 - Limited Time Only!',
+    buttonText: 'Shop Now',
+    buttonUrl: '#',
+    bgColor: '#27ae60',
+    textColor: '#ffffff',
+    buttonBgColor: '#ffffff',
+    buttonTextColor: '#27ae60'
+  },
+  {
+    name: 'New Arrival',
+    message: '✨ New Collection Just Dropped! Check Out The Latest Styles',
+    buttonText: 'Explore Now',
+    buttonUrl: '#',
+    bgColor: '#8e44ad',
+    textColor: '#ffffff',
+    buttonBgColor: '#ffffff',
+    buttonTextColor: '#8e44ad'
+  },
+  {
+    name: 'Event Announcement',
+    message: '📅 Join Our Live Event This Friday at 3PM EST - Don\'t Miss Out!',
+    buttonText: 'Register Now',
+    buttonUrl: '#',
+    bgColor: '#e74c3c',
+    textColor: '#ffffff',
+    buttonBgColor: '#ffffff',
+    buttonTextColor: '#e74c3c'
+  },
+  {
+    name: 'Limited Stock',
+    message: '⚡ Hurry! Only a Few Items Left in Stock - Shop Before They\'re Gone',
+    buttonText: 'View Products',
+    buttonUrl: '#',
+    bgColor: '#f39c12',
+    textColor: '#ffffff',
+    buttonBgColor: '#ffffff',
+    buttonTextColor: '#f39c12'
+  }
+];
+
+const AnnouncementBarPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<'content' | 'style'>('content');
+  const [isVisible, setIsVisible] = useState(true);
+
+  const [settings, setSettings] = useState<Settings>({
+    message: templates[0].message,
+    buttonText: templates[0].buttonText,
+    buttonUrl: templates[0].buttonUrl,
+    showButton: true,
+    buttonPosition: 'right',
+    showCloseButton: true,
+    position: 'top',
+    bgColor: templates[0].bgColor,
+    textColor: templates[0].textColor,
+    buttonBgColor: templates[0].buttonBgColor,
+    buttonTextColor: templates[0].buttonTextColor,
+    fontSize: 16,
+    padding: 12,
+    animation: 'slide',
+    closeable: true,
+    fontFamily: 'system-ui',
+    actionType: 'none',
+    actionUrl: '',
+    actionButtonText: 'Click Here',
+    formPlaceholder: 'Enter your email...',
+    formButtonText: 'Submit',
+    visualElement: 'none',
+    visualBadgeText: 'NEW',
+    visualIcon: '🎉',
+    visualImageUrl: '',
+    barLinkType: 'none',
+    barLinkValue: ''
+  });
+
+  const applyTemplate = (template: Template) => {
+    setSettings({
+      ...settings,
+      message: template.message,
+      buttonText: template.buttonText,
+      buttonUrl: template.buttonUrl,
+      bgColor: template.bgColor,
+      textColor: template.textColor,
+      buttonBgColor: template.buttonBgColor,
+      buttonTextColor: template.buttonTextColor
+    });
+  };
+
+  const generateEmbedCode = (): string => {
+    const scriptContent = `(function() {
+    const config = {
+        message: '${settings.message.replace(/'/g, "\\'")}',
+        buttonText: '${settings.buttonText.replace(/'/g, "\\'")}',
+        buttonUrl: '${settings.buttonUrl}',
+        showButton: ${settings.showButton},
+        buttonPosition: '${settings.buttonPosition}',
+        showCloseButton: ${settings.showCloseButton},
+        position: '${settings.position}',
+        bgColor: '${settings.bgColor}',
+        textColor: '${settings.textColor}',
+        buttonBgColor: '${settings.buttonBgColor}',
+        buttonTextColor: '${settings.buttonTextColor}',
+        fontSize: ${settings.fontSize},
+        padding: ${settings.padding},
+        animation: '${settings.animation}',
+        closeable: ${settings.closeable},
+        fontFamily: '${settings.fontFamily}',
+        actionType: '${settings.actionType}',
+        actionUrl: '${settings.actionUrl}',
+        actionButtonText: '${settings.actionButtonText.replace(/'/g, "\\'")}',
+        formPlaceholder: '${settings.formPlaceholder.replace(/'/g, "\\'")}',
+        formButtonText: '${settings.formButtonText.replace(/'/g, "\\'")}',
+        visualElement: '${settings.visualElement}',
+        visualBadgeText: '${settings.visualBadgeText.replace(/'/g, "\\'")}',
+        visualIcon: '${settings.visualIcon}',
+        visualImageUrl: '${settings.visualImageUrl}',
+        barLinkType: '${settings.barLinkType}',
+        barLinkValue: '${settings.barLinkValue}'
+    };
+
+    // Check if already dismissed
+    const storageKey = 'announcement-bar-dismissed';
+    if (config.closeable && localStorage.getItem(storageKey) === 'true') {
+        return;
+    }
+
+    const bar = document.createElement('div');
+    bar.id = 'announcement-bar-widget';
+    bar.style.cssText = 'position: fixed; ' + (config.position === 'top' ? 'top: 0;' : 'bottom: 0;') + ' left: 0; right: 0; background: ' + config.bgColor + '; color: ' + config.textColor + '; font-family: ' + config.fontFamily + '; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: ' + config.padding + 'px 20px; gap: 15px; font-size: ' + config.fontSize + 'px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); cursor: ' + (config.barLinkType !== 'none' ? 'pointer' : 'default') + ';';
+
+    // Bar link functionality
+    if (config.barLinkType !== 'none' && config.barLinkValue) {
+        bar.onclick = function(e) {
+            if (e.target !== bar && !bar.contains(e.target)) return;
+            if (config.barLinkType === 'url') {
+                window.location.href = config.barLinkValue;
+            } else if (config.barLinkType === 'email') {
+                window.location.href = 'mailto:' + config.barLinkValue;
+            } else if (config.barLinkType === 'phone') {
+                window.location.href = 'tel:' + config.barLinkValue;
+            }
+        };
+    }
+
+    // Animation
+    if (config.animation === 'slide') {
+        bar.style.transform = config.position === 'top' ? 'translateY(-100%)' : 'translateY(100%)';
+        bar.style.transition = 'transform 0.4s ease-out';
+        setTimeout(() => {
+            bar.style.transform = 'translateY(0)';
+        }, 100);
+    } else if (config.animation === 'fade') {
+        bar.style.opacity = '0';
+        bar.style.transition = 'opacity 0.4s ease-out';
+        setTimeout(() => {
+            bar.style.opacity = '1';
+        }, 100);
+    }
+
+    const container = document.createElement('div');
+    const flexDirection = config.actionType === 'button' && config.buttonPosition === 'left' ? 'row-reverse' : 'row';
+    container.style.cssText = 'display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; width: 100%; flex-direction: ' + flexDirection + ';';
+
+    // Visual Element
+    if (config.visualElement === 'badge') {
+        const badge = document.createElement('span');
+        badge.textContent = config.visualBadgeText;
+        badge.style.cssText = 'background: ' + config.buttonBgColor + '; color: ' + config.buttonTextColor + '; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; text-transform: uppercase;';
+        container.appendChild(badge);
+    } else if (config.visualElement === 'icon') {
+        const icon = document.createElement('span');
+        icon.textContent = config.visualIcon;
+        icon.style.cssText = 'font-size: 24px;';
+        container.appendChild(icon);
+    } else if (config.visualElement === 'image' && config.visualImageUrl) {
+        const img = document.createElement('img');
+        img.src = config.visualImageUrl;
+        img.alt = 'Visual element';
+        img.style.cssText = 'height: 30px; width: auto; border-radius: 4px;';
+        container.appendChild(img);
+    }
+
+    // Message
+    const message = document.createElement('span');
+    message.textContent = config.message;
+    message.style.cssText = 'text-align: center; line-height: 1.5; flex: ' + (config.actionType === 'form' ? '0 1 auto' : '1 1 auto') + ';';
+    container.appendChild(message);
+
+    // Action Element
+    if (config.actionType === 'link' && config.actionUrl) {
+        const link = document.createElement('a');
+        link.href = config.actionUrl;
+        link.textContent = 'Learn More →';
+        link.style.cssText = 'color: ' + config.buttonBgColor + '; text-decoration: underline; font-weight: bold;';
+        container.appendChild(link);
+    } else if (config.actionType === 'button' && config.actionUrl) {
+        const button = document.createElement('a');
+        button.href = config.actionUrl;
+        button.textContent = config.actionButtonText;
+        button.style.cssText = 'background: ' + config.buttonBgColor + '; color: ' + config.buttonTextColor + '; padding: 8px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; white-space: nowrap; transition: all 0.2s; border: 2px solid transparent;';
+        button.onmouseenter = function() {
+            this.style.transform = 'scale(1.05)';
+            this.style.borderColor = config.buttonBgColor;
+            this.style.background = 'transparent';
+            this.style.color = config.buttonBgColor;
+        };
+        button.onmouseleave = function() {
+            this.style.transform = 'scale(1)';
+            this.style.borderColor = 'transparent';
+            this.style.background = config.buttonBgColor;
+            this.style.color = config.buttonTextColor;
+        };
+        container.appendChild(button);
+    } else if (config.actionType === 'form') {
+        const form = document.createElement('form');
+        form.style.cssText = 'display: flex; gap: 8px; align-items: center; flex-wrap: wrap;';
+
+        const input = document.createElement('input');
+        input.type = 'email';
+        input.placeholder = config.formPlaceholder;
+        input.style.cssText = 'padding: 8px 16px; border-radius: 6px; border: none; font-size: 14px; min-width: 200px;';
+
+        const submitBtn = document.createElement('button');
+        submitBtn.type = 'submit';
+        submitBtn.textContent = config.formButtonText;
+        submitBtn.style.cssText = 'background: ' + config.buttonBgColor + '; color: ' + config.buttonTextColor + '; padding: 8px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; font-size: 14px;';
+
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            alert('Form submitted! Email: ' + input.value);
+        };
+
+        form.appendChild(input);
+        form.appendChild(submitBtn);
+        container.appendChild(form);
+    }
+
+    bar.appendChild(container);
+
+    if (config.showCloseButton) {
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '&times;';
+        closeBtn.style.cssText = 'background: transparent; border: none; color: ' + config.textColor + '; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; position: absolute; right: 10px; transition: all 0.2s; border-radius: 4px;';
+        closeBtn.onmouseenter = function() {
+            this.style.background = 'rgba(0,0,0,0.1)';
+        };
+        closeBtn.onmouseleave = function() {
+            this.style.background = 'transparent';
+        };
+        closeBtn.onclick = function() {
+            if (config.animation === 'slide') {
+                bar.style.transform = config.position === 'top' ? 'translateY(-100%)' : 'translateY(100%)';
+            } else if (config.animation === 'fade') {
+                bar.style.opacity = '0';
+            } else {
+                bar.style.display = 'none';
+            }
+
+            setTimeout(() => {
+                bar.remove();
+            }, 400);
+
+            if (config.closeable) {
+                localStorage.setItem(storageKey, 'true');
+            }
+        };
+        bar.appendChild(closeBtn);
+    }
+
+    document.body.insertBefore(bar, document.body.firstChild);
+
+    // Add body padding to prevent content overlap
+    if (config.position === 'top') {
+        document.body.style.paddingTop = bar.offsetHeight + 'px';
+    } else {
+        document.body.style.paddingBottom = bar.offsetHeight + 'px';
+    }
+})();`;
+
+    return '<!-- Announcement Bar Widget -->\n<script>\n' + scriptContent + '\n</script>';
+  };
+
+  const copyEmbedCode = () => {
+    const code = generateEmbedCode();
+    navigator.clipboard.writeText(code).then(() => {
+      alert('Embed code copied to clipboard!');
+    });
+  };
+
+  return (
+    <div className="announcement-bar-page">
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <h1>Announcement Bar</h1>
+          <button className="home-btn" onClick={() => navigate('/')}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z"/>
+            </svg>
+            Home
+          </button>
+        </div>
+
+        <div className="tab-navigation">
+          <button
+            className={`tab-nav-btn ${activeTab === 'content' ? 'active' : ''}`}
+            onClick={() => setActiveTab('content')}
+          >
+            Content
+          </button>
+          <button
+            className={`tab-nav-btn ${activeTab === 'style' ? 'active' : ''}`}
+            onClick={() => setActiveTab('style')}
+          >
+            Style
+          </button>
+        </div>
+
+        <div className="tab-content">
+          {activeTab === 'content' && (
+            <div className="tab-pane active">
+              <div className="content-section">
+                <h3 className="section-title">Templates</h3>
+                <div className="control-group">
+                  <label htmlFor="template">Choose a Template</label>
+                  <div className="template-grid">
+                    {templates.map((template, index) => (
+                      <button
+                        key={index}
+                        className="template-btn"
+                        onClick={() => applyTemplate(template)}
+                        title={template.message}
+                      >
+                        <div className="template-preview" style={{ background: template.bgColor }}>
+                          <span style={{ color: template.textColor, fontSize: '11px' }}>
+                            {template.name}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="content-section">
+                <h3 className="section-title">Message</h3>
+                <div className="control-group">
+                  <label htmlFor="message">Announcement Text</label>
+                  <textarea
+                    id="message"
+                    value={settings.message}
+                    onChange={(e) => setSettings({...settings, message: e.target.value})}
+                    placeholder="Enter your announcement message..."
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              <div className="content-section">
+                <h3 className="section-title">Visual Element</h3>
+                <div className="control-group">
+                  <label htmlFor="visualElement">Element Type</label>
+                  <select
+                    id="visualElement"
+                    value={settings.visualElement}
+                    onChange={(e) => setSettings({...settings, visualElement: e.target.value as any})}
+                  >
+                    <option value="none">None</option>
+                    <option value="badge">Badge</option>
+                    <option value="icon">Icon</option>
+                    <option value="image">Image</option>
+                  </select>
+                </div>
+
+                {settings.visualElement === 'badge' && (
+                  <div className="control-group">
+                    <label htmlFor="visualBadgeText">Badge Text</label>
+                    <input
+                      type="text"
+                      id="visualBadgeText"
+                      value={settings.visualBadgeText}
+                      onChange={(e) => setSettings({...settings, visualBadgeText: e.target.value})}
+                      placeholder="NEW"
+                    />
+                  </div>
+                )}
+
+                {settings.visualElement === 'icon' && (
+                  <div className="control-group">
+                    <label htmlFor="visualIcon">Icon (Emoji)</label>
+                    <input
+                      type="text"
+                      id="visualIcon"
+                      value={settings.visualIcon}
+                      onChange={(e) => setSettings({...settings, visualIcon: e.target.value})}
+                      placeholder="🎉"
+                    />
+                  </div>
+                )}
+
+                {settings.visualElement === 'image' && (
+                  <div className="control-group">
+                    <label htmlFor="visualImageUrl">Image URL</label>
+                    <input
+                      type="text"
+                      id="visualImageUrl"
+                      value={settings.visualImageUrl}
+                      onChange={(e) => setSettings({...settings, visualImageUrl: e.target.value})}
+                      placeholder="https://example.com/image.png"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="content-section">
+                <h3 className="section-title">Action Element</h3>
+                <div className="control-group">
+                  <label htmlFor="actionType">Action Type</label>
+                  <select
+                    id="actionType"
+                    value={settings.actionType}
+                    onChange={(e) => setSettings({...settings, actionType: e.target.value as any})}
+                  >
+                    <option value="none">None</option>
+                    <option value="link">Link</option>
+                    <option value="button">Button</option>
+                    <option value="form">Form</option>
+                  </select>
+                </div>
+
+                {settings.actionType === 'link' && (
+                  <>
+                    <div className="control-group">
+                      <label htmlFor="actionUrl">Link URL</label>
+                      <input
+                        type="text"
+                        id="actionUrl"
+                        value={settings.actionUrl}
+                        onChange={(e) => setSettings({...settings, actionUrl: e.target.value})}
+                        placeholder="https://example.com"
+                      />
+                    </div>
+                  </>
+                )}
+
+                {settings.actionType === 'button' && (
+                  <>
+                    <div className="control-group">
+                      <label htmlFor="actionButtonText">Button Text</label>
+                      <input
+                        type="text"
+                        id="actionButtonText"
+                        value={settings.actionButtonText}
+                        onChange={(e) => setSettings({...settings, actionButtonText: e.target.value})}
+                        placeholder="Click Here"
+                      />
+                    </div>
+
+                    <div className="control-group">
+                      <label htmlFor="actionUrl">Button URL</label>
+                      <input
+                        type="text"
+                        id="actionUrl"
+                        value={settings.actionUrl}
+                        onChange={(e) => setSettings({...settings, actionUrl: e.target.value})}
+                        placeholder="https://example.com"
+                      />
+                    </div>
+
+                    <div className="control-group">
+                      <label htmlFor="buttonPosition">Button Position</label>
+                      <select
+                        id="buttonPosition"
+                        value={settings.buttonPosition}
+                        onChange={(e) => setSettings({...settings, buttonPosition: e.target.value as 'left' | 'right'})}
+                      >
+                        <option value="left">Left</option>
+                        <option value="right">Right</option>
+                      </select>
+                    </div>
+                  </>
+                )}
+
+                {settings.actionType === 'form' && (
+                  <>
+                    <div className="control-group">
+                      <label htmlFor="formPlaceholder">Input Placeholder</label>
+                      <input
+                        type="text"
+                        id="formPlaceholder"
+                        value={settings.formPlaceholder}
+                        onChange={(e) => setSettings({...settings, formPlaceholder: e.target.value})}
+                        placeholder="Enter your email..."
+                      />
+                    </div>
+
+                    <div className="control-group">
+                      <label htmlFor="formButtonText">Submit Button Text</label>
+                      <input
+                        type="text"
+                        id="formButtonText"
+                        value={settings.formButtonText}
+                        onChange={(e) => setSettings({...settings, formButtonText: e.target.value})}
+                        placeholder="Submit"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="content-section">
+                <h3 className="section-title">Additional Settings</h3>
+                <div className="control-group">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={settings.showCloseButton}
+                      onChange={(e) => setSettings({...settings, showCloseButton: e.target.checked})}
+                    />
+                    <span>Show Close Button</span>
+                  </label>
+                </div>
+
+                <div className="control-group">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={settings.closeable}
+                      onChange={(e) => setSettings({...settings, closeable: e.target.checked})}
+                    />
+                    <span>Remember When Dismissed</span>
+                  </label>
+                </div>
+
+                <div className="control-group">
+                  <label htmlFor="barLinkType">Bar Link</label>
+                  <select
+                    id="barLinkType"
+                    value={settings.barLinkType}
+                    onChange={(e) => setSettings({...settings, barLinkType: e.target.value as any})}
+                  >
+                    <option value="none">None</option>
+                    <option value="url">URL</option>
+                    <option value="email">Email</option>
+                    <option value="phone">Phone</option>
+                  </select>
+                </div>
+
+                {settings.barLinkType !== 'none' && (
+                  <div className="control-group">
+                    <label htmlFor="barLinkValue">
+                      {settings.barLinkType === 'url' && 'URL'}
+                      {settings.barLinkType === 'email' && 'Email Address'}
+                      {settings.barLinkType === 'phone' && 'Phone Number'}
+                    </label>
+                    <input
+                      type="text"
+                      id="barLinkValue"
+                      value={settings.barLinkValue}
+                      onChange={(e) => setSettings({...settings, barLinkValue: e.target.value})}
+                      placeholder={
+                        settings.barLinkType === 'url' ? 'https://example.com' :
+                        settings.barLinkType === 'email' ? 'contact@example.com' :
+                        '+1 (555) 123-4567'
+                      }
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'style' && (
+            <div className="tab-pane active">
+              <div className="content-section">
+                <h3 className="section-title">Position & Layout</h3>
+                <div className="control-group">
+                  <label htmlFor="position">Position</label>
+                  <select
+                    id="position"
+                    value={settings.position}
+                    onChange={(e) => setSettings({...settings, position: e.target.value as 'top' | 'bottom'})}
+                  >
+                    <option value="top">Top</option>
+                    <option value="bottom">Bottom</option>
+                  </select>
+                </div>
+
+                <div className="control-group">
+                  <label htmlFor="animation">Animation</label>
+                  <select
+                    id="animation"
+                    value={settings.animation}
+                    onChange={(e) => setSettings({...settings, animation: e.target.value as 'none' | 'slide' | 'fade'})}
+                  >
+                    <option value="none">None</option>
+                    <option value="slide">Slide</option>
+                    <option value="fade">Fade</option>
+                  </select>
+                </div>
+
+                <div className="control-group">
+                  <label htmlFor="fontFamily">Font Family</label>
+                  <select
+                    id="fontFamily"
+                    value={settings.fontFamily}
+                    onChange={(e) => setSettings({...settings, fontFamily: e.target.value})}
+                  >
+                    <option value="system-ui">System UI</option>
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="'Georgia', serif">Georgia</option>
+                    <option value="'Courier New', monospace">Courier New</option>
+                    <option value="'Times New Roman', serif">Times New Roman</option>
+                    <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                    <option value="'Verdana', sans-serif">Verdana</option>
+                    <option value="'Helvetica', sans-serif">Helvetica</option>
+                    <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+                  </select>
+                </div>
+
+                <div className="control-group">
+                  <label htmlFor="fontSize">
+                    <span className="control-label-text">Font Size</span>
+                    <span className="control-value">{settings.fontSize}px</span>
+                  </label>
+                  <input
+                    type="range"
+                    id="fontSize"
+                    min="12"
+                    max="24"
+                    value={settings.fontSize}
+                    onChange={(e) => setSettings({...settings, fontSize: parseInt(e.target.value)})}
+                  />
+                </div>
+
+                <div className="control-group">
+                  <label htmlFor="padding">
+                    <span className="control-label-text">Padding</span>
+                    <span className="control-value">{settings.padding}px</span>
+                  </label>
+                  <input
+                    type="range"
+                    id="padding"
+                    min="8"
+                    max="30"
+                    value={settings.padding}
+                    onChange={(e) => setSettings({...settings, padding: parseInt(e.target.value)})}
+                  />
+                </div>
+              </div>
+
+              <div className="content-section">
+                <h3 className="section-title">Bar Colors</h3>
+                <div className="control-group">
+                  <label htmlFor="bgColor">Background Color</label>
+                  <input
+                    type="color"
+                    id="bgColor"
+                    value={settings.bgColor}
+                    onChange={(e) => setSettings({...settings, bgColor: e.target.value})}
+                  />
+                </div>
+
+                <div className="control-group">
+                  <label htmlFor="textColor">Text Color</label>
+                  <input
+                    type="color"
+                    id="textColor"
+                    value={settings.textColor}
+                    onChange={(e) => setSettings({...settings, textColor: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div className="content-section">
+                <h3 className="section-title">Button Colors</h3>
+                <div className="control-group">
+                  <label htmlFor="buttonBgColor">Button Background</label>
+                  <input
+                    type="color"
+                    id="buttonBgColor"
+                    value={settings.buttonBgColor}
+                    onChange={(e) => setSettings({...settings, buttonBgColor: e.target.value})}
+                  />
+                </div>
+
+                <div className="control-group">
+                  <label htmlFor="buttonTextColor">Button Text Color</label>
+                  <input
+                    type="color"
+                    id="buttonTextColor"
+                    value={settings.buttonTextColor}
+                    onChange={(e) => setSettings({...settings, buttonTextColor: e.target.value})}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="main-content">
+        <div className="preview-area">
+          <div className="preview-container">
+            <div className="preview-info">
+              <h2>Live Preview</h2>
+              <p>Position: <strong>{settings.position === 'top' ? 'Top' : 'Bottom'}</strong></p>
+              {!isVisible && (
+                <button className="show-bar-btn" onClick={() => setIsVisible(true)}>
+                  Show Announcement Bar
+                </button>
+              )}
+            </div>
+
+            <div className="preview-frame">
+              {isVisible && (
+                <div
+                  className={`announcement-bar-preview ${settings.position}`}
+                  style={{
+                    background: settings.bgColor,
+                    color: settings.textColor,
+                    fontSize: `${settings.fontSize}px`,
+                    padding: `${settings.padding}px 20px`,
+                    fontFamily: settings.fontFamily,
+                    cursor: settings.barLinkType !== 'none' ? 'pointer' : 'default'
+                  }}
+                  onClick={(e) => {
+                    if (settings.barLinkType !== 'none' && settings.barLinkValue) {
+                      e.preventDefault();
+                      if (settings.barLinkType === 'url') {
+                        alert(`Would navigate to: ${settings.barLinkValue}`);
+                      } else if (settings.barLinkType === 'email') {
+                        alert(`Would open email to: ${settings.barLinkValue}`);
+                      } else if (settings.barLinkType === 'phone') {
+                        alert(`Would call: ${settings.barLinkValue}`);
+                      }
+                    }
+                  }}
+                >
+                  <div className="bar-content" style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '15px',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    flexDirection: settings.actionType === 'button' && settings.buttonPosition === 'left' ? 'row-reverse' : 'row'
+                  }}>
+                    {settings.visualElement === 'badge' && (
+                      <span style={{
+                        background: settings.buttonBgColor,
+                        color: settings.buttonTextColor,
+                        padding: '4px 12px',
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase'
+                      }}>
+                        {settings.visualBadgeText}
+                      </span>
+                    )}
+                    {settings.visualElement === 'icon' && (
+                      <span style={{ fontSize: '24px' }}>{settings.visualIcon}</span>
+                    )}
+                    {settings.visualElement === 'image' && settings.visualImageUrl && (
+                      <img
+                        src={settings.visualImageUrl}
+                        alt="Visual element"
+                        style={{
+                          height: '30px',
+                          width: 'auto',
+                          borderRadius: '4px'
+                        }}
+                      />
+                    )}
+                    <span style={{ flex: settings.actionType === 'form' ? '0 1 auto' : '1 1 auto', textAlign: 'center' }}>
+                      {settings.message}
+                    </span>
+                    {settings.actionType === 'link' && settings.actionUrl && (
+                      <a
+                        href={settings.actionUrl}
+                        style={{
+                          color: settings.buttonBgColor,
+                          textDecoration: 'underline',
+                          fontWeight: 'bold'
+                        }}
+                        onClick={(e) => e.preventDefault()}
+                      >
+                        Learn More →
+                      </a>
+                    )}
+                    {settings.actionType === 'button' && (
+                      <a
+                        href={settings.actionUrl}
+                        className="bar-button"
+                        style={{
+                          background: settings.buttonBgColor,
+                          color: settings.buttonTextColor,
+                          padding: '8px 20px',
+                          borderRadius: '6px',
+                          textDecoration: 'none',
+                          fontWeight: '600',
+                          whiteSpace: 'nowrap'
+                        }}
+                        onClick={(e) => e.preventDefault()}
+                      >
+                        {settings.actionButtonText}
+                      </a>
+                    )}
+                    {settings.actionType === 'form' && (
+                      <form
+                        style={{
+                          display: 'flex',
+                          gap: '8px',
+                          alignItems: 'center',
+                          flexWrap: 'wrap'
+                        }}
+                        onSubmit={(e) => e.preventDefault()}
+                      >
+                        <input
+                          type="email"
+                          placeholder={settings.formPlaceholder}
+                          style={{
+                            padding: '8px 16px',
+                            borderRadius: '6px',
+                            border: 'none',
+                            fontSize: '14px',
+                            minWidth: '200px'
+                          }}
+                        />
+                        <button
+                          type="submit"
+                          style={{
+                            background: settings.buttonBgColor,
+                            color: settings.buttonTextColor,
+                            padding: '8px 20px',
+                            borderRadius: '6px',
+                            border: 'none',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            fontSize: '14px'
+                          }}
+                        >
+                          {settings.formButtonText}
+                        </button>
+                      </form>
+                    )}
+                  </div>
+                  {settings.showCloseButton && (
+                    <button
+                      className="close-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsVisible(false);
+                      }}
+                      style={{
+                        color: settings.textColor,
+                        position: 'absolute',
+                        right: '10px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'transparent',
+                        border: 'none',
+                        fontSize: '24px',
+                        cursor: 'pointer',
+                        padding: '0',
+                        width: '30px',
+                        height: '30px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '4px',
+                        transition: 'background 0.2s'
+                      }}
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              )}
+
+              <div className="preview-page-content">
+                <h1>Your Website Content</h1>
+                <p>This is how your announcement bar will appear on your website.</p>
+                <p>The announcement bar is {settings.position === 'top' ? 'above' : 'below'} this content.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="export-section">
+            <h2>Embed Code</h2>
+            <p>Copy and paste this code into your website's HTML, preferably right after the opening &lt;body&gt; tag.</p>
+            <div className="code-box">{generateEmbedCode()}</div>
+            <button className="copy-btn" onClick={copyEmbedCode}>Copy to Clipboard</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AnnouncementBarPage;

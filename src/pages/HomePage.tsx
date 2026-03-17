@@ -95,6 +95,15 @@ const HomePage: React.FC = () => {
       description: 'Create customizable pop-up modals for promotions, announcements, and lead capture',
       badge: 'New',
       available: true
+    },
+    {
+      id: 'spinning-wheel',
+      route: '/spinning-wheel',
+      icon: '🎡',
+      title: 'Spinning Wheel',
+      description: 'Gamified email capture with customizable prizes, probabilities, and notifications',
+      badge: 'New',
+      available: true
     }
   ];
 

@@ -14,6 +14,7 @@ import LocalPickupTemplatePage from './pages/LocalPickupTemplatePage';
 import QuoteSentTemplatePage from './pages/QuoteSentTemplatePage';
 import WelcomeEmailTemplatePage from './pages/WelcomeEmailTemplatePage';
 import AccountStatementTemplatePage from './pages/AccountStatementTemplatePage';
+import SpinningWheelPage from './pages/SpinningWheelPage';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route path="/quote-sent-template" element={<QuoteSentTemplatePage />} />
         <Route path="/welcome-email-template" element={<WelcomeEmailTemplatePage />} />
         <Route path="/account-statement-template" element={<AccountStatementTemplatePage />} />
+        <Route path="/spinning-wheel" element={<SpinningWheelPage />} />
       </Routes>
     </Router>
   );
