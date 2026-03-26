@@ -2,985 +2,628 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PopupWidgetPage.css';
 
-interface Block {
-  id: string;
-  type: 'heading' | 'text' | 'button' | 'image' | 'form' | 'spacing' | 'separator';
-  content: string;
-  settings: any;
-}
-
 interface PopupSettings {
-  position: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-bar' | 'bottom-bar';
+  layoutStyle: 'modal' | 'left-pane' | 'right-pane' | 'sticky-bar';
   width: number;
+  enableExitIntent: boolean;
+  enableOverlayBlur: boolean;
   backgroundColor: string;
-  borderRadius: number;
-  padding: number;
-  overlay: boolean;
-  overlayOpacity: number;
-  showCloseButton: boolean;
-  closeButtonPosition: 'inside' | 'outside';
-  trigger: 'immediate' | 'delay' | 'scroll' | 'exit';
-  delaySeconds: number;
-  scrollPercent: number;
-  animation: 'fade' | 'slide' | 'zoom' | 'bounce';
+  primaryColor: string;
+  textColor: string;
+  title: string;
+  subtitle: string;
+  couponCode: string;
+  buttonText: string;
+  disclaimerText: string;
+  imageUrl: string;
+  badgeText: string;
 }
 
 const PopupWidgetPage: React.FC = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'content' | 'design' | 'behavior'>('content');
-  const [blocks, setBlocks] = useState<Block[]>([
-    {
-      id: 'default-heading',
-      type: 'heading',
-      content: 'Special Offer! 🎉',
-      settings: { fontSize: 32, color: '#1f2937', align: 'center', fontWeight: 'bold' }
-    },
-    {
-      id: 'default-text',
-      type: 'text',
-      content: 'Get 20% off your first order when you sign up today!',
-      settings: { fontSize: 16, color: '#6b7280', align: 'center', lineHeight: 1.5 }
-    },
-    {
-      id: 'default-form',
-      type: 'form',
-      content: 'Enter your email',
-      settings: { buttonText: 'Claim Offer', buttonColor: '#4285f4', inputPlaceholder: 'your@email.com' }
-    }
-  ]);
-  const [selectedBlockId, setSelectedBlockId] = useState<string | null>('default-heading');
+  const [activeSection, setActiveSection] = useState<'builder' | 'layout' | 'settings'>('layout');
 
   const [settings, setSettings] = useState<PopupSettings>({
-    position: 'center',
-    width: 500,
+    layoutStyle: 'modal',
+    width: 480,
+    enableExitIntent: true,
+    enableOverlayBlur: true,
     backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 40,
-    overlay: true,
-    overlayOpacity: 50,
-    showCloseButton: true,
-    closeButtonPosition: 'inside',
-    trigger: 'delay',
-    delaySeconds: 3,
-    scrollPercent: 50,
-    animation: 'fade'
+    primaryColor: '#e040a0',
+    textColor: '#2e1a28',
+    title: 'LEAVING\nSO SOON?',
+    subtitle: "Wait! Don't go empty-handed. Take this code for your next treat.",
+    couponCode: 'SWEET15',
+    buttonText: 'CONTINUE SHOPPING',
+    disclaimerText: "No thanks, I'll pay full price",
+    imageUrl: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&h=500&fit=crop',
+    badgeText: 'Exclusive Offer'
   });
 
-  const blockTypes = [
-    { type: 'heading', icon: '📝', label: 'Heading', description: 'Add a title' },
-    { type: 'text', icon: '📄', label: 'Text', description: 'Add paragraph text' },
-    { type: 'button', icon: '🔘', label: 'Button', description: 'Add a CTA button' },
-    { type: 'image', icon: '🖼️', label: 'Image', description: 'Add an image' },
-    { type: 'form', icon: '📧', label: 'Email Form', description: 'Collect emails' },
-    { type: 'spacing', icon: '↕️', label: 'Spacing', description: 'Add vertical space' },
-    { type: 'separator', icon: '➖', label: 'Divider', description: 'Add a line' }
-  ];
-
-  const addBlock = (type: Block['type']) => {
-    const newBlock: Block = {
-      id: `block-${Date.now()}`,
-      type,
-      content: getDefaultContent(type),
-      settings: getDefaultSettings(type)
-    };
-    setBlocks([...blocks, newBlock]);
-    setSelectedBlockId(newBlock.id);
-  };
-
-  const getDefaultContent = (type: Block['type']): string => {
-    const defaults = {
-      heading: 'Your Heading',
-      text: 'Your text content goes here.',
-      button: 'Click Me',
-      image: 'https://via.placeholder.com/400x200',
-      form: 'Enter your email',
-      spacing: '20',
-      separator: ''
-    };
-    return defaults[type];
-  };
-
-  const getDefaultSettings = (type: Block['type']): any => {
-    const baseSettings = {
-      heading: { fontSize: 28, color: '#1f2937', align: 'center', fontWeight: 'bold' },
-      text: { fontSize: 16, color: '#6b7280', align: 'left', lineHeight: 1.5 },
-      button: { bgColor: '#4285f4', textColor: '#ffffff', url: '#', fontSize: 16, borderRadius: 8, padding: '14px 32px', align: 'center' },
-      image: { width: '100%', borderRadius: 8 },
-      form: { buttonText: 'Submit', buttonColor: '#4285f4', inputPlaceholder: 'your@email.com' },
-      spacing: { height: 20 },
-      separator: { color: '#e5e7eb', thickness: 1 }
-    };
-    return baseSettings[type];
-  };
-
-  const removeBlock = (id: string) => {
-    setBlocks(blocks.filter(block => block.id !== id));
-    if (selectedBlockId === id) {
-      setSelectedBlockId(blocks[0]?.id || null);
-    }
-  };
-
-  const moveBlock = (id: string, direction: 'up' | 'down') => {
-    const index = blocks.findIndex(block => block.id === id);
-    if (
-      (direction === 'up' && index > 0) ||
-      (direction === 'down' && index < blocks.length - 1)
-    ) {
-      const newBlocks = [...blocks];
-      const newIndex = direction === 'up' ? index - 1 : index + 1;
-      [newBlocks[index], newBlocks[newIndex]] = [newBlocks[newIndex], newBlocks[index]];
-      setBlocks(newBlocks);
-    }
-  };
-
-  const updateBlockContent = (id: string, content: string) => {
-    setBlocks(blocks.map(block =>
-      block.id === id ? { ...block, content } : block
-    ));
-  };
-
-  const updateBlockSettings = (id: string, updatedSettings: any) => {
-    setBlocks(blocks.map(block =>
-      block.id === id ? { ...block, settings: { ...block.settings, ...updatedSettings } } : block
-    ));
-  };
-
-  const selectedBlock = blocks.find(block => block.id === selectedBlockId);
-
   const generateEmbedCode = (): string => {
-    const config = {
-      blocks,
-      settings
-    };
+    const config = JSON.stringify(settings, null, 2);
 
-    return `<!-- Widget Hub Popup -->
-<div id="widget-hub-popup"></div>
+    return `<!-- CandyPop Exit Intent Popup Widget -->
+<div id="candypop-popup-widget"></div>
 <script>
 (function() {
-  const config = ${JSON.stringify(config, null, 2)};
+  const config = ${config};
 
-  // Popup code implementation here
-  console.log('Widget Hub Popup loaded', config);
+  function createPopup() {
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'candypop-overlay';
+    overlay.style.cssText = \`
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, \${config.enableOverlayBlur ? '0.4' : '0.6'});
+      \${config.enableOverlayBlur ? 'backdrop-filter: blur(4px);' : ''}
+      z-index: 999999;
+      display: none;
+    \`;
+
+    // Create popup container
+    const popup = document.createElement('div');
+    popup.id = 'candypop-popup';
+    popup.style.cssText = \`
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border-radius: 2.5rem;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      z-index: 1000000;
+      max-width: \${config.width}px;
+      width: 90%;
+      display: none;
+    \`;
+
+    popup.innerHTML = \`
+      <div style="display: flex; flex-direction: row;">
+        <div style="width: 42%; position: relative; min-height: 200px;">
+          <img src="\${config.imageUrl}" alt="Popup" style="width: 100%; height: 100%; object-fit: cover;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(to top, \${config.primaryColor}66, transparent);"></div>
+          <div style="position: absolute; bottom: 1rem; left: 1rem; right: 1rem;">
+            <div style="background: rgba(255,255,255,0.9); backdrop-filter: blur(4px); padding: 0.25rem 0.75rem; border-radius: 9999px; display: inline-block;">
+              <span style="font-size: 10px; font-weight: 900; color: \${config.primaryColor}; text-transform: uppercase; letter-spacing: 0.1em;">\${config.badgeText}</span>
+            </div>
+          </div>
+        </div>
+        <div style="width: 58%; padding: 2rem; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center;">
+          <h2 style="font-size: 1.875rem; font-weight: 900; line-height: 1.2; margin-bottom: 0.5rem; letter-spacing: -0.025em; color: \${config.textColor};">
+            \${config.title.replace(/\\n/g, '<br>')}
+          </h2>
+          <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1.5rem; font-weight: 500;">\${config.subtitle}</p>
+
+          <div style="width: 100%; background: #fdf2f8; border: 2px dashed #fbcfe8; border-radius: 1rem; padding: 1rem; margin-bottom: 1.5rem; position: relative; overflow: hidden;">
+            <div style="font-size: 10px; color: #f9a8d4; font-weight: 700; text-transform: uppercase; margin-bottom: 0.25rem;">Your Coupon</div>
+            <div style="font-size: 1.5rem; font-weight: 900; letter-spacing: 0.1em; color: \${config.primaryColor};">\${config.couponCode}</div>
+            <div style="position: absolute; top: 50%; left: -0.5rem; width: 1rem; height: 1rem; background: white; border-radius: 50%; transform: translateY(-50%);"></div>
+            <div style="position: absolute; top: 50%; right: -0.5rem; width: 1rem; height: 1rem; background: white; border-radius: 50%; transform: translateY(-50%);"></div>
+          </div>
+
+          <button onclick="document.getElementById('candypop-overlay').style.display='none'; document.getElementById('candypop-popup').style.display='none';" style="width: 100%; padding: 1rem; border-radius: 9999px; background: \${config.primaryColor}; color: white; font-weight: 900; font-size: 0.875rem; border: none; cursor: pointer; box-shadow: 0 8px 20px \${config.primaryColor}4d; margin-bottom: 1rem; transition: transform 0.2s;">
+            \${config.buttonText}
+          </button>
+
+          <button onclick="document.getElementById('candypop-overlay').style.display='none'; document.getElementById('candypop-popup').style.display='none';" style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; background: none; border: none; cursor: pointer;">
+            \${config.disclaimerText}
+          </button>
+        </div>
+
+        <button onclick="document.getElementById('candypop-overlay').style.display='none'; document.getElementById('candypop-popup').style.display='none';" style="position: absolute; top: 1rem; right: 1rem; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+          ×
+        </button>
+      </div>
+    \`;
+
+    document.body.appendChild(overlay);
+    document.body.appendChild(popup);
+
+    // Show popup function
+    function showPopup() {
+      overlay.style.display = 'block';
+      popup.style.display = 'block';
+    }
+
+    // Exit intent detection
+    if (config.enableExitIntent) {
+      let hasShown = false;
+      document.addEventListener('mouseleave', function(e) {
+        if (!hasShown && e.clientY <= 0) {
+          showPopup();
+          hasShown = true;
+        }
+      });
+    }
+
+    // For demo: show after 2 seconds
+    setTimeout(showPopup, 2000);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', createPopup);
+  } else {
+    createPopup();
+  }
 })();
 </script>`;
   };
 
   const copyEmbedCode = () => {
-    navigator.clipboard.writeText(generateEmbedCode());
-    alert('Embed code copied to clipboard!');
+    navigator.clipboard.writeText(generateEmbedCode()).then(() => {
+      alert('Embed code copied to clipboard!');
+    });
   };
 
   return (
-    <div className="popup-widget-page">
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <h1>Popup Builder</h1>
-          <button className="home-btn" onClick={() => navigate('/')}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z"/>
+    <div className="h-screen overflow-hidden bg-surface text-on-surface">
+      {/* Top NavBar */}
+      <nav className="fixed top-0 w-full border-b border-pink-100 bg-white shadow-[0_4px_16px_rgba(224,64,160,0.1)] flex justify-between items-center px-6 h-16 z-50">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate('/')} className="text-slate-500 hover:text-pink-400 transition-colors">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Home
+          </button>
+          <div className="text-2xl font-black text-pink-600 tracking-tight">CandyPop Builder</div>
+        </div>
+        <div className="flex items-center gap-4">
+          <button className="px-5 py-2 rounded-full border border-pink-200 text-pink-600 font-bold hover:scale-105 transition-all active:scale-95">
+            Save Draft
+          </button>
+          <button className="px-6 py-2 rounded-full bg-primary text-white font-bold shadow-[0_4px_16px_rgba(224,64,160,0.2)] hover:scale-105 transition-all active:scale-95">
+            Publish
           </button>
         </div>
+      </nav>
 
-        <div className="tab-navigation">
-          <button
-            className={`tab-nav-btn ${activeTab === 'content' ? 'active' : ''}`}
-            onClick={() => setActiveTab('content')}
-          >
-            Content
-          </button>
-          <button
-            className={`tab-nav-btn ${activeTab === 'design' ? 'active' : ''}`}
-            onClick={() => setActiveTab('design')}
-          >
-            Design
-          </button>
-          <button
-            className={`tab-nav-btn ${activeTab === 'behavior' ? 'active' : ''}`}
-            onClick={() => setActiveTab('behavior')}
-          >
-            Behavior
-          </button>
+      {/* Side NavBar */}
+      <aside className="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 border-r border-slate-200 bg-white flex flex-col p-4 gap-2 z-40">
+        <div className="flex items-center gap-3 px-2 py-4 mb-2">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center text-white font-black text-xl shadow-lg">
+            P
+          </div>
+          <div>
+            <div className="font-bold text-sm text-on-surface">Project Alpha</div>
+            <div className="text-[10px] uppercase tracking-widest text-slate-500 font-black">Editing Popup</div>
+          </div>
         </div>
 
-        <div className="tab-content">
-          {activeTab === 'content' && (
-            <div className="tab-pane active">
-              <div className="content-section">
-                <h3 className="section-title">Add Blocks</h3>
-                <div className="block-types-grid">
-                  {blockTypes.map(({ type, icon, label, description }) => (
-                    <button
-                      key={type}
-                      className="block-type-card"
-                      onClick={() => addBlock(type as Block['type'])}
-                    >
-                      <span className="block-icon">{icon}</span>
-                      <div className="block-info">
-                        <span className="block-label">{label}</span>
-                        <span className="block-description">{description}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
+        <nav className="flex-1 flex flex-col gap-2">
+          <button
+            className={`flex items-center gap-3 px-4 py-3 rounded-full font-medium text-sm transition-transform duration-200 hover:scale-[1.03] ${
+              activeSection === 'builder'
+                ? 'bg-pink-500 text-white shadow-[0_4px_12px_rgba(224,64,160,0.3)]'
+                : 'text-slate-600 hover:bg-pink-100'
+            }`}
+            onClick={() => setActiveSection('builder')}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+            </svg>
+            Builder
+          </button>
 
-              <div className="content-section">
-                <h3 className="section-title">Blocks ({blocks.length})</h3>
-                <div className="blocks-list">
-                  {blocks.map((block, index) => (
-                    <div
-                      key={block.id}
-                      className={`block-item ${selectedBlockId === block.id ? 'selected' : ''}`}
-                      onClick={() => setSelectedBlockId(block.id)}
-                    >
-                      <div className="block-item-content">
-                        <span className="block-item-icon">
-                          {blockTypes.find(t => t.type === block.type)?.icon}
-                        </span>
-                        <span className="block-item-label">
-                          {blockTypes.find(t => t.type === block.type)?.label}
-                        </span>
-                      </div>
-                      <div className="block-item-actions">
-                        <button
-                          className="block-action-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            moveBlock(block.id, 'up');
-                          }}
-                          disabled={index === 0}
-                          title="Move up"
-                        >
-                          ↑
-                        </button>
-                        <button
-                          className="block-action-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            moveBlock(block.id, 'down');
-                          }}
-                          disabled={index === blocks.length - 1}
-                          title="Move down"
-                        >
-                          ↓
-                        </button>
-                        <button
-                          className="block-action-btn delete"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeBlock(block.id);
-                          }}
-                          title="Delete"
-                        >
-                          ×
-                        </button>
+          <button
+            className={`flex items-center gap-3 px-4 py-3 rounded-full font-medium text-sm transition-transform duration-200 hover:scale-[1.03] ${
+              activeSection === 'layout'
+                ? 'bg-pink-500 text-white shadow-[0_4px_12px_rgba(224,64,160,0.3)]'
+                : 'text-slate-600 hover:bg-pink-100'
+            }`}
+            onClick={() => setActiveSection('layout')}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z" />
+            </svg>
+            Layout
+          </button>
+
+          <button
+            className={`flex items-center gap-3 px-4 py-3 rounded-full font-medium text-sm transition-transform duration-200 hover:scale-[1.03] ${
+              activeSection === 'settings'
+                ? 'bg-pink-500 text-white shadow-[0_4px_12px_rgba(224,64,160,0.3)]'
+                : 'text-slate-600 hover:bg-pink-100'
+            }`}
+            onClick={() => setActiveSection('settings')}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Settings
+          </button>
+        </nav>
+
+        <div className="mt-auto pt-4 border-t border-pink-100/50">
+          <button
+            onClick={copyEmbedCode}
+            className="w-full py-4 rounded-2xl bg-[#4ade80] text-[#064e3b] font-bold text-sm shadow-[0_4px_12px_rgba(74,222,128,0.2)] flex items-center justify-center gap-2 hover:scale-[1.03] active:scale-95 transition-all"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+              <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+            </svg>
+            Add to website for free
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content Canvas */}
+      <main className="ml-64 mt-16 p-8 h-[calc(100vh-64px)] overflow-y-auto grid grid-cols-12 gap-8">
+        {/* Controls Column */}
+        <div className="col-span-12 lg:col-span-4 space-y-6">
+          {activeSection === 'layout' && (
+            <>
+              <div className="bg-white rounded-2xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-pink-50">
+                <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z" />
+                  </svg>
+                  Popup Styles
+                </h3>
+
+                <div className="grid grid-cols-2 gap-3 mb-8">
+                  <button
+                    onClick={() => setSettings({ ...settings, layoutStyle: 'modal' })}
+                    className={`group p-4 border-2 rounded-2xl text-center hover:scale-[1.03] active:scale-95 transition-all ${
+                      settings.layoutStyle === 'modal' ? 'border-pink-500 bg-pink-50' : 'border-slate-100 bg-white hover:border-pink-200'
+                    }`}
+                  >
+                    <div className="w-12 h-8 bg-pink-200 mx-auto mb-2 rounded border border-pink-400 relative overflow-hidden">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-6 h-4 bg-primary rounded-sm"></div>
                       </div>
                     </div>
-                  ))}
+                    <span className={`text-xs font-bold ${settings.layoutStyle === 'modal' ? 'text-pink-600' : 'text-slate-500'}`}>Modal</span>
+                  </button>
+
+                  <button
+                    onClick={() => setSettings({ ...settings, layoutStyle: 'left-pane' })}
+                    className={`group p-4 border-2 rounded-2xl text-center hover:scale-[1.03] active:scale-95 transition-all ${
+                      settings.layoutStyle === 'left-pane' ? 'border-pink-500 bg-pink-50' : 'border-slate-100 bg-white hover:border-pink-200'
+                    }`}
+                  >
+                    <div className="w-12 h-8 bg-slate-100 mx-auto mb-2 rounded border border-slate-200 relative overflow-hidden">
+                      <div className="absolute inset-y-0 left-0 w-4 bg-slate-300"></div>
+                    </div>
+                    <span className={`text-xs font-bold ${settings.layoutStyle === 'left-pane' ? 'text-pink-600' : 'text-slate-500'}`}>Left Pane</span>
+                  </button>
+
+                  <button
+                    onClick={() => setSettings({ ...settings, layoutStyle: 'right-pane' })}
+                    className={`group p-4 border-2 rounded-2xl text-center hover:scale-[1.03] active:scale-95 transition-all ${
+                      settings.layoutStyle === 'right-pane' ? 'border-pink-500 bg-pink-50' : 'border-slate-100 bg-white hover:border-pink-200'
+                    }`}
+                  >
+                    <div className="w-12 h-8 bg-slate-100 mx-auto mb-2 rounded border border-slate-200 relative overflow-hidden">
+                      <div className="absolute inset-y-0 right-0 w-4 bg-slate-300"></div>
+                    </div>
+                    <span className={`text-xs font-bold ${settings.layoutStyle === 'right-pane' ? 'text-pink-600' : 'text-slate-500'}`}>Right Pane</span>
+                  </button>
+
+                  <button
+                    onClick={() => setSettings({ ...settings, layoutStyle: 'sticky-bar' })}
+                    className={`group p-4 border-2 rounded-2xl text-center hover:scale-[1.03] active:scale-95 transition-all ${
+                      settings.layoutStyle === 'sticky-bar' ? 'border-pink-500 bg-pink-50' : 'border-slate-100 bg-white hover:border-pink-200'
+                    }`}
+                  >
+                    <div className="w-12 h-8 bg-slate-100 mx-auto mb-2 rounded border border-slate-200 relative overflow-hidden">
+                      <div className="absolute bottom-0 inset-x-0 h-3 bg-slate-300"></div>
+                    </div>
+                    <span className={`text-xs font-bold ${settings.layoutStyle === 'sticky-bar' ? 'text-pink-600' : 'text-slate-500'}`}>Sticky Bar</span>
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex justify-between items-center mb-3">
+                      <label className="text-sm font-bold text-slate-600">Popup Width</label>
+                      <span className="text-xs font-black text-primary px-2 py-1 bg-pink-50 rounded-lg">{settings.width}px</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="300"
+                      max="800"
+                      value={settings.width}
+                      onChange={(e) => setSettings({ ...settings, width: parseInt(e.target.value) })}
+                      className="w-full h-2 bg-pink-100 rounded-lg appearance-none cursor-pointer accent-primary"
+                    />
+                  </div>
+
+                  <button className="w-full py-4 rounded-full bg-white border-2 border-slate-900 text-slate-900 font-black text-sm hover:scale-[1.03] active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                    </svg>
+                    Customize Colors &amp; Fonts
+                  </button>
                 </div>
               </div>
 
-              {selectedBlock && (
-                <div className="content-section">
-                  <h3 className="section-title">Edit Block</h3>
-                  <div className="control-group">
-                    <label>Content</label>
-                    {selectedBlock.type === 'spacing' ? (
-                      <input
-                        type="number"
-                        value={selectedBlock.content}
-                        onChange={(e) => updateBlockContent(selectedBlock.id, e.target.value)}
-                        placeholder="Height in pixels"
-                      />
-                    ) : selectedBlock.type === 'separator' ? (
-                      <p className="helper-text">This block has no editable content</p>
-                    ) : (
-                      <textarea
-                        value={selectedBlock.content}
-                        onChange={(e) => updateBlockContent(selectedBlock.id, e.target.value)}
-                        rows={3}
-                      />
-                    )}
+              <div className="bg-purple-100 rounded-2xl p-6 border border-purple-200">
+                <h4 className="font-bold text-purple-900 mb-4">Quick Settings</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-white/50 rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <svg className="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-xs font-bold text-slate-900">Exit Intent</span>
+                    </div>
+                    <button
+                      onClick={() => setSettings({ ...settings, enableExitIntent: !settings.enableExitIntent })}
+                      className={`w-11 h-6 rounded-full relative transition-colors ${
+                        settings.enableExitIntent ? 'bg-purple-600' : 'bg-slate-400'
+                      }`}
+                    >
+                      <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform ${
+                        settings.enableExitIntent ? 'right-0.5' : 'left-0.5'
+                      }`}></div>
+                    </button>
                   </div>
 
-                  {renderBlockSettings(selectedBlock)}
+                  <div className="flex items-center justify-between p-3 bg-white/50 rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <svg className="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      <span className="text-xs font-bold text-slate-900">Overlay Blur</span>
+                    </div>
+                    <button
+                      onClick={() => setSettings({ ...settings, enableOverlayBlur: !settings.enableOverlayBlur })}
+                      className={`w-11 h-6 rounded-full relative transition-colors ${
+                        settings.enableOverlayBlur ? 'bg-purple-600' : 'bg-slate-400'
+                      }`}
+                    >
+                      <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform ${
+                        settings.enableOverlayBlur ? 'right-0.5' : 'left-0.5'
+                      }`}></div>
+                    </button>
+                  </div>
                 </div>
-              )}
+              </div>
+            </>
+          )}
+
+          {activeSection === 'builder' && (
+            <div className="bg-white rounded-2xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-pink-50">
+              <h3 className="text-lg font-bold text-slate-900 mb-6">Content Editor</h3>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-bold text-slate-600 mb-2 block">Title</label>
+                  <textarea
+                    className="w-full bg-slate-50 border-slate-200 rounded-lg text-sm p-3 text-slate-900 focus:ring-pink-500 focus:border-pink-500"
+                    rows={2}
+                    value={settings.title}
+                    onChange={(e) => setSettings({ ...settings, title: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-bold text-slate-600 mb-2 block">Subtitle</label>
+                  <textarea
+                    className="w-full bg-slate-50 border-slate-200 rounded-lg text-sm p-3 text-slate-900 focus:ring-pink-500 focus:border-pink-500"
+                    rows={2}
+                    value={settings.subtitle}
+                    onChange={(e) => setSettings({ ...settings, subtitle: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-bold text-slate-600 mb-2 block">Coupon Code</label>
+                  <input
+                    type="text"
+                    className="w-full bg-slate-50 border-slate-200 rounded-lg text-sm p-3 text-slate-900 font-mono focus:ring-pink-500 focus:border-pink-500"
+                    value={settings.couponCode}
+                    onChange={(e) => setSettings({ ...settings, couponCode: e.target.value.toUpperCase() })}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-bold text-slate-600 mb-2 block">Button Text</label>
+                  <input
+                    type="text"
+                    className="w-full bg-slate-50 border-slate-200 rounded-lg text-sm p-3 text-slate-900 focus:ring-pink-500 focus:border-pink-500"
+                    value={settings.buttonText}
+                    onChange={(e) => setSettings({ ...settings, buttonText: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-bold text-slate-600 mb-2 block">Badge Text</label>
+                  <input
+                    type="text"
+                    className="w-full bg-slate-50 border-slate-200 rounded-lg text-sm p-3 text-slate-900 focus:ring-pink-500 focus:border-pink-500"
+                    value={settings.badgeText}
+                    onChange={(e) => setSettings({ ...settings, badgeText: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-bold text-slate-600 mb-2 block">Image URL</label>
+                  <input
+                    type="text"
+                    className="w-full bg-slate-50 border-slate-200 rounded-lg text-sm p-3 text-slate-900 focus:ring-pink-500 focus:border-pink-500"
+                    value={settings.imageUrl}
+                    onChange={(e) => setSettings({ ...settings, imageUrl: e.target.value })}
+                  />
+                </div>
+              </div>
             </div>
           )}
 
-          {activeTab === 'design' && (
-            <div className="tab-pane active">
-              <div className="content-section">
-                <h3 className="section-title">Position</h3>
-                <div className="position-grid">
-                  {[
-                    { value: 'top-left', label: 'Top Left', icon: '↖' },
-                    { value: 'center', label: 'Center', icon: '⊙' },
-                    { value: 'top-right', label: 'Top Right', icon: '↗' },
-                    { value: 'bottom-left', label: 'Bottom Left', icon: '↙' },
-                    { value: 'bottom-right', label: 'Bottom Right', icon: '↘' }
-                  ].map(pos => (
-                    <button
-                      key={pos.value}
-                      className={`position-btn ${settings.position === pos.value ? 'active' : ''}`}
-                      onClick={() => setSettings({ ...settings, position: pos.value as any })}
-                    >
-                      <span className="position-icon">{pos.icon}</span>
-                      <span className="position-label">{pos.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+          {activeSection === 'settings' && (
+            <div className="bg-white rounded-2xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-pink-50">
+              <h3 className="text-lg font-bold text-slate-900 mb-6">Color Settings</h3>
 
-              <div className="content-section">
-                <h3 className="section-title">Size</h3>
-                <div className="control-group">
-                  <label htmlFor="width">
-                    <span>Width</span>
-                    <span className="control-value">{settings.width}px</span>
-                  </label>
-                  <input
-                    type="range"
-                    id="width"
-                    min="300"
-                    max="800"
-                    value={settings.width}
-                    onChange={(e) => setSettings({ ...settings, width: parseInt(e.target.value) })}
-                  />
-                </div>
-
-                <div className="control-group">
-                  <label htmlFor="padding">
-                    <span>Padding</span>
-                    <span className="control-value">{settings.padding}px</span>
-                  </label>
-                  <input
-                    type="range"
-                    id="padding"
-                    min="20"
-                    max="60"
-                    value={settings.padding}
-                    onChange={(e) => setSettings({ ...settings, padding: parseInt(e.target.value) })}
-                  />
-                </div>
-
-                <div className="control-group">
-                  <label htmlFor="borderRadius">
-                    <span>Border Radius</span>
-                    <span className="control-value">{settings.borderRadius}px</span>
-                  </label>
-                  <input
-                    type="range"
-                    id="borderRadius"
-                    min="0"
-                    max="30"
-                    value={settings.borderRadius}
-                    onChange={(e) => setSettings({ ...settings, borderRadius: parseInt(e.target.value) })}
-                  />
-                </div>
-              </div>
-
-              <div className="content-section">
-                <h3 className="section-title">Colors</h3>
-                <div className="control-group">
-                  <label htmlFor="backgroundColor">Background Color</label>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-bold text-slate-600 mb-2 block">Primary Color</label>
                   <input
                     type="color"
-                    id="backgroundColor"
+                    className="w-full h-12 rounded-lg cursor-pointer"
+                    value={settings.primaryColor}
+                    onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-bold text-slate-600 mb-2 block">Background Color</label>
+                  <input
+                    type="color"
+                    className="w-full h-12 rounded-lg cursor-pointer"
                     value={settings.backgroundColor}
                     onChange={(e) => setSettings({ ...settings, backgroundColor: e.target.value })}
                   />
                 </div>
-              </div>
 
-              <div className="content-section">
-                <h3 className="section-title">Overlay</h3>
-                <div className="control-group">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={settings.overlay}
-                      onChange={(e) => setSettings({ ...settings, overlay: e.target.checked })}
-                    />
-                    <span>Show Overlay</span>
-                  </label>
+                <div>
+                  <label className="text-sm font-bold text-slate-600 mb-2 block">Text Color</label>
+                  <input
+                    type="color"
+                    className="w-full h-12 rounded-lg cursor-pointer"
+                    value={settings.textColor}
+                    onChange={(e) => setSettings({ ...settings, textColor: e.target.value })}
+                  />
                 </div>
-
-                {settings.overlay && (
-                  <div className="control-group">
-                    <label htmlFor="overlayOpacity">
-                      <span>Overlay Opacity</span>
-                      <span className="control-value">{settings.overlayOpacity}%</span>
-                    </label>
-                    <input
-                      type="range"
-                      id="overlayOpacity"
-                      min="0"
-                      max="100"
-                      value={settings.overlayOpacity}
-                      onChange={(e) => setSettings({ ...settings, overlayOpacity: parseInt(e.target.value) })}
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className="content-section">
-                <h3 className="section-title">Close Button</h3>
-                <div className="control-group">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={settings.showCloseButton}
-                      onChange={(e) => setSettings({ ...settings, showCloseButton: e.target.checked })}
-                    />
-                    <span>Show Close Button</span>
-                  </label>
-                </div>
-
-                {settings.showCloseButton && (
-                  <div className="control-group">
-                    <label htmlFor="closeButtonPosition">Position</label>
-                    <select
-                      id="closeButtonPosition"
-                      value={settings.closeButtonPosition}
-                      onChange={(e) => setSettings({ ...settings, closeButtonPosition: e.target.value as any })}
-                    >
-                      <option value="inside">Inside</option>
-                      <option value="outside">Outside</option>
-                    </select>
-                  </div>
-                )}
               </div>
             </div>
           )}
+        </div>
 
-          {activeTab === 'behavior' && (
-            <div className="tab-pane active">
-              <div className="content-section">
-                <h3 className="section-title">Display Trigger</h3>
-                <div className="trigger-options">
-                  {[
-                    { value: 'immediate', label: 'Immediately', description: 'Show as soon as page loads' },
-                    { value: 'delay', label: 'Time Delay', description: 'Show after X seconds' },
-                    { value: 'scroll', label: 'Scroll Depth', description: 'Show after scrolling X%' },
-                    { value: 'exit', label: 'Exit Intent', description: 'Show when leaving page' }
-                  ].map(trigger => (
-                    <button
-                      key={trigger.value}
-                      className={`trigger-option ${settings.trigger === trigger.value ? 'active' : ''}`}
-                      onClick={() => setSettings({ ...settings, trigger: trigger.value as any })}
-                    >
-                      <span className="trigger-label">{trigger.label}</span>
-                      <span className="trigger-description">{trigger.description}</span>
-                    </button>
-                  ))}
+        {/* Live Preview Stage */}
+        <div className="col-span-12 lg:col-span-8 flex flex-col h-full">
+          <div className="flex-1 rounded-3xl overflow-hidden relative border-4 border-pink-50 shadow-2xl">
+            {/* Mockup Background */}
+            <div className="absolute inset-0 z-0">
+              <img
+                src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1200&h=800&fit=crop"
+                alt="Preview Background"
+                className="w-full h-full object-cover scale-105 blur-sm brightness-75"
+              />
+            </div>
+
+            {/* Dark Overlay */}
+            <div className={`absolute inset-0 z-10 ${settings.enableOverlayBlur ? 'bg-on-surface/40 backdrop-blur-sm' : 'bg-on-surface/60'}`}></div>
+
+            {/* Popup Preview */}
+            <div className="absolute inset-0 flex items-center justify-center z-20 p-6">
+              <div
+                className="bg-white rounded-[2.5rem] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.3)] flex flex-col md:flex-row transform transition-all duration-500"
+                style={{ maxWidth: `${settings.width}px`, width: '100%' }}
+              >
+                {/* Left Side Image */}
+                <div className="md:w-5/12 relative min-h-[200px]">
+                  <img
+                    src={settings.imageUrl}
+                    alt="Popup visual"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent"></div>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <div className="bg-white/90 backdrop-blur px-3 py-1 rounded-full inline-block">
+                      <span className="text-[10px] font-black text-primary uppercase tracking-widest">{settings.badgeText}</span>
+                    </div>
+                  </div>
                 </div>
 
-                {settings.trigger === 'delay' && (
-                  <div className="control-group">
-                    <label htmlFor="delaySeconds">Delay (seconds)</label>
-                    <input
-                      type="number"
-                      id="delaySeconds"
-                      min="0"
-                      max="60"
-                      value={settings.delaySeconds}
-                      onChange={(e) => setSettings({ ...settings, delaySeconds: parseInt(e.target.value) })}
-                    />
-                  </div>
-                )}
+                {/* Content Side */}
+                <div className="md:w-7/12 p-8 flex flex-col items-center text-center justify-center">
+                  <h2 className="text-3xl font-black leading-tight mb-2 tracking-tighter" style={{ color: settings.textColor }}>
+                    {settings.title.split('\n').map((line, i) => (
+                      <React.Fragment key={i}>
+                        {line}
+                        {i < settings.title.split('\n').length - 1 && <br />}
+                      </React.Fragment>
+                    ))}
+                  </h2>
+                  <p className="text-sm text-slate-500 mb-6 font-medium">{settings.subtitle}</p>
 
-                {settings.trigger === 'scroll' && (
-                  <div className="control-group">
-                    <label htmlFor="scrollPercent">
-                      <span>Scroll Percentage</span>
-                      <span className="control-value">{settings.scrollPercent}%</span>
-                    </label>
-                    <input
-                      type="range"
-                      id="scrollPercent"
-                      min="0"
-                      max="100"
-                      value={settings.scrollPercent}
-                      onChange={(e) => setSettings({ ...settings, scrollPercent: parseInt(e.target.value) })}
-                    />
+                  {/* Coupon Box */}
+                  <div className="w-full bg-pink-50 border-2 border-dashed border-pink-300 rounded-2xl p-4 mb-6 relative overflow-hidden">
+                    <div className="text-[10px] text-pink-400 font-bold uppercase mb-1">Your Coupon</div>
+                    <div className="text-2xl font-black tracking-widest" style={{ color: settings.primaryColor }}>
+                      {settings.couponCode}
+                    </div>
+                    {/* Punched holes effect */}
+                    <div className="absolute top-1/2 -left-2 w-4 h-4 bg-white rounded-full -translate-y-1/2"></div>
+                    <div className="absolute top-1/2 -right-2 w-4 h-4 bg-white rounded-full -translate-y-1/2"></div>
                   </div>
-                )}
-              </div>
 
-              <div className="content-section">
-                <h3 className="section-title">Animation</h3>
-                <div className="control-group">
-                  <label htmlFor="animation">Entry Animation</label>
-                  <select
-                    id="animation"
-                    value={settings.animation}
-                    onChange={(e) => setSettings({ ...settings, animation: e.target.value as any })}
+                  <button
+                    className="w-full py-4 rounded-full text-white font-black text-sm shadow-[0_8px_20px_rgba(224,64,160,0.3)] hover:scale-105 active:scale-95 transition-all mb-4"
+                    style={{ backgroundColor: settings.primaryColor }}
                   >
-                    <option value="fade">Fade In</option>
-                    <option value="slide">Slide In</option>
-                    <option value="zoom">Zoom In</option>
-                    <option value="bounce">Bounce In</option>
-                  </select>
+                    {settings.buttonText}
+                  </button>
+
+                  <button className="text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors">
+                    {settings.disclaimerText}
+                  </button>
                 </div>
+
+                {/* Close button */}
+                <button className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 text-white backdrop-blur flex items-center justify-center transition-all">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
             </div>
-          )}
-        </div>
-      </div>
 
-      <div className="main-content">
-        <div className="preview-area">
-          <div className="preview-container">
-            <PopupPreview blocks={blocks} settings={settings} />
+            {/* Preview Status Indicators */}
+            <div className="absolute bottom-6 left-6 z-30 flex gap-2">
+              <div className="bg-white/90 backdrop-blur rounded-full px-4 py-2 flex items-center gap-2 text-xs font-bold text-on-surface shadow-lg">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                Live Preview Mode
+              </div>
+              <div className="bg-on-surface/80 backdrop-blur rounded-full px-4 py-2 flex items-center gap-2 text-xs font-bold text-white shadow-lg">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                <svg className="w-4 h-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+            </div>
           </div>
 
-          <div className="export-section">
-            <h2>Embed Code</h2>
-            <p>Copy and paste this code into your website's HTML</p>
-            <div className="code-box">{generateEmbedCode()}</div>
-            <button className="copy-btn" onClick={copyEmbedCode}>
-              Copy to Clipboard
-            </button>
+          {/* Bottom Preview Toolbar */}
+          <div className="mt-4 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <button className="w-10 h-10 rounded-full bg-pink-50 text-pink-600 flex items-center justify-center hover:bg-pink-100 transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                </svg>
+              </button>
+              <button className="w-10 h-10 rounded-full bg-pink-50 text-pink-600 flex items-center justify-center hover:bg-pink-100 transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10h-10a8 8 0 00-8 8v2m18-10l-6-6m6 6l-6 6" />
+                </svg>
+              </button>
+              <span className="h-6 w-px bg-slate-200 mx-2"></span>
+              <p className="text-xs font-bold text-slate-400 italic">Last autosave 2 mins ago</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button className="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Version History
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
-
-  function renderBlockSettings(block: Block) {
-    switch (block.type) {
-      case 'heading':
-        return (
-          <>
-            <div className="control-group">
-              <label htmlFor="fontSize">Font Size</label>
-              <input
-                type="number"
-                id="fontSize"
-                value={block.settings.fontSize}
-                onChange={(e) => updateBlockSettings(block.id, { fontSize: parseInt(e.target.value) })}
-              />
-            </div>
-            <div className="control-group">
-              <label htmlFor="color">Color</label>
-              <input
-                type="color"
-                id="color"
-                value={block.settings.color}
-                onChange={(e) => updateBlockSettings(block.id, { color: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label htmlFor="align">Alignment</label>
-              <select
-                id="align"
-                value={block.settings.align}
-                onChange={(e) => updateBlockSettings(block.id, { align: e.target.value })}
-              >
-                <option value="left">Left</option>
-                <option value="center">Center</option>
-                <option value="right">Right</option>
-              </select>
-            </div>
-          </>
-        );
-
-      case 'text':
-        return (
-          <>
-            <div className="control-group">
-              <label htmlFor="fontSize">Font Size</label>
-              <input
-                type="number"
-                id="fontSize"
-                value={block.settings.fontSize}
-                onChange={(e) => updateBlockSettings(block.id, { fontSize: parseInt(e.target.value) })}
-              />
-            </div>
-            <div className="control-group">
-              <label htmlFor="color">Color</label>
-              <input
-                type="color"
-                id="color"
-                value={block.settings.color}
-                onChange={(e) => updateBlockSettings(block.id, { color: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label htmlFor="align">Alignment</label>
-              <select
-                id="align"
-                value={block.settings.align}
-                onChange={(e) => updateBlockSettings(block.id, { align: e.target.value })}
-              >
-                <option value="left">Left</option>
-                <option value="center">Center</option>
-                <option value="right">Right</option>
-              </select>
-            </div>
-          </>
-        );
-
-      case 'button':
-        return (
-          <>
-            <div className="control-group">
-              <label htmlFor="url">URL</label>
-              <input
-                type="text"
-                id="url"
-                value={block.settings.url}
-                onChange={(e) => updateBlockSettings(block.id, { url: e.target.value })}
-                placeholder="https://example.com"
-              />
-            </div>
-            <div className="control-group">
-              <label htmlFor="bgColor">Background Color</label>
-              <input
-                type="color"
-                id="bgColor"
-                value={block.settings.bgColor}
-                onChange={(e) => updateBlockSettings(block.id, { bgColor: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label htmlFor="textColor">Text Color</label>
-              <input
-                type="color"
-                id="textColor"
-                value={block.settings.textColor}
-                onChange={(e) => updateBlockSettings(block.id, { textColor: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label htmlFor="align">Alignment</label>
-              <select
-                id="align"
-                value={block.settings.align}
-                onChange={(e) => updateBlockSettings(block.id, { align: e.target.value })}
-              >
-                <option value="left">Left</option>
-                <option value="center">Center</option>
-                <option value="right">Right</option>
-              </select>
-            </div>
-          </>
-        );
-
-      case 'image':
-        return (
-          <>
-            <div className="control-group">
-              <label htmlFor="width">Width</label>
-              <input
-                type="text"
-                id="width"
-                value={block.settings.width}
-                onChange={(e) => updateBlockSettings(block.id, { width: e.target.value })}
-                placeholder="100% or 400px"
-              />
-            </div>
-            <div className="control-group">
-              <label htmlFor="borderRadius">Border Radius</label>
-              <input
-                type="number"
-                id="borderRadius"
-                value={block.settings.borderRadius}
-                onChange={(e) => updateBlockSettings(block.id, { borderRadius: parseInt(e.target.value) })}
-              />
-            </div>
-          </>
-        );
-
-      case 'form':
-        return (
-          <>
-            <div className="control-group">
-              <label htmlFor="inputPlaceholder">Input Placeholder</label>
-              <input
-                type="text"
-                id="inputPlaceholder"
-                value={block.settings.inputPlaceholder}
-                onChange={(e) => updateBlockSettings(block.id, { inputPlaceholder: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label htmlFor="buttonText">Button Text</label>
-              <input
-                type="text"
-                id="buttonText"
-                value={block.settings.buttonText}
-                onChange={(e) => updateBlockSettings(block.id, { buttonText: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label htmlFor="buttonColor">Button Color</label>
-              <input
-                type="color"
-                id="buttonColor"
-                value={block.settings.buttonColor}
-                onChange={(e) => updateBlockSettings(block.id, { buttonColor: e.target.value })}
-              />
-            </div>
-          </>
-        );
-
-      case 'spacing':
-        return (
-          <div className="control-group">
-            <label htmlFor="height">
-              <span>Height</span>
-              <span className="control-value">{block.content}px</span>
-            </label>
-            <input
-              type="range"
-              id="height"
-              min="10"
-              max="100"
-              value={block.content}
-              onChange={(e) => updateBlockContent(block.id, e.target.value)}
-            />
-          </div>
-        );
-
-      case 'separator':
-        return (
-          <>
-            <div className="control-group">
-              <label htmlFor="color">Color</label>
-              <input
-                type="color"
-                id="color"
-                value={block.settings.color}
-                onChange={(e) => updateBlockSettings(block.id, { color: e.target.value })}
-              />
-            </div>
-            <div className="control-group">
-              <label htmlFor="thickness">Thickness</label>
-              <input
-                type="number"
-                id="thickness"
-                min="1"
-                max="10"
-                value={block.settings.thickness}
-                onChange={(e) => updateBlockSettings(block.id, { thickness: parseInt(e.target.value) })}
-              />
-            </div>
-          </>
-        );
-
-      default:
-        return null;
-    }
-  }
-};
-
-interface PopupPreviewProps {
-  blocks: Block[];
-  settings: PopupSettings;
-}
-
-const PopupPreview: React.FC<PopupPreviewProps> = ({ blocks, settings }) => {
-  const getPositionStyles = (): React.CSSProperties => {
-    const base: React.CSSProperties = {
-      position: 'absolute',
-      backgroundColor: settings.backgroundColor,
-      boxShadow: '0 10px 40px rgba(0, 0, 0, 0.2)',
-      borderRadius: `${settings.borderRadius}px`,
-      width: `${settings.width}px`,
-      maxHeight: '80%',
-      overflowY: 'auto',
-      padding: `${settings.padding}px`
-    };
-
-    switch (settings.position) {
-      case 'center':
-        return { ...base, top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
-      case 'top-left':
-        return { ...base, top: '20px', left: '20px' };
-      case 'top-right':
-        return { ...base, top: '20px', right: '20px' };
-      case 'bottom-left':
-        return { ...base, bottom: '20px', left: '20px' };
-      case 'bottom-right':
-        return { ...base, bottom: '20px', right: '20px' };
-      case 'top-bar':
-        return { ...base, top: 0, left: 0, width: '100%', borderRadius: 0 };
-      case 'bottom-bar':
-        return { ...base, bottom: 0, left: 0, width: '100%', borderRadius: 0 };
-      default:
-        return base;
-    }
-  };
-
-  return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', background: '#f5f7fa', borderRadius: '12px', overflow: 'hidden' }}>
-      {settings.overlay && (
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          background: `rgba(0, 0, 0, ${settings.overlayOpacity / 100})`
-        }} />
-      )}
-
-      <div style={getPositionStyles()}>
-        {settings.showCloseButton && (
-          <button style={{
-            position: 'absolute',
-            top: settings.closeButtonPosition === 'inside' ? '10px' : '-40px',
-            right: settings.closeButtonPosition === 'inside' ? '10px' : '10px',
-            background: settings.closeButtonPosition === 'inside' ? 'transparent' : '#ffffff',
-            border: 'none',
-            fontSize: '28px',
-            cursor: 'pointer',
-            color: settings.closeButtonPosition === 'inside' ? '#9ca3af' : '#6b7280',
-            lineHeight: 1,
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: settings.closeButtonPosition === 'outside' ? '0 2px 8px rgba(0, 0, 0, 0.15)' : 'none'
-          }}>
-            ×
-          </button>
-        )}
-
-        {blocks.map((block, index) => (
-          <BlockPreview key={block.id} block={block} isLast={index === blocks.length - 1} />
-        ))}
-      </div>
-    </div>
-  );
-};
-
-const BlockPreview: React.FC<{ block: Block; isLast: boolean }> = ({ block, isLast }) => {
-  const marginBottom = isLast ? 0 : 20;
-
-  switch (block.type) {
-    case 'heading':
-      return (
-        <h2 style={{
-          color: block.settings.color,
-          fontSize: `${block.settings.fontSize}px`,
-          textAlign: block.settings.align,
-          fontWeight: block.settings.fontWeight,
-          margin: 0,
-          marginBottom
-        }}>
-          {block.content}
-        </h2>
-      );
-
-    case 'text':
-      return (
-        <p style={{
-          color: block.settings.color,
-          fontSize: `${block.settings.fontSize}px`,
-          textAlign: block.settings.align,
-          lineHeight: block.settings.lineHeight,
-          margin: 0,
-          marginBottom
-        }}>
-          {block.content}
-        </p>
-      );
-
-    case 'button':
-      return (
-        <div style={{ textAlign: block.settings.align, marginBottom }}>
-          <a
-            href={block.settings.url}
-            style={{
-              display: 'inline-block',
-              background: block.settings.bgColor,
-              color: block.settings.textColor,
-              padding: block.settings.padding,
-              fontSize: `${block.settings.fontSize}px`,
-              borderRadius: `${block.settings.borderRadius}px`,
-              textDecoration: 'none',
-              cursor: 'pointer',
-              fontWeight: 600
-            }}
-          >
-            {block.content}
-          </a>
-        </div>
-      );
-
-    case 'image':
-      return (
-        <img
-          src={block.content}
-          alt=""
-          style={{
-            width: block.settings.width,
-            borderRadius: `${block.settings.borderRadius}px`,
-            display: 'block',
-            margin: '0 auto',
-            marginBottom
-          }}
-        />
-      );
-
-    case 'form':
-      return (
-        <form style={{ marginBottom }}>
-          <input
-            type="email"
-            placeholder={block.settings.inputPlaceholder}
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              marginBottom: '12px',
-              fontSize: '14px',
-              boxSizing: 'border-box'
-            }}
-          />
-          <button
-            type="submit"
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              background: block.settings.buttonColor,
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '16px',
-              cursor: 'pointer',
-              fontWeight: 600
-            }}
-          >
-            {block.settings.buttonText}
-          </button>
-        </form>
-      );
-
-    case 'spacing':
-      return <div style={{ height: `${block.content}px` }} />;
-
-    case 'separator':
-      return (
-        <hr style={{
-          border: 'none',
-          borderTop: `${block.settings.thickness}px solid ${block.settings.color}`,
-          margin: `${marginBottom}px 0`
-        }} />
-      );
-
-    default:
-      return null;
-  }
 };
 
 export default PopupWidgetPage;
