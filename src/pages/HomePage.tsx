@@ -104,6 +104,15 @@ const HomePage: React.FC = () => {
       description: 'Gamified email capture with customizable prizes, probabilities, and notifications',
       badge: 'New',
       available: true
+    },
+    {
+      id: 'column-plus-plus',
+      route: '/column-plus-plus',
+      icon: '📊',
+      title: 'Column++',
+      description: 'Create unlimited columns with adjustable widths, headers, and media content',
+      badge: 'New',
+      available: true
     }
   ];
 

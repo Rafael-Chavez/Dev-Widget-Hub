@@ -50,10 +50,17 @@ const EmailTemplatesPage: React.FC = () => {
       description: 'Warm welcome template for new customers',
       category: 'Welcome',
       preview: '👋'
+    },
+    {
+      id: 'forgot-password',
+      name: 'Forgot Password',
+      description: 'Password reset email with secure reset link',
+      category: 'Account',
+      preview: '🔐'
     }
   ];
 
-  const categories = ['All Templates', 'Production', 'Local Pickup', 'Quote', 'Accounting', 'Welcome'];
+  const categories = ['All Templates', 'Production', 'Local Pickup', 'Quote', 'Accounting', 'Welcome', 'Account'];
 
   const filteredTemplates = templates.filter(template => {
     const matchesCategory = selectedCategory === 'All Templates' || template.category === selectedCategory;
@@ -113,6 +120,9 @@ const EmailTemplatesPage: React.FC = () => {
                   )}
                   {category === 'Welcome' && (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                  )}
+                  {category === 'Account' && (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   )}
                 </svg>
                 <span>{category}</span>
