@@ -403,11 +403,13 @@
 
 .column-plus-plus-page .columns-preview {
   transition: all 0.3s;
+  width: 100%;
 }
 
 .column-plus-plus-page .column-preview {
   transition: all 0.3s;
   min-height: 200px;
+  flex-shrink: 0;
 }
 
 /* Export Section */
@@ -511,10 +513,5 @@
 
   .column-plus-plus-page .preview-container {
     padding: 20px 10px;
-  }
-
-  .column-plus-plus-page .column-preview {
-    flex: 0 0 100% !important;
-    min-width: 100% !important;
   }
 }

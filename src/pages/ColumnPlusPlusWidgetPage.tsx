@@ -4,18 +4,19 @@ import './ColumnPlusPlusWidgetPage.css';
 
 interface ColumnData {
   id: string;
-  width: number; // percentage
+  width: number; // pixels
+  headerText?: string;
   imageUrl?: string;
   videoUrl?: string;
   altText?: string;
 }
 
 interface Settings {
-  // Header settings
-  showHeader: boolean;
-  headerPosition: 'top' | 'bottom';
-  headerText: string;
-  headerAlignment: 'left' | 'center' | 'right';
+  // Global header settings (optional main widget header)
+  showGlobalHeader: boolean;
+  globalHeaderPosition: 'top' | 'bottom';
+  globalHeaderText: string;
+  globalHeaderAlignment: 'left' | 'center' | 'right';
 
   // Column settings
   columns: ColumnData[];
@@ -24,6 +25,7 @@ interface Settings {
   accentColor: string;
   bgColor: string;
   textColor: string;
+  columnHeaderBgColor: string;
   borderRadius: number;
   spacing: number;
 
@@ -38,41 +40,37 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'content' | 'style' | 'layout'>('content');
   const [settings, setSettings] = useState<Settings>({
-    showHeader: true,
-    headerPosition: 'top',
-    headerText: 'Column++ Widget',
-    headerAlignment: 'center',
+    showGlobalHeader: false,
+    globalHeaderPosition: 'top',
+    globalHeaderText: 'Column++ Widget',
+    globalHeaderAlignment: 'center',
     columns: [
-      { id: '1', width: 33.33 },
-      { id: '2', width: 33.33 },
-      { id: '3', width: 33.34 }
+      { id: '1', width: 300, headerText: 'T-SHIRTS' },
+      { id: '2', width: 300, headerText: 'WOMENS' },
+      { id: '3', width: 300, headerText: 'ACTIVEWEAR' },
+      { id: '4', width: 300, headerText: 'HOODIES' }
     ],
     accentColor: '#3498db',
     bgColor: '#ffffff',
     textColor: '#333333',
-    borderRadius: 8,
-    spacing: 16,
-    maxWidth: 1200,
-    padding: 20,
+    columnHeaderBgColor: '#00bcd4',
+    borderRadius: 0,
+    spacing: 2,
+    maxWidth: 10000,
+    padding: 0,
     showBorders: true,
-    borderColor: '#e0e0e0'
+    borderColor: '#00bcd4'
   });
 
   const addColumn = () => {
-    const newColumnWidth = 100 / (settings.columns.length + 1);
-    const adjustedColumns = settings.columns.map(col => ({
-      ...col,
-      width: newColumnWidth
-    }));
-
     const newColumn: ColumnData = {
       id: Date.now().toString(),
-      width: newColumnWidth
+      width: 300
     };
 
     setSettings({
       ...settings,
-      columns: [...adjustedColumns, newColumn]
+      columns: [...settings.columns, newColumn]
     });
   };
 
@@ -108,40 +106,40 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const url = e.target?.result as string;
-      if (type === 'image') {
-        updateColumn(id, 'imageUrl', url);
-        updateColumn(id, 'videoUrl', undefined);
-      } else {
-        updateColumn(id, 'videoUrl', url);
-        updateColumn(id, 'imageUrl', undefined);
-      }
+      setSettings({
+        ...settings,
+        columns: settings.columns.map(col =>
+          col.id === id
+            ? {
+                ...col,
+                imageUrl: type === 'image' ? url : undefined,
+                videoUrl: type === 'video' ? url : undefined
+              }
+            : col
+        )
+      });
     };
     reader.readAsDataURL(file);
   };
 
-  const normalizeColumnWidths = () => {
-    const totalWidth = settings.columns.reduce((sum, col) => sum + col.width, 0);
-    if (Math.abs(totalWidth - 100) > 0.01) {
-      const factor = 100 / totalWidth;
-      const normalizedColumns = settings.columns.map(col => ({
-        ...col,
-        width: col.width * factor
-      }));
-      setSettings({
-        ...settings,
-        columns: normalizedColumns
-      });
-    }
+  const resetToEqualWidths = () => {
+    const equalWidth = 300;
+    const equalColumns = settings.columns.map(col => ({
+      ...col,
+      width: equalWidth
+    }));
+    setSettings({ ...settings, columns: equalColumns });
   };
 
   const generateEmbedCode = (): string => {
     const configData = {
-      showHeader: settings.showHeader,
-      headerPosition: settings.headerPosition,
-      headerText: settings.headerText,
-      headerAlignment: settings.headerAlignment,
+      showGlobalHeader: settings.showGlobalHeader,
+      globalHeaderPosition: settings.globalHeaderPosition,
+      globalHeaderText: settings.globalHeaderText,
+      globalHeaderAlignment: settings.globalHeaderAlignment,
       columns: settings.columns.map(col => ({
         width: col.width,
+        headerText: col.headerText || '',
         imageUrl: col.imageUrl,
         videoUrl: col.videoUrl,
         altText: col.altText || ''
@@ -149,6 +147,7 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
       accentColor: settings.accentColor,
       bgColor: settings.bgColor,
       textColor: settings.textColor,
+      columnHeaderBgColor: settings.columnHeaderBgColor,
       borderRadius: settings.borderRadius,
       spacing: settings.spacing,
       maxWidth: settings.maxWidth,
@@ -164,55 +163,64 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
   if (!container) return;
 
   const widget = document.createElement('div');
-  widget.style.cssText = 'max-width: ' + config.maxWidth + 'px; margin: 0 auto; padding: ' + config.padding + 'px; background: ' + config.bgColor + '; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;';
+  widget.style.cssText = 'width: 100%; padding: ' + config.padding + 'px; background: ' + config.bgColor + '; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;';
 
-  const createHeader = () => {
+  const createGlobalHeader = () => {
     const header = document.createElement('div');
-    header.style.cssText = 'text-align: ' + config.headerAlignment + '; margin-bottom: ' + (config.headerPosition === 'top' ? config.spacing : 0) + 'px; margin-top: ' + (config.headerPosition === 'bottom' ? config.spacing : 0) + 'px;';
+    header.style.cssText = 'text-align: ' + config.globalHeaderAlignment + '; margin-bottom: ' + (config.globalHeaderPosition === 'top' ? config.spacing : 0) + 'px; margin-top: ' + (config.globalHeaderPosition === 'bottom' ? config.spacing : 0) + 'px;';
     const h2 = document.createElement('h2');
-    h2.textContent = config.headerText;
+    h2.textContent = config.globalHeaderText;
     h2.style.cssText = 'color: ' + config.textColor + '; margin: 0; font-size: 1.8rem; font-weight: 600;';
     header.appendChild(h2);
     return header;
   };
 
   const columnsContainer = document.createElement('div');
-  columnsContainer.style.cssText = 'display: flex; gap: ' + config.spacing + 'px; flex-wrap: wrap;';
+  columnsContainer.style.cssText = 'display: flex; gap: ' + config.spacing + 'px; flex-wrap: nowrap;';
 
   config.columns.forEach((col, index) => {
     const columnDiv = document.createElement('div');
-    columnDiv.style.cssText = 'flex: 0 0 calc(' + col.width + '% - ' + (config.spacing * (config.columns.length - 1) / config.columns.length) + 'px); min-width: 200px; ' + (config.showBorders ? 'border: 1px solid ' + config.borderColor + '; ' : '') + 'border-radius: ' + config.borderRadius + 'px; overflow: hidden; background: #fff;';
+    columnDiv.style.cssText = 'flex: 0 0 ' + col.width + 'px; width: ' + col.width + 'px; display: flex; flex-direction: column; ' + (config.showBorders ? 'border: 1px solid ' + config.borderColor + '; ' : '') + 'border-radius: ' + config.borderRadius + 'px; overflow: hidden; background: #fff;';
 
+    // Column header at top
+    if (col.headerText) {
+      const colHeader = document.createElement('div');
+      colHeader.style.cssText = 'background: ' + config.columnHeaderBgColor + '; color: #fff; padding: 12px 8px; text-align: center; font-weight: 600; font-size: 0.9rem; letter-spacing: 0.5px; word-wrap: break-word; overflow-wrap: break-word;';
+      colHeader.textContent = col.headerText;
+      columnDiv.appendChild(colHeader);
+    }
+
+    // Image/video/placeholder at bottom
     if (col.imageUrl) {
       const img = document.createElement('img');
       img.src = col.imageUrl;
-      img.alt = col.altText || 'Column ' + (index + 1);
-      img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; display: block;';
+      img.alt = col.altText || col.headerText || 'Column ' + (index + 1);
+      img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; display: block; flex: 1;';
       columnDiv.appendChild(img);
     } else if (col.videoUrl) {
       const video = document.createElement('video');
       video.src = col.videoUrl;
       video.controls = true;
-      video.style.cssText = 'width: 100%; height: 100%; display: block;';
+      video.style.cssText = 'width: 100%; height: 100%; display: block; flex: 1;';
       columnDiv.appendChild(video);
     } else {
       const placeholder = document.createElement('div');
-      placeholder.style.cssText = 'width: 100%; min-height: 200px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, ' + config.accentColor + '20, ' + config.accentColor + '40); color: ' + config.textColor + '; font-size: 1rem;';
-      placeholder.textContent = 'Column ' + (index + 1);
+      placeholder.style.cssText = 'width: 100%; min-height: 300px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, ' + config.accentColor + '20, ' + config.accentColor + '40); color: ' + config.textColor + '; font-size: 1rem; flex: 1;';
+      placeholder.textContent = col.headerText || 'Column ' + (index + 1);
       columnDiv.appendChild(placeholder);
     }
 
     columnsContainer.appendChild(columnDiv);
   });
 
-  if (config.showHeader && config.headerPosition === 'top') {
-    widget.appendChild(createHeader());
+  if (config.showGlobalHeader && config.globalHeaderPosition === 'top') {
+    widget.appendChild(createGlobalHeader());
   }
 
   widget.appendChild(columnsContainer);
 
-  if (config.showHeader && config.headerPosition === 'bottom') {
-    widget.appendChild(createHeader());
+  if (config.showGlobalHeader && config.globalHeaderPosition === 'bottom') {
+    widget.appendChild(createGlobalHeader());
   }
 
   container.appendChild(widget);
@@ -220,7 +228,7 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
   if (!document.getElementById('column-plus-plus-styles')) {
     const style = document.createElement('style');
     style.id = 'column-plus-plus-styles';
-    style.textContent = '@media (max-width: 768px) { #column-plus-plus-container > div > div > div { flex: 0 0 100% !important; min-width: 100% !important; } }';
+    style.textContent = '#column-plus-plus-container div[style*="flex"] { flex-shrink: 0; }';
     document.head.appendChild(style);
   }
 })();`;
@@ -273,28 +281,28 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
           {activeTab === 'content' && (
             <>
               <div className="control-section">
-                <h3>Header Settings</h3>
+                <h3>Global Widget Header (Optional)</h3>
 
                 <div className="control-group">
                   <label className="checkbox-label">
                     <input
                       type="checkbox"
-                      checked={settings.showHeader}
-                      onChange={(e) => setSettings({ ...settings, showHeader: e.target.checked })}
+                      checked={settings.showGlobalHeader}
+                      onChange={(e) => setSettings({ ...settings, showGlobalHeader: e.target.checked })}
                     />
-                    <span>Show Header</span>
+                    <span>Show Global Header</span>
                   </label>
                 </div>
 
-                {settings.showHeader && (
+                {settings.showGlobalHeader && (
                   <>
                     <div className="control-group">
-                      <label htmlFor="headerText">Header Text</label>
+                      <label htmlFor="globalHeaderText">Header Text</label>
                       <input
                         type="text"
-                        id="headerText"
-                        value={settings.headerText}
-                        onChange={(e) => setSettings({ ...settings, headerText: e.target.value })}
+                        id="globalHeaderText"
+                        value={settings.globalHeaderText}
+                        onChange={(e) => setSettings({ ...settings, globalHeaderText: e.target.value })}
                       />
                     </div>
 
@@ -302,14 +310,14 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
                       <label>Header Position</label>
                       <div className="button-group">
                         <button
-                          className={settings.headerPosition === 'top' ? 'active' : ''}
-                          onClick={() => setSettings({ ...settings, headerPosition: 'top' })}
+                          className={settings.globalHeaderPosition === 'top' ? 'active' : ''}
+                          onClick={() => setSettings({ ...settings, globalHeaderPosition: 'top' })}
                         >
                           Top
                         </button>
                         <button
-                          className={settings.headerPosition === 'bottom' ? 'active' : ''}
-                          onClick={() => setSettings({ ...settings, headerPosition: 'bottom' })}
+                          className={settings.globalHeaderPosition === 'bottom' ? 'active' : ''}
+                          onClick={() => setSettings({ ...settings, globalHeaderPosition: 'bottom' })}
                         >
                           Bottom
                         </button>
@@ -320,20 +328,20 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
                       <label>Header Alignment</label>
                       <div className="button-group">
                         <button
-                          className={settings.headerAlignment === 'left' ? 'active' : ''}
-                          onClick={() => setSettings({ ...settings, headerAlignment: 'left' })}
+                          className={settings.globalHeaderAlignment === 'left' ? 'active' : ''}
+                          onClick={() => setSettings({ ...settings, globalHeaderAlignment: 'left' })}
                         >
                           Left
                         </button>
                         <button
-                          className={settings.headerAlignment === 'center' ? 'active' : ''}
-                          onClick={() => setSettings({ ...settings, headerAlignment: 'center' })}
+                          className={settings.globalHeaderAlignment === 'center' ? 'active' : ''}
+                          onClick={() => setSettings({ ...settings, globalHeaderAlignment: 'center' })}
                         >
                           Center
                         </button>
                         <button
-                          className={settings.headerAlignment === 'right' ? 'active' : ''}
-                          onClick={() => setSettings({ ...settings, headerAlignment: 'right' })}
+                          className={settings.globalHeaderAlignment === 'right' ? 'active' : ''}
+                          onClick={() => setSettings({ ...settings, globalHeaderAlignment: 'right' })}
                         >
                           Right
                         </button>
@@ -367,19 +375,28 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
                       </div>
 
                       <div className="control-group">
+                        <label htmlFor={`header-${column.id}`}>Column Header Text</label>
+                        <input
+                          type="text"
+                          id={`header-${column.id}`}
+                          value={column.headerText || ''}
+                          onChange={(e) => updateColumn(column.id, 'headerText', e.target.value)}
+                          placeholder={`Column ${index + 1} Header`}
+                        />
+                      </div>
+
+                      <div className="control-group">
                         <label htmlFor={`width-${column.id}`}>
-                          Width: {column.width.toFixed(1)}%
+                          Width: {column.width}px
                         </label>
                         <input
                           type="range"
                           id={`width-${column.id}`}
-                          min="10"
-                          max="90"
-                          step="0.1"
+                          min="100"
+                          max="1000"
+                          step="10"
                           value={column.width}
-                          onChange={(e) => updateColumn(column.id, 'width', parseFloat(e.target.value))}
-                          onMouseUp={normalizeColumnWidths}
-                          onTouchEnd={normalizeColumnWidths}
+                          onChange={(e) => updateColumn(column.id, 'width', parseInt(e.target.value))}
                         />
                       </div>
 
@@ -480,6 +497,16 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
                 </div>
 
                 <div className="control-group">
+                  <label htmlFor="columnHeaderBgColor">Column Header Background</label>
+                  <input
+                    type="color"
+                    id="columnHeaderBgColor"
+                    value={settings.columnHeaderBgColor}
+                    onChange={(e) => setSettings({ ...settings, columnHeaderBgColor: e.target.value })}
+                  />
+                </div>
+
+                <div className="control-group">
                   <label htmlFor="borderColor">Border Color</label>
                   <input
                     type="color"
@@ -555,39 +582,14 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="control-section">
-                <h3>Dimensions</h3>
-
-                <div className="control-group">
-                  <label htmlFor="maxWidth">
-                    Max Width: {settings.maxWidth}px
-                  </label>
-                  <input
-                    type="range"
-                    id="maxWidth"
-                    min="600"
-                    max="1600"
-                    step="50"
-                    value={settings.maxWidth}
-                    onChange={(e) => setSettings({ ...settings, maxWidth: parseInt(e.target.value) })}
-                  />
-                </div>
-              </div>
 
               <div className="control-section">
                 <h3>Column Width Reset</h3>
                 <button
                   className="reset-widths-btn"
-                  onClick={() => {
-                    const equalWidth = 100 / settings.columns.length;
-                    const equalColumns = settings.columns.map(col => ({
-                      ...col,
-                      width: equalWidth
-                    }));
-                    setSettings({ ...settings, columns: equalColumns });
-                  }}
+                  onClick={resetToEqualWidths}
                 >
-                  Reset to Equal Widths
+                  Reset to 300px Each
                 </button>
               </div>
             </>
@@ -602,22 +604,21 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
             <div
               className="widget-preview"
               style={{
-                maxWidth: `${settings.maxWidth}px`,
-                margin: '0 auto',
+                width: '100%',
                 padding: `${settings.padding}px`,
                 background: settings.bgColor
               }}
             >
-              {settings.showHeader && settings.headerPosition === 'top' && (
+              {settings.showGlobalHeader && settings.globalHeaderPosition === 'top' && (
                 <div
                   className="header-preview"
                   style={{
-                    textAlign: settings.headerAlignment,
+                    textAlign: settings.globalHeaderAlignment,
                     marginBottom: `${settings.spacing}px`
                   }}
                 >
                   <h2 style={{ color: settings.textColor, margin: 0, fontSize: '1.8rem', fontWeight: 600 }}>
-                    {settings.headerText}
+                    {settings.globalHeaderText}
                   </h2>
                 </div>
               )}
@@ -627,7 +628,7 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
                 style={{
                   display: 'flex',
                   gap: `${settings.spacing}px`,
-                  flexWrap: 'wrap'
+                  flexWrap: 'nowrap'
                 }}
               >
                 {settings.columns.map((column, index) => (
@@ -635,23 +636,44 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
                     key={column.id}
                     className="column-preview"
                     style={{
-                      flex: `0 0 calc(${column.width}% - ${(settings.spacing * (settings.columns.length - 1)) / settings.columns.length}px)`,
-                      minWidth: '200px',
+                      flex: `0 0 ${column.width}px`,
+                      width: `${column.width}px`,
+                      display: 'flex',
+                      flexDirection: 'column',
                       border: settings.showBorders ? `1px solid ${settings.borderColor}` : 'none',
                       borderRadius: `${settings.borderRadius}px`,
                       overflow: 'hidden',
                       background: '#fff'
                     }}
                   >
+                    {column.headerText && (
+                      <div
+                        style={{
+                          background: settings.columnHeaderBgColor,
+                          color: '#fff',
+                          padding: '12px 8px',
+                          textAlign: 'center',
+                          fontWeight: 600,
+                          fontSize: '0.9rem',
+                          letterSpacing: '0.5px',
+                          wordWrap: 'break-word',
+                          overflowWrap: 'break-word'
+                        }}
+                      >
+                        {column.headerText}
+                      </div>
+                    )}
+
                     {column.imageUrl ? (
                       <img
                         src={column.imageUrl}
-                        alt={column.altText || `Column ${index + 1}`}
+                        alt={column.altText || column.headerText || `Column ${index + 1}`}
                         style={{
                           width: '100%',
                           height: '100%',
                           objectFit: 'cover',
-                          display: 'block'
+                          display: 'block',
+                          flex: 1
                         }}
                       />
                     ) : column.videoUrl ? (
@@ -661,39 +683,41 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
                         style={{
                           width: '100%',
                           height: '100%',
-                          display: 'block'
+                          display: 'block',
+                          flex: 1
                         }}
                       />
                     ) : (
                       <div
                         style={{
                           width: '100%',
-                          minHeight: '200px',
+                          minHeight: '300px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           background: `linear-gradient(135deg, ${settings.accentColor}20, ${settings.accentColor}40)`,
                           color: settings.textColor,
-                          fontSize: '1rem'
+                          fontSize: '1rem',
+                          flex: 1
                         }}
                       >
-                        Column {index + 1}
+                        {column.headerText || `Column ${index + 1}`}
                       </div>
                     )}
                   </div>
                 ))}
               </div>
 
-              {settings.showHeader && settings.headerPosition === 'bottom' && (
+              {settings.showGlobalHeader && settings.globalHeaderPosition === 'bottom' && (
                 <div
                   className="header-preview"
                   style={{
-                    textAlign: settings.headerAlignment,
+                    textAlign: settings.globalHeaderAlignment,
                     marginTop: `${settings.spacing}px`
                   }}
                 >
                   <h2 style={{ color: settings.textColor, margin: 0, fontSize: '1.8rem', fontWeight: 600 }}>
-                    {settings.headerText}
+                    {settings.globalHeaderText}
                   </h2>
                 </div>
               )}
