@@ -9,6 +9,7 @@ interface ColumnData {
   imageUrl?: string;
   videoUrl?: string;
   altText?: string;
+  linkUrl?: string;
 }
 
 interface Settings {
@@ -34,6 +35,10 @@ interface Settings {
   padding: number;
   showBorders: boolean;
   borderColor: string;
+
+  // Mobile settings
+  mobileStackColumns: boolean;
+  mobileColumnWidth: number; // pixels for mobile
 }
 
 const ColumnPlusPlusWidgetPage: React.FC = () => {
@@ -59,7 +64,9 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
     maxWidth: 10000,
     padding: 0,
     showBorders: true,
-    borderColor: '#00bcd4'
+    borderColor: '#00bcd4',
+    mobileStackColumns: false,
+    mobileColumnWidth: 300
   });
 
   const addColumn = () => {
@@ -142,7 +149,8 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
         headerText: col.headerText || '',
         imageUrl: col.imageUrl,
         videoUrl: col.videoUrl,
-        altText: col.altText || ''
+        altText: col.altText || '',
+        linkUrl: col.linkUrl || ''
       })),
       accentColor: settings.accentColor,
       bgColor: settings.bgColor,
@@ -153,7 +161,9 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
       maxWidth: settings.maxWidth,
       padding: settings.padding,
       showBorders: settings.showBorders,
-      borderColor: settings.borderColor
+      borderColor: settings.borderColor,
+      mobileStackColumns: settings.mobileStackColumns,
+      mobileColumnWidth: settings.mobileColumnWidth
     };
 
     const scriptContent = `(function() {
@@ -179,8 +189,18 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
   columnsContainer.style.cssText = 'display: flex; gap: ' + config.spacing + 'px; flex-wrap: nowrap;';
 
   config.columns.forEach((col, index) => {
+    const columnWrapper = col.linkUrl ? document.createElement('a') : document.createElement('div');
+    if (col.linkUrl) {
+      columnWrapper.href = col.linkUrl;
+      columnWrapper.style.cssText = 'text-decoration: none; color: inherit; display: block; flex: 0 0 ' + col.width + 'px; width: ' + col.width + 'px; transition: transform 0.2s; cursor: pointer;';
+      columnWrapper.addEventListener('mouseenter', function() { this.style.transform = 'translateY(-5px)'; });
+      columnWrapper.addEventListener('mouseleave', function() { this.style.transform = 'translateY(0)'; });
+    } else {
+      columnWrapper.style.cssText = 'flex: 0 0 ' + col.width + 'px; width: ' + col.width + 'px;';
+    }
+
     const columnDiv = document.createElement('div');
-    columnDiv.style.cssText = 'flex: 0 0 ' + col.width + 'px; width: ' + col.width + 'px; display: flex; flex-direction: column; ' + (config.showBorders ? 'border: 1px solid ' + config.borderColor + '; ' : '') + 'border-radius: ' + config.borderRadius + 'px; overflow: hidden; background: #fff;';
+    columnDiv.style.cssText = 'display: flex; flex-direction: column; height: 100%; ' + (config.showBorders ? 'border: 1px solid ' + config.borderColor + '; ' : '') + 'border-radius: ' + config.borderRadius + 'px; overflow: hidden; background: #fff;';
 
     // Column header at top
     if (col.headerText) {
@@ -210,7 +230,8 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
       columnDiv.appendChild(placeholder);
     }
 
-    columnsContainer.appendChild(columnDiv);
+    columnWrapper.appendChild(columnDiv);
+    columnsContainer.appendChild(columnWrapper);
   });
 
   if (config.showGlobalHeader && config.globalHeaderPosition === 'top') {
@@ -228,7 +249,10 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
   if (!document.getElementById('column-plus-plus-styles')) {
     const style = document.createElement('style');
     style.id = 'column-plus-plus-styles';
-    style.textContent = '#column-plus-plus-container div[style*="flex"] { flex-shrink: 0; }';
+    const mobileStyles = config.mobileStackColumns
+      ? '@media (max-width: 768px) { #column-plus-plus-container [style*="flex"] { flex: 0 0 100% !important; width: 100% !important; max-width: 100% !important; } #column-plus-plus-container > div > div { flex-direction: column !important; } }'
+      : '@media (max-width: 768px) { #column-plus-plus-container [style*="flex"] { flex: 0 0 ' + config.mobileColumnWidth + 'px !important; width: ' + config.mobileColumnWidth + 'px !important; } #column-plus-plus-container > div > div { overflow-x: auto !important; } }';
+    style.textContent = '#column-plus-plus-container div[style*="flex"] { flex-shrink: 0; } ' + mobileStyles;
     document.head.appendChild(style);
   }
 })();`;
@@ -454,6 +478,17 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
                           />
                         </div>
                       )}
+
+                      <div className="control-group">
+                        <label htmlFor={`link-${column.id}`}>Link URL (Optional)</label>
+                        <input
+                          type="url"
+                          id={`link-${column.id}`}
+                          value={column.linkUrl || ''}
+                          onChange={(e) => updateColumn(column.id, 'linkUrl', e.target.value)}
+                          placeholder="https://example.com"
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -584,6 +619,38 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
 
 
               <div className="control-section">
+                <h3>Mobile Settings</h3>
+
+                <div className="control-group">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={settings.mobileStackColumns}
+                      onChange={(e) => setSettings({ ...settings, mobileStackColumns: e.target.checked })}
+                    />
+                    <span>Stack Columns on Mobile</span>
+                  </label>
+                </div>
+
+                {!settings.mobileStackColumns && (
+                  <div className="control-group">
+                    <label htmlFor="mobileColumnWidth">
+                      Mobile Column Width: {settings.mobileColumnWidth}px
+                    </label>
+                    <input
+                      type="range"
+                      id="mobileColumnWidth"
+                      min="150"
+                      max="500"
+                      step="10"
+                      value={settings.mobileColumnWidth}
+                      onChange={(e) => setSettings({ ...settings, mobileColumnWidth: parseInt(e.target.value) })}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="control-section">
                 <h3>Column Width Reset</h3>
                 <button
                   className="reset-widths-btn"
@@ -631,21 +698,50 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
                   flexWrap: 'nowrap'
                 }}
               >
-                {settings.columns.map((column, index) => (
-                  <div
-                    key={column.id}
-                    className="column-preview"
-                    style={{
-                      flex: `0 0 ${column.width}px`,
-                      width: `${column.width}px`,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      border: settings.showBorders ? `1px solid ${settings.borderColor}` : 'none',
-                      borderRadius: `${settings.borderRadius}px`,
-                      overflow: 'hidden',
-                      background: '#fff'
-                    }}
-                  >
+                {settings.columns.map((column, index) => {
+                  const ColumnWrapper = column.linkUrl ? 'a' : 'div';
+                  const wrapperProps = column.linkUrl
+                    ? {
+                        href: column.linkUrl,
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                        style: {
+                          textDecoration: 'none',
+                          color: 'inherit',
+                          display: 'block',
+                          flex: `0 0 ${column.width}px`,
+                          width: `${column.width}px`,
+                          transition: 'transform 0.2s',
+                          cursor: 'pointer'
+                        },
+                        onMouseEnter: (e: React.MouseEvent<HTMLAnchorElement>) => {
+                          e.currentTarget.style.transform = 'translateY(-5px)';
+                        },
+                        onMouseLeave: (e: React.MouseEvent<HTMLAnchorElement>) => {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                        }
+                      }
+                    : {
+                        style: {
+                          flex: `0 0 ${column.width}px`,
+                          width: `${column.width}px`
+                        }
+                      };
+
+                  return (
+                    <ColumnWrapper key={column.id} {...wrapperProps}>
+                      <div
+                        className="column-preview"
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          height: '100%',
+                          border: settings.showBorders ? `1px solid ${settings.borderColor}` : 'none',
+                          borderRadius: `${settings.borderRadius}px`,
+                          overflow: 'hidden',
+                          background: '#fff'
+                        }}
+                      >
                     {column.headerText && (
                       <div
                         style={{
@@ -704,8 +800,10 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
                         {column.headerText || `Column ${index + 1}`}
                       </div>
                     )}
-                  </div>
-                ))}
+                      </div>
+                    </ColumnWrapper>
+                  );
+                })}
               </div>
 
               {settings.showGlobalHeader && settings.globalHeaderPosition === 'bottom' && (
