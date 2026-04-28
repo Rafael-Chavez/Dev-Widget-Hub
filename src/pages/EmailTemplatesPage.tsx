@@ -57,6 +57,13 @@ const EmailTemplatesPage: React.FC = () => {
       description: 'Password reset email with secure reset link',
       category: 'Account',
       preview: '🔐'
+    },
+    {
+      id: 'user-registration',
+      name: 'User Registration',
+      description: 'Welcome email with account credentials and login details',
+      category: 'Account',
+      preview: '👤'
     }
   ];
 

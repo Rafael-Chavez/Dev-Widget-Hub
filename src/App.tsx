@@ -15,6 +15,7 @@ import QuoteSentTemplatePage from './pages/QuoteSentTemplatePage';
 import WelcomeEmailTemplatePage from './pages/WelcomeEmailTemplatePage';
 import AccountStatementTemplatePage from './pages/AccountStatementTemplatePage';
 import ForgotPasswordTemplate from './pages/ForgotPasswordTemplate';
+import UserRegistrationTemplate from './pages/UserRegistrationTemplate';
 import SpinningWheelPage from './pages/SpinningWheelPage';
 import ColumnPlusPlusWidgetPage from './pages/ColumnPlusPlusWidgetPage';
 
@@ -37,6 +38,7 @@ function App() {
         <Route path="/welcome-email-template" element={<WelcomeEmailTemplatePage />} />
         <Route path="/account-statement-template" element={<AccountStatementTemplatePage />} />
         <Route path="/forgot-password-template" element={<ForgotPasswordTemplate />} />
+        <Route path="/user-registration-template" element={<UserRegistrationTemplate />} />
         <Route path="/spinning-wheel" element={<SpinningWheelPage />} />
         <Route path="/column-plus-plus" element={<ColumnPlusPlusWidgetPage />} />
       </Routes>
