@@ -699,109 +699,114 @@ const ColumnPlusPlusWidgetPage: React.FC = () => {
                 }}
               >
                 {settings.columns.map((column, index) => {
-                  const ColumnWrapper = column.linkUrl ? 'a' : 'div';
-                  const wrapperProps = column.linkUrl
-                    ? {
-                        href: column.linkUrl,
-                        target: '_blank',
-                        rel: 'noopener noreferrer',
-                        style: {
-                          textDecoration: 'none',
-                          color: 'inherit',
-                          display: 'block',
-                          flex: `0 0 ${column.width}px`,
-                          width: `${column.width}px`,
-                          transition: 'transform 0.2s',
-                          cursor: 'pointer'
-                        },
-                        onMouseEnter: (e: React.MouseEvent<HTMLAnchorElement>) => {
-                          e.currentTarget.style.transform = 'translateY(-5px)';
-                        },
-                        onMouseLeave: (e: React.MouseEvent<HTMLAnchorElement>) => {
-                          e.currentTarget.style.transform = 'translateY(0)';
-                        }
-                      }
-                    : {
-                        style: {
-                          flex: `0 0 ${column.width}px`,
-                          width: `${column.width}px`
-                        }
-                      };
+                  const columnContent = (
+                    <div
+                      className="column-preview"
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        height: '100%',
+                        border: settings.showBorders ? `1px solid ${settings.borderColor}` : 'none',
+                        borderRadius: `${settings.borderRadius}px`,
+                        overflow: 'hidden',
+                        background: '#fff'
+                      }}
+                    >
+                      {column.headerText && (
+                        <div
+                          style={{
+                            background: settings.columnHeaderBgColor,
+                            color: '#fff',
+                            padding: '12px 8px',
+                            textAlign: 'center',
+                            fontWeight: 600,
+                            fontSize: '0.9rem',
+                            letterSpacing: '0.5px',
+                            wordWrap: 'break-word',
+                            overflowWrap: 'break-word'
+                          }}
+                        >
+                          {column.headerText}
+                        </div>
+                      )}
 
-                  return (
-                    <ColumnWrapper key={column.id} {...wrapperProps}>
-                      <div
-                        className="column-preview"
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          height: '100%',
-                          border: settings.showBorders ? `1px solid ${settings.borderColor}` : 'none',
-                          borderRadius: `${settings.borderRadius}px`,
-                          overflow: 'hidden',
-                          background: '#fff'
-                        }}
-                      >
-                    {column.headerText && (
-                      <div
-                        style={{
-                          background: settings.columnHeaderBgColor,
-                          color: '#fff',
-                          padding: '12px 8px',
-                          textAlign: 'center',
-                          fontWeight: 600,
-                          fontSize: '0.9rem',
-                          letterSpacing: '0.5px',
-                          wordWrap: 'break-word',
-                          overflowWrap: 'break-word'
-                        }}
-                      >
-                        {column.headerText}
-                      </div>
-                    )}
+                      {column.imageUrl ? (
+                        <img
+                          src={column.imageUrl}
+                          alt={column.altText || column.headerText || `Column ${index + 1}`}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            display: 'block',
+                            flex: 1
+                          }}
+                        />
+                      ) : column.videoUrl ? (
+                        <video
+                          src={column.videoUrl}
+                          controls
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            display: 'block',
+                            flex: 1
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: '100%',
+                            minHeight: '300px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: `linear-gradient(135deg, ${settings.accentColor}20, ${settings.accentColor}40)`,
+                            color: settings.textColor,
+                            fontSize: '1rem',
+                            flex: 1
+                          }}
+                        >
+                          {column.headerText || `Column ${index + 1}`}
+                        </div>
+                      )}
+                    </div>
+                  );
 
-                    {column.imageUrl ? (
-                      <img
-                        src={column.imageUrl}
-                        alt={column.altText || column.headerText || `Column ${index + 1}`}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          display: 'block',
-                          flex: 1
-                        }}
-                      />
-                    ) : column.videoUrl ? (
-                      <video
-                        src={column.videoUrl}
-                        controls
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          display: 'block',
-                          flex: 1
-                        }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: '100%',
-                          minHeight: '300px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          background: `linear-gradient(135deg, ${settings.accentColor}20, ${settings.accentColor}40)`,
-                          color: settings.textColor,
-                          fontSize: '1rem',
-                          flex: 1
-                        }}
-                      >
-                        {column.headerText || `Column ${index + 1}`}
-                      </div>
-                    )}
-                      </div>
-                    </ColumnWrapper>
+                  return column.linkUrl ? (
+                    <a
+                      key={column.id}
+                      href={column.linkUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        display: 'block',
+                        flex: `0 0 ${column.width}px`,
+                        width: `${column.width}px`,
+                        transition: 'transform 0.2s',
+                        cursor: 'pointer'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-5px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      {columnContent}
+                    </a>
+                  ) : (
+                    <div
+                      key={column.id}
+                      style={{
+                        flex: `0 0 ${column.width}px`,
+                        width: `${column.width}px`
+                      }}
+                    >
+                      {columnContent}
+                    </div>
                   );
                 })}
               </div>
