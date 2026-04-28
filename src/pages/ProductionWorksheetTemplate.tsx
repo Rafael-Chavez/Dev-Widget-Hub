@@ -5,6 +5,7 @@ import './LocalPickupTemplatePage.css';
 const ProductionWorksheetTemplate: React.FC = () => {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const templateHTML = `<!DOCTYPE html>
 <html lang="en">
@@ -270,7 +271,7 @@ const ProductionWorksheetTemplate: React.FC = () => {
             font-weight: 600;
         }
 
-        /* Product Images - LARGER THUMBNAILS */
+        /* Product Images */
         .product-images {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -450,323 +451,37 @@ const ProductionWorksheetTemplate: React.FC = () => {
             }
         }
 
-/* Print Styles - Condensed */
-@media print {
-    body {
-        background: white;
-        padding: 0;
-        font-size: 9px;
-        line-height: 1.1;
-        margin: 0;
-    }
+        /* Print Styles - Condensed */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                font-size: 9px;
+                line-height: 1.1;
+                margin: 0;
+            }
 
-    #worksheet-container {
-        box-shadow: none;
-        border-radius: 0;
-        max-width: none;
-    }
+            #worksheet-container {
+                box-shadow: none;
+                border-radius: 0;
+                max-width: none;
+            }
 
-    /* Ultra Compact Header */
-    .header {
-        padding: 5px;
-        background: #f0f0f0 !important;
-        color: #333 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
+            .header {
+                padding: 5px;
+                background: #f0f0f0 !important;
+                color: #333 !important;
+            }
 
-    .header-row {
-        flex-direction: row;
-        gap: 5px;
-        margin-bottom: 3px;
-        align-items: center;
-        height: auto;
-    }
-
-    .header-logo {
-        flex: 0 0 60px;
-        height: 30px;
-        overflow: hidden;
-    }
-
-    .header-logo img {
-        max-width: 60px;
-        max-height: 30px;
-    }
-
-    .header-barcode {
-        font-size: 16px;
-        line-height: 1;
-    }
-
-    .header-status {
-        flex: 0 0 120px;
-    }
-
-    .status-badge {
-        padding: 2px 4px;
-        font-size: 8px;
-    }
-
-    .order-info {
-        padding: 3px 5px;
-        font-size: 10px;
-        line-height: 1.2;
-    }
-
-    .customer-name {
-        font-size: 10px;
-    }
-
-    .order-number {
-        font-size: 9px;
-    }
-
-    /* Ultra Compact Order Details */
-    .order-details {
-        padding: 8px;
-    }
-
-    .details-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-    }
-
-    .detail-section h3 {
-        font-size: 9px;
-        margin-bottom: 3px;
-    }
-
-    .detail-section li {
-        margin: 1px 0;
-        padding: 1px 0;
-        font-size: 8px;
-        line-height: 1.1;
-    }
-
-     /* Hide notes sections completely when printing if they're empty */
-    .notes-section:empty,
-    .notes-section:has(p:empty) {
-        display: none !important;
-    }
-
-    /* Compact Notes */
-    .notes-section {
-        padding: 10px 15px;
-        margin: 10px 15px;
-        font-size: 11px;
-    }
-
-    .notes-section h3 {
-        font-size: 12px;
-        margin-bottom: 8px;
-    }
-
-    .notes-section p {
-        margin: 4px 0;
-    }
-
-    /* Ultra Compact Line Items */
-    .line-item {
-        margin: 8px;
-        page-break-inside: avoid;
-    }
-
-    .line-item-header {
-        padding: 4px 8px;
-        font-size: 10px;
-        background: #e0e0e0 !important;
-        color: #333 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-        line-height: 1.2;
-    }
-
-    .line-item-content {
-        padding: 6px;
-    }
-
-    /* Compact Item Summary */
-    .item-summary {
-        grid-template-columns: 100px 150px 1fr;
-        gap: 15px;
-        margin-bottom: 15px;
-    }
-
-    .color-section h4,
-    .size-section h4,
-    .preview-section h4 {
-        font-size: 11px;
-        margin-bottom: 8px;
-    }
-
-    /* Smaller Color Swatches */
-    .color-swatch {
-        width: 40px;
-        height: 40px;
-        margin-bottom: 5px;
-    }
-
-    .color-name {
-        font-size: 10px;
-    }
-
-    /* Compact Size Table */
-    .size-table th,
-    .size-table td {
-        padding: 4px 6px;
-        font-size: 10px;
-    }
-
-    /* Smaller Product Images */
-    .product-images {
-        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-        gap: 8px;
-    }
-
-    .product-view {
-        padding: 8px;
-    }
-
-    .product-view h5 {
-        font-size: 9px;
-        margin-bottom: 5px;
-    }
-
-    .product-view img {
-        max-width: 70px;
-        max-height: 70px;
-    }
-
-    /* Compact Barcode */
-    .item-barcode {
-        font-size: 20px;
-        margin: 8px 0;
-    }
-
-    /* Compact Team Table */
-    .team-table th,
-    .team-table td {
-        padding: 4px 6px;
-        font-size: 10px;
-    }
-
-    /* Compact Design Section */
-    .design-section {
-        margin-top: 15px;
-        padding-top: 10px;
-    }
-
-    .design-header {
-        padding: 6px 10px;
-        font-size: 12px;
-        margin-bottom: 10px;
-        background: #f0f0f0 !important;
-        color: #333 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .design-details {
-        grid-template-columns: 120px 180px 1fr;
-        gap: 15px;
-        padding: 10px;
-        margin-bottom: 15px;
-    }
-
-    .design-details h5 {
-        font-size: 10px;
-        margin-bottom: 5px;
-    }
-
-    .design-details img {
-        max-width: 80px;
-        max-height: 80px;
-    }
-
-    .design-details ul {
-        margin: 0;
-        padding: 0;
-    }
-
-    .design-details li {
-        margin: 2px 0;
-        font-size: 9px;
-    }
-
-    .detail-label {
-        font-size: 9px;
-        min-width: 50px;
-    }
-
-    /* Compact Extra Options */
-    .extra-options {
-        padding: 10px;
-        margin-top: 10px;
-    }
-
-    .extra-options h4 {
-        font-size: 12px;
-        margin-bottom: 8px;
-    }
-
-    .extra-options li {
-        margin: 3px 0;
-        padding: 2px 0;
-        font-size: 10px;
-    }
-
-    /* Compact Attachments */
-    .attachments {
-        margin-top: 15px;
-    }
-
-    .attachment-item {
-        padding: 8px;
-        margin-bottom: 8px;
-    }
-
-    .attachment-preview {
-        flex: 0 0 60px;
-        margin-right: 10px;
-    }
-
-    .attachment-preview img {
-        max-width: 50px;
-        max-height: 50px;
-    }
-
-    .attachment-details li {
-        font-size: 9px;
-    }
-
-    /* Remove unnecessary spacing */
-    .status-badge {
-        padding: 4px 8px;
-        font-size: 10px;
-    }
-
-    .highlight {
-        padding: 1px 3px;
-        font-size: 11px;
-    }
-
-    /* Ensure page breaks work properly */
-    .line-item {
-        page-break-inside: avoid;
-        break-inside: avoid;
-    }
-
-    .design-section {
-        page-break-inside: avoid;
-        break-inside: avoid;
-    }
-}
+            .notes-section:empty,
+            .notes-section:has(p:empty) {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
     <div id="worksheet-container">
-        <!-- Header Section -->
         <div class="header">
             <div class="header-row">
                 <div class="header-logo">
@@ -816,7 +531,6 @@ const ProductionWorksheetTemplate: React.FC = () => {
             </div>
         </div>
 
-        <!-- Order Details Section -->
         <div class="order-details">
             <div class="details-grid">
                 <div class="detail-section">
@@ -847,7 +561,6 @@ const ProductionWorksheetTemplate: React.FC = () => {
             </div>
         </div>
 
-  <!-- Notes Sections with Conditional Display -->
         {% if order.show_notes_on_worksheet %}
             {% if order.production_notes.size > 0 %}
                 {% assign has_production_notes = false %}
@@ -883,35 +596,6 @@ const ProductionWorksheetTemplate: React.FC = () => {
             </div>
         {% endif %}
 
-        {% if order.internal_notes.size > 0 %}
-            {% assign has_internal_notes = false %}
-            {% for note in order.internal_notes %}
-                {% if note.content != blank %}
-                    {% assign has_internal_notes = true %}
-                    {% break %}
-                {% endif %}
-            {% endfor %}
-
-            {% if has_internal_notes %}
-                <div class="notes-section">
-                    <h3>Order Internal Notes</h3>
-                    {% for note in order.internal_notes %}
-                        {% if note.content != blank %}
-                            <p>{{ note.created_at | date: "%b %d, %Y %I:%M %p"}} - {{ note.user_name }} - {{ note.content }}</p>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endif %}
-
-        {% if order.customer_notes and order.customer_notes != blank %}
-            <div class="notes-section">
-                <h3>Customer Notes</h3>
-                <p>{{ order.formatted_customer_notes }}</p>
-            </div>
-        {% endif %}
-
-        <!-- Line Items -->
         {% for item in order.main_items %}
             {% if item.is_divider? %}
                 <div class="line-item">
@@ -923,12 +607,10 @@ const ProductionWorksheetTemplate: React.FC = () => {
                         ITEM: {{ item.number }}
                         {% if item.supplier_product and item.is_not_freeform? %}({{ item.supplier_product.product_code }}){% endif %}
                         {{ item.product_name }}
-                        {% unless item.product_based? %}{% if item.has_extra_options? %}: {% endif %}{{ item.extra_options}}{% endunless %}
                     </h2>
 
                     <div class="line-item-content">
                         <div class="item-summary">
-                            <!-- Color Section -->
                             <div class="color-section">
                                 <h4>Color</h4>
                                 {% if item.is_freeform? %}
@@ -949,7 +631,6 @@ const ProductionWorksheetTemplate: React.FC = () => {
                                 {% endif %}
                             </div>
 
-                            <!-- Size Section -->
                             <div class="size-section">
                                 <h4>Size & Quantity</h4>
                                 <table class="size-table">
@@ -981,7 +662,6 @@ const ProductionWorksheetTemplate: React.FC = () => {
                                 </table>
                             </div>
 
-                            <!-- Preview Section -->
                             <div class="preview-section">
                                 {% if order.show_barcode_on_worksheet? %}
                                     <div class="item-barcode">*{{ item.worksheet_barcode }}*</div>
@@ -994,160 +674,9 @@ const ProductionWorksheetTemplate: React.FC = () => {
                                             <img src="{{ view.image_url_300}}" alt="{{ view.name }}" />
                                         </div>
                                     {% endfor %}
-                                    {% if item.is_asi? %}
-                                        <div class="product-view">
-                                            <h5>ASI Image</h5>
-                                            <img src="/manage/asi/image/{{ item.asi_image }}?size=normal" alt="ASI Image" />
-                                        </div>
-                                    {% endif %}
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Team Names Table -->
-                        {% if item.using_teamnames %}
-                            <div style="margin-top: 30px;">
-                                <h4>Team Names for {{ item.product_name }}</h4>
-                                <table class="team-table">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            {% if item.size_field %}<th>Size</th>{% endif %}
-                                            {% for label in item.teamname_headings %}
-                                                <th>{{ label }}</th>
-                                            {% endfor %}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% assign teamname_count = 1 %}
-                                        {% for teamname in item.teamnames %}
-                                            <tr>
-                                                <td>{{ teamname_count }}</td>
-                                                {% if item.size_field %}<td>{{ teamname.size_label }}</td>{% endif %}
-                                                {% for field in teamname.fields %}
-                                                    <td>{{ field }}</td>
-                                                {% endfor %}
-                                            </tr>
-                                            {% assign teamname_count = teamname_count | plus:1 %}
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        {% endif %}
-
-                        <!-- Item Notes -->
-                        {% if item.internal_notes.size > 0 %}
-                            <div class="notes-section">
-                                <h3>Item Production Notes</h3>
-                                {% for note in item.internal_notes %}
-                                    <p>{{ note.created_at | date: "%b %d, %Y %I:%M %p"}} - {{ note.user_name }} - {{ note.content }}</p>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-
-                        <!-- Extra Options -->
-                        {% if item.extra_fields %}
-                            <div class="extra-options">
-                                <h4>Extra Options</h4>
-                                <ul>
-                                    {% if item.is_freeform? %}
-                                        <li>{{ item.extra_options }}</li>
-                                    {% else %}
-                                        {% for field in item.extra_fields %}
-                                            <li><span class="detail-label">{{ field.name }}:</span> {{ field.print_text }}</li>
-                                        {% endfor %}
-                                    {% endif %}
-                                </ul>
-                            </div>
-                        {% endif %}
-
-                        <!-- Design Details -->
-                        {% for view in item.views %}
-                            <div class="design-section">
-                                <div class="design-header">{{ view.name }} Designs</div>
-                                {% for area in view.areas %}
-                                    {% for process in area.processes %}
-                                        <div class="design-details">
-                                            <div class="design-preview">
-                                                <h5>{{ process.name }}</h5>
-                                                {% for color in item.chosen_colors %}
-                                                    <img src="{{ process.image_url_200_no_bg }}" alt="{{ process.name }}" style="background: {{color.color}};" />
-                                                {% endfor %}
-                                            </div>
-
-                                            <div class="design-position">
-                                                <h5>Size & Position</h5>
-                                                <ul>
-                                                    <li><span class="detail-label">Size:</span> {{ process.bounding_box_size }}</li>
-                                                    <li><span class="detail-label">Location:</span> {{ area.name }}</li>
-                                                    <li><span class="detail-label">Top:</span> {{ process.position_top }}</li>
-                                                    <li><span class="detail-label">Left:</span> {{ process.position_left }}</li>
-                                                </ul>
-                                            </div>
-
-                                            <div class="design-other">
-                                                <h5>Other Details</h5>
-                                                <ul>
-                                                    {% if area.bg_color %}
-                                                        <li><span class="detail-label">Fill Color:</span> {{ area.bg_color.to_html }}</li>
-                                                    {% endif %}
-                                                    {% if process.has_text_items? %}
-                                                        <li><span class="detail-label">Fonts Used:</span><br>
-                                                            {% for text in process.text_items %}
-                                                                {% if text.text_caption != blank %}{{ text.text_caption }}: {% endif %}"{{ text.text }}": {{ text.font }} ({{ text.text_color }})<br>
-                                                            {% endfor %}
-                                                        </li>
-                                                    {% endif %}
-                                                    {% if process.has_selected_colors? %}
-                                                        {% if process.has_tracked_colors? %}
-                                                            <li><span class="detail-label">Colors:</span>
-                                                                <table style="width: 100%; margin-top: 5px;">
-                                                                    {% for color in process.tracked_color_entries %}
-                                                                        <tr>
-                                                                            <td style="background: {{color.color}}; color: {{ color.overlay_color }}; padding: 3px;">{{ color.name }}</td>
-                                                                        </tr>
-                                                                    {% endfor %}
-                                                                </table>
-                                                            </li>
-                                                        {% else %}
-                                                            <li><span class="detail-label">Number of Colors:</span> {{ process.number_of_colors }}</li>
-                                                            <li><span class="detail-label">Colors:</span> {{ process.color_names }}</li>
-                                                        {% endif %}
-                                                    {% endif %}
-                                                    {% if process.is_wilcom_emb? %}
-                                                        <li><span class="detail-label">Stitch Count:</span> {{ process.get_stitch_count }}</li>
-                                                    {% endif %}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                {% endfor %}
-                            </div>
-                        {% endfor %}
-
-                        <!-- File Attachments -->
-                        {% if item.attachments_viewable_production.size > 0 %}
-                            <div class="attachments">
-                                <h4>File Attachments</h4>
-                                {% for attachment in item.attachments_viewable_production %}
-                                    <div class="attachment-item">
-                                        <div class="attachment-preview">
-                                            {% if attachment.image_url %}
-                                                <img src="{{ attachment.image_url_100 }}" alt="{{ attachment.name }}" />
-                                            {% else %}
-                                                <p>{{ attachment.get_file_name }}</p>
-                                            {% endif %}
-                                        </div>
-                                        <div class="attachment-details">
-                                            <ul>
-                                                <li><span class="detail-label">Name:</span> {{ attachment.name }}</li>
-                                                <li><span class="detail-label">Description:</span> {{ attachment.description }}</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
                     </div>
                 </div>
             {% endif %}
@@ -1164,137 +693,76 @@ const ProductionWorksheetTemplate: React.FC = () => {
   };
 
   return (
-    <div className="template-detail-page">
-      {/* Header */}
-      <header className="template-header">
-        <button className="back-button" onClick={() => navigate('/email-templates')}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd"/>
-          </svg>
-          Back to Templates
-        </button>
-        <div className="template-title-section">
-          <div className="template-icon">📋</div>
-          <div>
-            <h1 className="template-title">Production Worksheet</h1>
-            <p className="template-subtitle">Professional DecoNetwork production template with barcode support</p>
+    <div className="local-pickup-page">
+      <div className="sidebar">
+        <div className="sidebar-header-section">
+          <div className="logo-section">
+            <div className="logo-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+              </svg>
+            </div>
+            <h1>Production Worksheet</h1>
           </div>
+          <p className="version">Email Template</p>
         </div>
-      </header>
+      </div>
 
-      <div className="template-content">
-        {/* Left Panel - Preview */}
-        <div className="preview-panel">
-          <div className="panel-header">
-            <h2>Live Preview</h2>
-            <p>See how your worksheet will look</p>
-          </div>
-          <div className="preview-container">
-            <div className="email-preview" dangerouslySetInnerHTML={{ __html: templateHTML.replace(/\{\{/g, '&#123;&#123;').replace(/\}\}/g, '&#125;&#125;').replace(/\{%/g, '&#123;%').replace(/%\}/g, '%&#125;') }} />
-          </div>
-        </div>
-
-        {/* Right Panel - Code */}
-        <div className="code-panel">
-          <div className="panel-header">
-            <h2>Template Code</h2>
-            <button className={`copy-button ${copied ? 'copied' : ''}`} onClick={copyToClipboard}>
-              {copied ? (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
-                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
-                  </svg>
-                  Copy Code
-                </>
-              )}
+      <div className="main-content">
+        <div className="top-header">
+          <div className="header-left">
+            <button className="back-btn" onClick={() => navigate('/email-templates')}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd"/>
+              </svg>
+              <span>Back to Templates</span>
             </button>
+            <h2 className="page-title">Professional Email Templates</h2>
           </div>
-          <div className="code-container">
-            <pre className="code-block">
-              <code>{templateHTML}</code>
-            </pre>
-          </div>
+          <button className="home-btn" onClick={() => navigate('/')}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z"/>
+            </svg>
+            <span>Home</span>
+          </button>
+        </div>
 
-          {/* Info Section */}
-          <div className="info-section">
-            <h3>Key Features</h3>
-            <ul className="features-list">
-              <li>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                </svg>
-                Barcode support for order tracking
-              </li>
-              <li>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                </svg>
-                Comprehensive order details display
-              </li>
-              <li>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                </svg>
-                Product images and color swatches
-              </li>
-              <li>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                </svg>
-                Team names and size breakdown
-              </li>
-              <li>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                </svg>
-                Design details with positioning info
-              </li>
-              <li>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                </svg>
-                Print-optimized with condensed layout
-              </li>
-              <li>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                </svg>
-                Fully responsive design
-              </li>
-            </ul>
-          </div>
-
-          <div className="info-section">
-            <h3>Template Variables</h3>
-            <p style={{ fontSize: '14px', color: '#6c757d', marginBottom: '15px' }}>
-              This template uses DecoNetwork's Liquid templating system with many variables for orders, items, designs, and more.
-            </p>
-            <ul className="variable-list">
-              <li>
-                <code>{'{{ order.* }}'}</code>
-                <span>Order details (order_number, date_ordered, balance, etc.)</span>
-              </li>
-              <li>
-                <code>{'{{ customer.* }}'}</code>
-                <span>Customer information (full_name, company, email, phone, etc.)</span>
-              </li>
-              <li>
-                <code>{'{{ item.* }}'}</code>
-                <span>Line item details (product_name, qty, colors, sizes, etc.)</span>
-              </li>
-              <li>
-                <code>{'{{ ship_to.* }}'}</code>
-                <span>Shipping address information</span>
-              </li>
-            </ul>
+        <div className="content-wrapper">
+          <div className="template-section">
+            <div className="code-section">
+              <div className="code-header">
+                <div className="code-header-info">
+                  <h3>Full Template</h3>
+                  <p>Professional DecoNetwork production template with barcode support</p>
+                </div>
+                <div className="code-header-actions">
+                  <button
+                    className="expand-btn"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    title={isExpanded ? 'Collapse code' : 'Expand code'}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      {isExpanded ? (
+                        <path fillRule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd"/>
+                      ) : (
+                        <path fillRule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 01-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h4a1 1 0 011 1v4a1 1 0 01-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 012 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 010 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15 13.586V12a1 1 0 011-1z" clipRule="evenodd"/>
+                      )}
+                    </svg>
+                    {isExpanded ? 'Collapse' : 'Expand'}
+                  </button>
+                  <button className="copy-btn" onClick={copyToClipboard}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
+                      <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
+                    </svg>
+                    {copied ? 'Copied!' : 'Copy Code'}
+                  </button>
+                </div>
+              </div>
+              <div className={`code-box ${isExpanded ? 'expanded' : ''}`}>
+                <pre><code>{templateHTML}</code></pre>
+              </div>
+            </div>
           </div>
         </div>
       </div>
