@@ -158,64 +158,35 @@ const LogoTickerPage: React.FC = () => {
       ? `linear-gradient(${settings.gradientDirection}deg, ${settings.gradientColor1}, ${settings.gradientColor2})`
       : settings.bgColor;
 
-    const scriptContent = `(function() {
-    const config = {
-        logos: ${JSON.stringify(logoData)},
-        speed: ${settings.speed},
-        logoSize: ${settings.logoSize},
-        logoSizeMobile: ${settings.logoSizeMobile},
-        spacing: ${settings.spacing},
-        spacingMobile: ${settings.spacingMobile},
-        background: '${background.replace(/'/g, "\\'")}',
-        cornerRadius: ${cornerRadius},
-        logoColorScheme: '${settings.logoColorScheme}',
-        openInNewTab: ${settings.openInNewTab}
-    };
+    const filterStyle = settings.logoColorScheme === 'grayscale' ? 'grayscale(100%)' : 'none';
+    const targetAttr = settings.openInNewTab ? ' target="_blank" rel="noopener noreferrer"' : '';
 
-    const container = document.getElementById('logo-ticker-container');
-    const wrapper = document.createElement('div');
-    wrapper.style.cssText = 'background: ' + config.background + '; border-radius: ' + config.cornerRadius + 'px; overflow: hidden; position: relative; width: 100%;';
+    // Generate logo HTML (duplicated for infinite scroll)
+    const logosHtml = [...logoData, ...logoData].map(logo => {
+      const imgTag = `<img src="${logo.url}" alt="Logo" style="height: ${settings.logoSize}px; width: auto; object-fit: contain; margin-right: ${settings.spacing}px; filter: ${filterStyle}; transition: all 0.3s;${logo.link ? ' cursor: pointer;' : ''}">`;
+      return logo.link
+        ? `<a href="${logo.link}"${targetAttr} style="display: inline-block; text-decoration: none;">${imgTag}</a>`
+        : `<div style="display: inline-block;">${imgTag}</div>`;
+    }).join('');
 
-    const track = document.createElement('div');
-    track.style.cssText = 'display: flex; width: max-content; animation: ticker-scroll ' + config.speed + 's linear infinite; padding: 40px 0;';
-
-    const logos = [...config.logos, ...config.logos];
-    const filterStyle = config.logoColorScheme === 'grayscale' ? 'grayscale(100%)' : 'none';
-    logos.forEach(function(logo) {
-        const container = document.createElement(logo.link ? 'a' : 'div');
-        if (logo.link) {
-            container.href = logo.link;
-            if (config.openInNewTab) {
-                container.target = '_blank';
-                container.rel = 'noopener noreferrer';
-            }
-            container.style.cssText = 'display: inline-block; text-decoration: none;';
-        }
-
-        const img = document.createElement('img');
-        img.src = logo.url;
-        img.alt = 'Logo';
-        img.style.cssText = 'height: ' + config.logoSize + 'px; width: auto; object-fit: contain; margin-right: ' + config.spacing + 'px; filter: ' + filterStyle + '; transition: all 0.3s;' + (logo.link ? ' cursor: pointer;' : '');
-
-        container.appendChild(img);
-        track.appendChild(container);
-    });
-
-    track.onmouseenter = function() { this.style.animationPlayState = 'paused'; };
-    track.onmouseleave = function() { this.style.animationPlayState = 'running'; };
-
-    wrapper.appendChild(track);
-    container.appendChild(wrapper);
-
-    if (!document.getElementById('logo-ticker-styles')) {
-        const style = document.createElement('style');
-        style.id = 'logo-ticker-styles';
-        style.textContent = '@keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } } @media (max-width: 768px) { #logo-ticker-container img { height: ' + config.logoSizeMobile + 'px !important; margin-right: ' + config.spacingMobile + 'px !important; } }';
-        document.head.appendChild(style);
+    return `<!-- Logo Ticker Widget -->
+<div id="logo-ticker-container" style="background: ${background}; border-radius: ${cornerRadius}px; overflow: hidden; position: relative; width: 100%;">
+  <div id="logo-ticker-track" style="display: flex; width: max-content; animation: ticker-scroll ${settings.speed}s linear infinite; padding: 40px 0;" onmouseenter="this.style.animationPlayState='paused'" onmouseleave="this.style.animationPlayState='running'">
+    ${logosHtml}
+  </div>
+</div>
+<style>
+  @keyframes ticker-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  @media (max-width: 768px) {
+    #logo-ticker-container img {
+      height: ${settings.logoSizeMobile}px !important;
+      margin-right: ${settings.spacingMobile}px !important;
     }
-})();`;
-
-    return '<!-- Logo Showcase Widget -->\n<div id="logo-ticker-container"></div>\n<script>\n' + scriptContent + '\n</script>';
+  }
+</style>`;
   };
 
   const copyEmbedCode = () => {

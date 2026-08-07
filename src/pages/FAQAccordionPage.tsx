@@ -161,163 +161,67 @@ const FAQAccordionPage: React.FC = () => {
   };
 
   const generateEmbedCode = (): string => {
-    const faqsData = settings.faqs.map(faq => ({
-      question: faq.question,
-      answer: faq.answer
-    }));
+    const titleHtml = settings.title
+      ? `<h2 style="color: ${settings.questionColor}; margin: 0 0 30px; font-size: 32px; font-weight: 700; text-align: center;">${settings.title}</h2>`
+      : '';
 
-    const scriptContent = `(function() {
-    const config = {
-        title: '${settings.title}',
-        faqs: ${JSON.stringify(faqsData)},
-        accentColor: '${settings.accentColor}',
-        bgColor: '${settings.bgColor}',
-        textColor: '${settings.textColor}',
-        questionColor: '${settings.questionColor}',
-        borderRadius: ${settings.borderRadius},
-        showIcon: ${settings.showIcon},
-        allowMultipleOpen: ${settings.allowMultipleOpen},
-        defaultOpen: ${settings.defaultOpen}
-    };
+    const faqsHtml = settings.faqs.map((faq, index) => {
+      const isDefaultOpen = settings.defaultOpen && index === 0;
+      const iconHtml = settings.showIcon
+        ? `<span data-icon style="flex-shrink: 0; font-size: 24px; font-weight: bold; color: ${settings.accentColor}; transition: transform 0.3s;">${isDefaultOpen ? '−' : '+'}</span>`
+        : '';
 
-    const container = document.getElementById('faq-accordion-container');
-    const widget = document.createElement('div');
-    widget.style.cssText = 'font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;';
+      return `<div data-faq-item style="background: ${settings.bgColor}; border: 2px solid ${isDefaultOpen ? settings.accentColor : '#e0e0e0'}; border-radius: ${settings.borderRadius}px; overflow: hidden; transition: all 0.3s;">
+      <button onclick="toggleFAQ(this, ${index})" onmouseenter="this.style.backgroundColor='rgba(0,0,0,0.02)'" onmouseleave="this.style.backgroundColor='transparent'" style="width: 100%; padding: 20px; background: transparent; border: none; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 15px; font-size: 18px; font-weight: 600; color: ${settings.questionColor}; transition: all 0.3s;">
+        <span>${faq.question}</span>${iconHtml}
+      </button>
+      <div data-answer style="max-height: ${isDefaultOpen ? '1000px' : '0'}; overflow: hidden; transition: max-height 0.3s ease-out;">
+        <div style="padding: 0 20px 20px; color: ${settings.textColor}; font-size: 16px; line-height: 1.6;">${faq.answer}</div>
+      </div>
+    </div>`;
+    }).join('');
 
-    if (config.title) {
-        const title = document.createElement('h2');
-        title.textContent = config.title;
-        title.style.cssText = 'color: ' + config.questionColor + '; margin: 0 0 30px; font-size: 32px; font-weight: 700; text-align: center;';
-        widget.appendChild(title);
+    return `<!-- FAQ Accordion Widget -->
+<div id="faq-accordion-container" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
+  ${titleHtml}
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    ${faqsHtml}
+  </div>
+</div>
+<script>
+  const openItems = new Set(${settings.defaultOpen ? '[0]' : '[]'});
+  function toggleFAQ(btn, index) {
+    const item = btn.parentElement;
+    const answer = item.querySelector('[data-answer]');
+    const icon = btn.querySelector('[data-icon]');
+    const isOpen = openItems.has(index);
+
+    if (!${settings.allowMultipleOpen}) {
+      document.querySelectorAll('[data-faq-item]').forEach((otherItem, otherIndex) => {
+        if (otherIndex !== index) {
+          const otherAnswer = otherItem.querySelector('[data-answer]');
+          const otherIcon = otherItem.querySelector('[data-icon]');
+          if (otherAnswer) otherAnswer.style.maxHeight = '0';
+          otherItem.style.borderColor = '#e0e0e0';
+          if (otherIcon) { otherIcon.textContent = '+'; otherIcon.style.transform = 'rotate(0deg)'; }
+          openItems.delete(otherIndex);
+        }
+      });
     }
 
-    const accordion = document.createElement('div');
-    accordion.style.cssText = 'display: flex; flex-direction: column; gap: 12px;';
-
-    let openItems = new Set();
-    if (config.defaultOpen && config.faqs.length > 0) {
-        openItems.add(0);
+    if (isOpen) {
+      openItems.delete(index);
+      answer.style.maxHeight = '0';
+      if (icon) { icon.textContent = '+'; icon.style.transform = 'rotate(0deg)'; }
+      item.style.borderColor = '#e0e0e0';
+    } else {
+      openItems.add(index);
+      answer.style.maxHeight = answer.scrollHeight + 'px';
+      if (icon) { icon.textContent = '−'; icon.style.transform = 'rotate(180deg)'; }
+      item.style.borderColor = '${settings.accentColor}';
     }
-
-    config.faqs.forEach((faq, index) => {
-        const item = document.createElement('div');
-        item.style.cssText = 'background: ' + config.bgColor + '; border: 2px solid #e0e0e0; border-radius: ' + config.borderRadius + 'px; overflow: hidden; transition: all 0.3s;';
-
-        const question = document.createElement('button');
-        question.style.cssText = 'width: 100%; padding: 20px; background: transparent; border: none; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 15px; font-size: 18px; font-weight: 600; color: ' + config.questionColor + '; transition: all 0.3s;';
-        question.textContent = faq.question;
-
-        if (config.showIcon) {
-            const icon = document.createElement('span');
-            icon.style.cssText = 'flex-shrink: 0; font-size: 24px; font-weight: bold; color: ' + config.accentColor + '; transition: transform 0.3s;';
-            icon.textContent = openItems.has(index) ? '−' : '+';
-            icon.setAttribute('data-icon', 'true');
-            question.appendChild(icon);
-        }
-
-        const answer = document.createElement('div');
-        answer.style.cssText = 'max-height: ' + (openItems.has(index) ? '1000px' : '0') + '; overflow: hidden; transition: max-height 0.3s ease-out;';
-
-        const answerContent = document.createElement('div');
-        answerContent.style.cssText = 'padding: 0 20px 20px; color: ' + config.textColor + '; font-size: 16px; line-height: 1.6;';
-        answerContent.textContent = faq.answer;
-        answer.appendChild(answerContent);
-
-        question.onclick = function() {
-            const isOpen = openItems.has(index);
-
-            if (config.allowMultipleOpen) {
-                if (isOpen) {
-                    openItems.delete(index);
-                    answer.style.maxHeight = '0';
-                    if (config.showIcon) {
-                        const iconEl = this.querySelector('[data-icon]');
-                        if (iconEl) {
-                            iconEl.textContent = '+';
-                            iconEl.style.transform = 'rotate(0deg)';
-                        }
-                    }
-                    item.style.borderColor = '#e0e0e0';
-                } else {
-                    openItems.add(index);
-                    answer.style.maxHeight = answer.scrollHeight + 'px';
-                    if (config.showIcon) {
-                        const iconEl = this.querySelector('[data-icon]');
-                        if (iconEl) {
-                            iconEl.textContent = '−';
-                            iconEl.style.transform = 'rotate(180deg)';
-                        }
-                    }
-                    item.style.borderColor = config.accentColor;
-                }
-            } else {
-                // Close all others
-                accordion.querySelectorAll('[data-faq-item]').forEach((otherItem, otherIndex) => {
-                    if (otherIndex !== index) {
-                        const otherAnswer = otherItem.querySelector('[data-answer]');
-                        const otherQuestion = otherItem.querySelector('button');
-                        if (otherAnswer) otherAnswer.style.maxHeight = '0';
-                        if (otherItem) otherItem.style.borderColor = '#e0e0e0';
-                        if (config.showIcon && otherQuestion) {
-                            const otherIcon = otherQuestion.querySelector('[data-icon]');
-                            if (otherIcon) {
-                                otherIcon.textContent = '+';
-                                otherIcon.style.transform = 'rotate(0deg)';
-                            }
-                        }
-                        openItems.delete(otherIndex);
-                    }
-                });
-
-                if (isOpen) {
-                    openItems.delete(index);
-                    answer.style.maxHeight = '0';
-                    if (config.showIcon) {
-                        const iconEl = this.querySelector('[data-icon]');
-                        if (iconEl) {
-                            iconEl.textContent = '+';
-                            iconEl.style.transform = 'rotate(0deg)';
-                        }
-                    }
-                    item.style.borderColor = '#e0e0e0';
-                } else {
-                    openItems.add(index);
-                    answer.style.maxHeight = answer.scrollHeight + 'px';
-                    if (config.showIcon) {
-                        const iconEl = this.querySelector('[data-icon]');
-                        if (iconEl) {
-                            iconEl.textContent = '−';
-                            iconEl.style.transform = 'rotate(180deg)';
-                        }
-                    }
-                    item.style.borderColor = config.accentColor;
-                }
-            }
-        };
-
-        question.onmouseenter = function() {
-            this.style.backgroundColor = 'rgba(0,0,0,0.02)';
-        };
-        question.onmouseleave = function() {
-            this.style.backgroundColor = 'transparent';
-        };
-
-        answer.setAttribute('data-answer', 'true');
-        item.setAttribute('data-faq-item', 'true');
-        item.appendChild(question);
-        item.appendChild(answer);
-        accordion.appendChild(item);
-
-        if (openItems.has(index)) {
-            item.style.borderColor = config.accentColor;
-        }
-    });
-
-    widget.appendChild(accordion);
-    container.appendChild(widget);
-})();`;
-
-    return '<!-- FAQ Accordion Widget -->\n<div id="faq-accordion-container"></div>\n<script>\n' + scriptContent + '\n</script>';
+  }
+</script>`;
   };
 
   const copyEmbedCode = () => {
