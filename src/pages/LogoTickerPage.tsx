@@ -5,6 +5,7 @@ import './LogoTickerPage.css';
 interface Logo {
   id: string;
   url: string;
+  link?: string;
 }
 
 interface Settings {
@@ -112,6 +113,12 @@ const LogoTickerPage: React.FC = () => {
     setLogos(prev => prev.filter(logo => logo.id !== id));
   };
 
+  const updateLogoLink = (id: string, link: string) => {
+    setLogos(prev => prev.map(logo =>
+      logo.id === id ? { ...logo, link } : logo
+    ));
+  };
+
   const resetToDefaults = () => {
     if (window.confirm('Reset to default logos and settings?')) {
       const defaultLogos: Logo[] = [
@@ -143,14 +150,14 @@ const LogoTickerPage: React.FC = () => {
 
   const generateEmbedCode = (): string => {
     const cornerRadius = settings.cornerStyle === 'custom' ? settings.cornerRadius : settings.cornerStyle;
-    const logoUrls = logos.map(logo => logo.url);
+    const logoData = logos.map(logo => ({ url: logo.url, link: logo.link || '' }));
     const background = settings.bgType === 'gradient'
       ? `linear-gradient(${settings.gradientDirection}deg, ${settings.gradientColor1}, ${settings.gradientColor2})`
       : settings.bgColor;
 
     const scriptContent = `(function() {
     const config = {
-        logos: ${JSON.stringify(logoUrls)},
+        logos: ${JSON.stringify(logoData)},
         speed: ${settings.speed},
         logoSize: ${settings.logoSize},
         logoSizeMobile: ${settings.logoSizeMobile},
@@ -170,12 +177,22 @@ const LogoTickerPage: React.FC = () => {
 
     const logos = [...config.logos, ...config.logos];
     const filterStyle = config.logoColorScheme === 'grayscale' ? 'grayscale(100%)' : 'none';
-    logos.forEach(url => {
+    logos.forEach(function(logo) {
+        const container = document.createElement(logo.link ? 'a' : 'div');
+        if (logo.link) {
+            container.href = logo.link;
+            container.target = '_blank';
+            container.rel = 'noopener noreferrer';
+            container.style.cssText = 'display: inline-block; text-decoration: none;';
+        }
+
         const img = document.createElement('img');
-        img.src = url;
+        img.src = logo.url;
         img.alt = 'Logo';
-        img.style.cssText = 'height: ' + config.logoSize + 'px; width: auto; object-fit: contain; margin-right: ' + config.spacing + 'px; filter: ' + filterStyle + '; transition: all 0.3s;';
-        track.appendChild(img);
+        img.style.cssText = 'height: ' + config.logoSize + 'px; width: auto; object-fit: contain; margin-right: ' + config.spacing + 'px; filter: ' + filterStyle + '; transition: all 0.3s;' + (logo.link ? ' cursor: pointer;' : '');
+
+        container.appendChild(img);
+        track.appendChild(container);
     });
 
     track.onmouseenter = function() { this.style.animationPlayState = 'paused'; };
@@ -275,6 +292,13 @@ const LogoTickerPage: React.FC = () => {
                       <div key={logo.id} className="logo-grid-item">
                         <img src={logo.url} alt="Logo" />
                         <button className="remove-logo" onClick={() => removeLogo(logo.id)}>×</button>
+                        <input
+                          type="url"
+                          className="logo-link-input"
+                          placeholder="Add link (optional)"
+                          value={logo.link || ''}
+                          onChange={(e) => updateLogoLink(logo.id, e.target.value)}
+                        />
                       </div>
                     ))
                   )}
@@ -614,14 +638,33 @@ const LogoTickerPage: React.FC = () => {
                     className="ticker-item"
                     style={{marginRight: `${settings.spacing}px`}}
                   >
-                    <img
-                      src={logo.url}
-                      alt="Logo"
-                      style={{
-                        height: `${settings.logoSize}px`,
-                        filter: settings.logoColorScheme === 'grayscale' ? 'grayscale(100%)' : 'none'
-                      }}
-                    />
+                    {logo.link ? (
+                      <a
+                        href={logo.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ display: 'inline-block', textDecoration: 'none' }}
+                      >
+                        <img
+                          src={logo.url}
+                          alt="Logo"
+                          style={{
+                            height: `${settings.logoSize}px`,
+                            filter: settings.logoColorScheme === 'grayscale' ? 'grayscale(100%)' : 'none',
+                            cursor: 'pointer'
+                          }}
+                        />
+                      </a>
+                    ) : (
+                      <img
+                        src={logo.url}
+                        alt="Logo"
+                        style={{
+                          height: `${settings.logoSize}px`,
+                          filter: settings.logoColorScheme === 'grayscale' ? 'grayscale(100%)' : 'none'
+                        }}
+                      />
+                    )}
                   </div>
                 ))}
               </div>
