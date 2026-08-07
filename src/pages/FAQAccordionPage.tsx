@@ -61,6 +61,8 @@ const FAQAccordionPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'content' | 'style'>('content');
   const [openFAQs, setOpenFAQs] = useState<Set<string>>(new Set());
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingField, setEditingField] = useState<'question' | 'answer' | null>(null);
 
   const applyTemplate = (template: Template) => {
     setSettings({
@@ -265,7 +267,7 @@ const FAQAccordionPage: React.FC = () => {
               <div className="content-section">
                 <h3 className="section-title">Section Title</h3>
                 <div className="control-group">
-                  <label htmlFor="title">Title (optional)</label>
+                  <label htmlFor="title">Title</label>
                   <input
                     type="text"
                     id="title"
@@ -277,38 +279,10 @@ const FAQAccordionPage: React.FC = () => {
               </div>
 
               <div className="content-section">
-                <h3 className="section-title">FAQ Items</h3>
-                {settings.faqs.map((faq, index) => (
-                  <div key={faq.id} className="faq-item-card">
-                    <div className="faq-item-header">
-                      <span className="faq-number">FAQ {index + 1}</span>
-                      {settings.faqs.length > 1 && (
-                        <button className="remove-faq" onClick={() => removeFAQ(faq.id)}>×</button>
-                      )}
-                    </div>
-
-                    <div className="control-group">
-                      <label>Question</label>
-                      <input
-                        type="text"
-                        value={faq.question}
-                        onChange={(e) => updateFAQ(faq.id, 'question', e.target.value)}
-                        placeholder="Enter your question..."
-                      />
-                    </div>
-
-                    <div className="control-group">
-                      <label>Answer</label>
-                      <textarea
-                        value={faq.answer}
-                        onChange={(e) => updateFAQ(faq.id, 'answer', e.target.value)}
-                        placeholder="Enter your answer..."
-                        rows={4}
-                      />
-                    </div>
-                  </div>
-                ))}
-
+                <h3 className="section-title">Manage FAQs</h3>
+                <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '12px' }}>
+                  Click on questions or answers in the preview to edit them inline. Use the button below to add more FAQs.
+                </p>
                 <button className="add-faq-btn" onClick={addFAQ}>
                   + Add FAQ
                 </button>
@@ -448,43 +422,100 @@ const FAQAccordionPage: React.FC = () => {
             {settings.title && (
               <h2 style={{ color: settings.questionColor }}>{settings.title}</h2>
             )}
-            <div className="faq-accordion">
+            <div className="faq-grid">
               {settings.faqs.map((faq) => {
                 const isOpen = openFAQs.has(faq.id);
+                const isEditingQuestion = editingId === faq.id && editingField === 'question';
+                const isEditingAnswer = editingId === faq.id && editingField === 'answer';
 
                 return (
                   <div
                     key={faq.id}
-                    className={`faq-item ${isOpen ? 'open' : ''}`}
+                    className={`faq-card ${isOpen ? 'open' : ''}`}
                     style={{
                       background: settings.bgColor,
                       borderRadius: `${settings.borderRadius}px`,
                       borderColor: isOpen ? settings.accentColor : '#e0e0e0'
                     }}
                   >
-                    <button
-                      className="faq-question"
-                      onClick={() => toggleFAQ(faq.id)}
-                      style={{ color: settings.questionColor }}
-                    >
-                      <span>{faq.question}</span>
-                      {settings.showIcon && (
-                        <span
-                          className="faq-icon"
-                          style={{
-                            color: settings.accentColor,
-                            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)'
-                          }}
+                    <div className="faq-card-header">
+                      <div
+                        className="faq-question-editable"
+                        onClick={() => {
+                          setEditingId(faq.id);
+                          setEditingField('question');
+                        }}
+                        style={{ color: settings.questionColor }}
+                      >
+                        {isEditingQuestion ? (
+                          <input
+                            type="text"
+                            value={faq.question}
+                            onChange={(e) => updateFAQ(faq.id, 'question', e.target.value)}
+                            onBlur={() => {
+                              setEditingId(null);
+                              setEditingField(null);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                setEditingId(null);
+                                setEditingField(null);
+                              }
+                            }}
+                            autoFocus
+                            className="inline-edit-input"
+                          />
+                        ) : (
+                          <span>{faq.question}</span>
+                        )}
+                      </div>
+                      <div className="faq-card-actions">
+                        {settings.faqs.length > 1 && (
+                          <button
+                            className="remove-faq-icon"
+                            onClick={() => removeFAQ(faq.id)}
+                            title="Remove FAQ"
+                          >
+                            ×
+                          </button>
+                        )}
+                        <button
+                          className="toggle-faq-icon"
+                          onClick={() => toggleFAQ(faq.id)}
+                          style={{ color: settings.accentColor }}
                         >
                           {isOpen ? '−' : '+'}
-                        </span>
-                      )}
-                    </button>
-                    <div className={`faq-answer ${isOpen ? 'open' : ''}`}>
-                      <div className="faq-answer-content" style={{ color: settings.textColor }}>
-                        {faq.answer}
+                        </button>
                       </div>
                     </div>
+                    {isOpen && (
+                      <div className="faq-answer-editable">
+                        {isEditingAnswer ? (
+                          <textarea
+                            value={faq.answer}
+                            onChange={(e) => updateFAQ(faq.id, 'answer', e.target.value)}
+                            onBlur={() => {
+                              setEditingId(null);
+                              setEditingField(null);
+                            }}
+                            autoFocus
+                            className="inline-edit-textarea"
+                            style={{ color: settings.textColor }}
+                          />
+                        ) : (
+                          <div
+                            onClick={() => {
+                              setEditingId(faq.id);
+                              setEditingField('answer');
+                            }}
+                            style={{ color: settings.textColor }}
+                            className="answer-text"
+                          >
+                            {faq.answer}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })}
