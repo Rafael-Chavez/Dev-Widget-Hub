@@ -337,18 +337,18 @@
 
 /* FAQ Widget Preview */
 .faq-widget-preview {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
   width: 100%;
-  padding: 40px 20px;
+  padding: 50px 40px;
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
 .faq-widget-preview h2 {
-  margin: 0 0 30px;
-  font-size: 32px;
+  margin: 0 0 40px;
+  font-size: 36px;
   font-weight: 700;
   text-align: center;
 }
@@ -356,7 +356,7 @@
 .faq-accordion {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .faq-item {
@@ -371,7 +371,7 @@
 
 .faq-question {
   width: 100%;
-  padding: 20px;
+  padding: 24px 28px;
   background: transparent;
   border: none;
   text-align: left;
@@ -379,8 +379,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 15px;
-  font-size: 18px;
+  gap: 20px;
+  font-size: 19px;
   font-weight: 600;
   transition: all 0.3s;
 }
@@ -391,7 +391,7 @@
 
 .faq-icon {
   flex-shrink: 0;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: bold;
   transition: transform 0.3s;
 }
@@ -407,9 +407,9 @@
 }
 
 .faq-answer-content {
-  padding: 0 20px 20px;
-  font-size: 16px;
-  line-height: 1.6;
+  padding: 0 28px 24px;
+  font-size: 17px;
+  line-height: 1.8;
 }
 
 /* Export Section */
