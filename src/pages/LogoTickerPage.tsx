@@ -22,6 +22,7 @@ interface Settings {
   cornerStyle: string;
   cornerRadius: number;
   logoColorScheme: 'original' | 'grayscale';
+  openInNewTab: boolean;
 }
 
 const LogoTickerPage: React.FC = () => {
@@ -41,7 +42,8 @@ const LogoTickerPage: React.FC = () => {
     gradientDirection: 90,
     cornerStyle: '0',
     cornerRadius: 0,
-    logoColorScheme: 'original'
+    logoColorScheme: 'original',
+    openInNewTab: true
   });
 
   const gradientPresets = [
@@ -143,7 +145,8 @@ const LogoTickerPage: React.FC = () => {
         gradientDirection: 90,
         cornerStyle: '0',
         cornerRadius: 0,
-        logoColorScheme: 'original'
+        logoColorScheme: 'original',
+        openInNewTab: true
       });
     }
   };
@@ -165,7 +168,8 @@ const LogoTickerPage: React.FC = () => {
         spacingMobile: ${settings.spacingMobile},
         background: '${background.replace(/'/g, "\\'")}',
         cornerRadius: ${cornerRadius},
-        logoColorScheme: '${settings.logoColorScheme}'
+        logoColorScheme: '${settings.logoColorScheme}',
+        openInNewTab: ${settings.openInNewTab}
     };
 
     const container = document.getElementById('logo-ticker-container');
@@ -181,8 +185,10 @@ const LogoTickerPage: React.FC = () => {
         const container = document.createElement(logo.link ? 'a' : 'div');
         if (logo.link) {
             container.href = logo.link;
-            container.target = '_blank';
-            container.rel = 'noopener noreferrer';
+            if (config.openInNewTab) {
+                container.target = '_blank';
+                container.rel = 'noopener noreferrer';
+            }
             container.style.cssText = 'display: inline-block; text-decoration: none;';
         }
 
@@ -270,6 +276,32 @@ const LogoTickerPage: React.FC = () => {
         <div className="tab-content">
           {activeTab === 'content' && (
             <div className="tab-pane active">
+              <div className="content-section">
+                <h3 className="section-title">Link Behavior</h3>
+                <div className="segmented-control">
+                  <div className="segmented-option">
+                    <input
+                      type="radio"
+                      id="newTab"
+                      name="linkBehavior"
+                      checked={settings.openInNewTab === true}
+                      onChange={() => setSettings({...settings, openInNewTab: true})}
+                    />
+                    <label htmlFor="newTab">New Tab</label>
+                  </div>
+                  <div className="segmented-option">
+                    <input
+                      type="radio"
+                      id="sameTab"
+                      name="linkBehavior"
+                      checked={settings.openInNewTab === false}
+                      onChange={() => setSettings({...settings, openInNewTab: false})}
+                    />
+                    <label htmlFor="sameTab">Same Tab</label>
+                  </div>
+                </div>
+              </div>
+
               <button className="add-logo-btn" onClick={() => document.getElementById('fileInput')?.click()}>
                 <span>+ Add Logo</span>
               </button>
@@ -641,8 +673,8 @@ const LogoTickerPage: React.FC = () => {
                     {logo.link ? (
                       <a
                         href={logo.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        target={settings.openInNewTab ? "_blank" : "_self"}
+                        rel={settings.openInNewTab ? "noopener noreferrer" : undefined}
                         style={{ display: 'inline-block', textDecoration: 'none' }}
                       >
                         <img
