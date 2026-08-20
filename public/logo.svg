@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 300" width="500" height="300">
+  <g transform="translate(0, 10)">
+    <!-- Top Tile: UI Controls (Electric Blue) -->
+    <path d="M250 60 L330 105 L250 150 L170 105 Z" fill="#2563EB" />
+    <circle cx="225" cy="105" r="5" fill="#FFFFFF" opacity="0.9"/>
+    <circle cx="250" cy="105" r="5" fill="#FFFFFF" opacity="0.9"/>
+    <circle cx="275" cy="105" r="5" fill="#FFFFFF" opacity="0.9"/>
+
+    <!-- Bottom-Left Tile: Analytics/Grid (Dark Slate) -->
+    <path d="M162 120 L242 165 L242 255 L162 210 Z" fill="#0F172A" />
+    <rect x="180" y="155" width="40" height="6" rx="3" fill="#FFFFFF" opacity="0.7" transform="skewY(30)"/>
+    <rect x="180" y="175" width="25" height="6" rx="3" fill="#FFFFFF" opacity="0.7" transform="skewY(30)"/>
+
+    <!-- Bottom-Right Tile: Action Hub (Vivid Orange) -->
+    <path d="M258 165 L338 120 L338 210 L258 255 Z" fill="#F97316" />
+    <path d="M298 175 L298 200 M285 187.5 L311 187.5" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" opacity="0.9"/>
+  </g>
+</svg>

@@ -19,6 +19,7 @@ import UserRegistrationTemplate from './pages/UserRegistrationTemplate';
 import ProductionWorksheetTemplate from './pages/ProductionWorksheetTemplate';
 import SpinningWheelPage from './pages/SpinningWheelPage';
 import ColumnPlusPlusWidgetPage from './pages/ColumnPlusPlusWidgetPage';
+import ImageHotspotPage from './pages/ImageHotspotPage';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
         <Route path="/production-worksheet-template" element={<ProductionWorksheetTemplate />} />
         <Route path="/spinning-wheel" element={<SpinningWheelPage />} />
         <Route path="/column-plus-plus" element={<ColumnPlusPlusWidgetPage />} />
+        <Route path="/image-hotspot" element={<ImageHotspotPage />} />
       </Routes>
     </Router>
   );

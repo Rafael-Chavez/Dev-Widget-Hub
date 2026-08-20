@@ -6,7 +6,7 @@ This guide will help you set up the Google Places API for the Google Reviews wid
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Click "Select a project" → "New Project"
-3. Enter a project name (e.g., "Widget Hub")
+3. Enter a project name (e.g., "DecoStudio")
 4. Click "Create"
 
 ## Step 2: Enable the Places API
@@ -36,7 +36,7 @@ This guide will help you set up the Google Places API for the Google Reviews wid
 
 ## Step 5: Add API Key to Your Project
 
-1. Open the file: `widget-hub/.env`
+1. Open the file: `decostudio/.env`
 2. Replace `your_api_key_here` with your actual API key:
    ```
    REACT_APP_GOOGLE_MAPS_API_KEY=AIzaSyC_YOUR_ACTUAL_API_KEY_HERE

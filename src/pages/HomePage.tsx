@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
+import logo from '../images/gemini-svg (1).svg';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -14,8 +15,8 @@ const HomePage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
 
-  const getWidgetIcon = (id: string) => {
-    const icons: { [key: string]: JSX.Element } = {
+  const getWidgetIcon = (id: string): React.ReactElement => {
+    const icons: { [key: string]: React.ReactElement } = {
       'logo-ticker': (
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M3 7H21M3 12H21M3 17H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -81,6 +82,14 @@ const HomePage: React.FC = () => {
           <rect x="3" y="4" width="7" height="16" rx="1" stroke="currentColor" strokeWidth="2"/>
           <rect x="14" y="4" width="7" height="16" rx="1" stroke="currentColor" strokeWidth="2"/>
         </svg>
+      ),
+      'image-hotspot': (
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
+          <circle cx="9" cy="9" r="2" stroke="currentColor" strokeWidth="2"/>
+          <path d="M3 17L8 12L11 15M11 15L14 12L21 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <circle cx="16" cy="8" r="1.5" fill="currentColor"/>
+        </svg>
       )
     };
     return icons[id] || icons['faq-accordion'];
@@ -125,7 +134,7 @@ const HomePage: React.FC = () => {
       title: 'Instagram Feed',
       description: 'Display your Instagram profile and posts with a customizable feed widget',
       badge: null,
-      available: true
+      available: false
     },
     {
       id: 'email-templates',
@@ -149,7 +158,7 @@ const HomePage: React.FC = () => {
       title: 'Google Reviews',
       description: 'Display Google business reviews with star ratings and customer testimonials',
       badge: 'New',
-      available: true
+      available: false
     },
     {
       id: 'popup-widget',
@@ -174,6 +183,14 @@ const HomePage: React.FC = () => {
       description: 'Create unlimited columns with adjustable widths, headers, and media content',
       badge: 'New',
       available: true
+    },
+    {
+      id: 'image-hotspot',
+      route: '/image-hotspot',
+      title: 'Image Hotspot',
+      description: 'Add interactive clickable hotspots to images or videos with customizable displays',
+      badge: 'New',
+      available: true
     }
   ];
 
@@ -194,7 +211,7 @@ ${reportForm.description}
       `.trim();
 
       // Using mailto for simplicity - this will open the user's email client
-      const mailtoLink = `mailto:info@detailatl.com?subject=Widget Hub Issue Report - ${reportForm.issueType === 'bug' ? 'Bug' : reportForm.issueType === 'responsive' ? 'Responsive Issue' : 'Suggestion'}&body=${encodeURIComponent(emailBody)}`;
+      const mailtoLink = `mailto:info@detailatl.com?subject=DecoStudio Issue Report - ${reportForm.issueType === 'bug' ? 'Bug' : reportForm.issueType === 'responsive' ? 'Responsive Issue' : 'Suggestion'}&body=${encodeURIComponent(emailBody)}`;
 
       window.location.href = mailtoLink;
 
@@ -221,6 +238,9 @@ ${reportForm.description}
       {/* Widgets Grid Section */}
       <section className="widgets-section" id="widgets-grid">
         <div className="section-header">
+          <div className="logo-container">
+            <img src={logo} alt="DecoStudio Logo" className="main-logo" />
+          </div>
           <h2 className="section-title">Available Widgets</h2>
           <p className="section-description">
             Choose from our collection of professionally designed widgets
@@ -378,7 +398,7 @@ ${reportForm.description}
       <footer className="home-footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <h3>Widget Hub</h3>
+            <h3>DecoStudio</h3>
             <p>Build beautiful widgets without code</p>
           </div>
           <div className="footer-links">
@@ -388,7 +408,7 @@ ${reportForm.description}
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; 2025 Widget Hub. All rights reserved.</p>
+          <p>&copy; 2025 DecoStudio. All rights reserved.</p>
         </div>
       </footer>
     </div>

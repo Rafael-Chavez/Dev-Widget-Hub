@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="100%" height="100%">
+  <g transform="translate(0, 0)">
+    <!-- TOP CUBE (BLUE) -->
+    <!-- Top Face -->
+    <polygon points="300,68 345,94 300,120 255,94" fill="#2563EB" />
+    <!-- Left Face -->
+    <polygon points="255,94 300,120 300,172 255,146" fill="#1D4ED8" />
+    <!-- Right Face -->
+    <polygon points="300,120 345,94 345,146 300,172" fill="#1E40AF" />
+    
+    <!-- Top Face Icons (3 White Dots) -->
+    <circle cx="283" cy="94" r="5" fill="#FFFFFF" opacity="0.95" />
+    <circle cx="300" cy="94" r="5" fill="#FFFFFF" opacity="0.95" />
+    <circle cx="317" cy="94" r="5" fill="#FFFFFF" opacity="0.95" />
+
+    <!-- LEFT CUBE (DARK SLATE) -->
+    <!-- Top Face -->
+    <polygon points="255,146 300,172 255,198 210,172" fill="#1E293B" />
+    <!-- Left Front Face -->
+    <polygon points="210,172 255,198 255,250 210,224" fill="#0F172A" />
+    <!-- Inner Shadow Face -->
+    <polygon points="255,198 300,172 300,224 255,250" fill="#090D16" />
+
+    <!-- Left Face Icon (Dashboard Layout) -->
+    <g transform="translate(232.5, 211) skewY(30)">
+      <rect x="-13" y="-11" width="7" height="22" rx="1.5" fill="#FFFFFF" opacity="0.95" />
+      <rect x="-3" y="-11" width="16" height="9" rx="1.5" fill="#FFFFFF" opacity="0.95" />
+      <rect x="-3" y="2" width="16" height="9" rx="1.5" fill="#FFFFFF" opacity="0.95" />
+    </g>
+
+    <!-- RIGHT CUBE (ORANGE) -->
+    <!-- Top Face -->
+    <polygon points="345,146 390,172 345,198 300,172" fill="#F97316" />
+    <!-- Inner Shadow Face -->
+    <polygon points="300,172 345,198 345,250 300,224" fill="#C2410C" />
+    <!-- Right Front Face -->
+    <polygon points="345,198 390,172 390,224 345,250" fill="#EA580C" />
+
+    <!-- Right Face Icon (Plus Action) -->
+    <g transform="translate(367.5, 211) skewY(-30)">
+      <rect x="-11" y="-3" width="22" height="6" rx="1.5" fill="#FFFFFF" opacity="0.95" />
+      <rect x="-3" y="-11" width="6" height="22" rx="1.5" fill="#FFFFFF" opacity="0.95" />
+    </g>
+  </g>
+
+  <!-- TYPOGRAPHY -->
+  <text x="300" y="312" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="40" font-weight="800" fill="#0F172A" text-anchor="middle" letter-spacing="0.5">DecoStudio</text>
+  <text x="304" y="344" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#2563EB" text-anchor="middle" letter-spacing="7">WIDGET HUB</text>
+</svg>
