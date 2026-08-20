@@ -27,6 +27,7 @@ interface Settings {
 
 const LogoTickerPage: React.FC = () => {
   const navigate = useNavigate();
+  const [showTemplates, setShowTemplates] = useState(true);
   const [activeTab, setActiveTab] = useState<'content' | 'layout' | 'style'>('content');
   const [logos, setLogos] = useState<Logo[]>([]);
   const [settings, setSettings] = useState<Settings>({
@@ -60,18 +61,126 @@ const LogoTickerPage: React.FC = () => {
     { angle: 248, color1: '#52545a', color2: '#111111' }
   ];
 
+  const applyTemplate = (templateId: string) => {
+    if (templateId === 'colorful') {
+      const defaultLogos: Logo[] = [
+        { id: '1', url: createPlaceholderLogo('LOGO 1', '#3498db') },
+        { id: '2', url: createPlaceholderLogo('LOGO 2', '#e74c3c') },
+        { id: '3', url: createPlaceholderLogo('LOGO 3', '#2ecc71') },
+        { id: '4', url: createPlaceholderLogo('LOGO 4', '#f39c12') },
+        { id: '5', url: createPlaceholderLogo('LOGO 5', '#9b59b6') },
+        { id: '6', url: createPlaceholderLogo('LOGO 6', '#1abc9c') }
+      ];
+      setLogos(defaultLogos);
+      setSettings({
+        speed: 20,
+        logoSize: 60,
+        spacing: 60,
+        logoSizeMobile: 40,
+        spacingMobile: 40,
+        bgColor: '#ffffff',
+        bgType: 'solid',
+        gradientColor1: '#3498db',
+        gradientColor2: '#9b59b6',
+        gradientDirection: 90,
+        cornerStyle: '0',
+        cornerRadius: 0,
+        logoColorScheme: 'original',
+        openInNewTab: true
+      });
+    } else if (templateId === 'gradient') {
+      const gradientLogos: Logo[] = [
+        { id: '1', url: createPlaceholderLogo('BRAND 1', '#ffffff') },
+        { id: '2', url: createPlaceholderLogo('BRAND 2', '#ffffff') },
+        { id: '3', url: createPlaceholderLogo('BRAND 3', '#ffffff') },
+        { id: '4', url: createPlaceholderLogo('BRAND 4', '#ffffff') },
+        { id: '5', url: createPlaceholderLogo('BRAND 5', '#ffffff') }
+      ];
+      setLogos(gradientLogos);
+      setSettings({
+        speed: 25,
+        logoSize: 70,
+        spacing: 80,
+        logoSizeMobile: 50,
+        spacingMobile: 50,
+        bgColor: '#ffffff',
+        bgType: 'gradient',
+        gradientColor1: '#3d48e4',
+        gradientColor2: '#ee4975',
+        gradientDirection: 248,
+        cornerStyle: '8',
+        cornerRadius: 0,
+        logoColorScheme: 'original',
+        openInNewTab: true
+      });
+    } else if (templateId === 'dark') {
+      const darkLogos: Logo[] = [
+        { id: '1', url: createPlaceholderLogo('TECH', '#10b981') },
+        { id: '2', url: createPlaceholderLogo('START', '#3b82f6') },
+        { id: '3', url: createPlaceholderLogo('INNOV', '#8b5cf6') },
+        { id: '4', url: createPlaceholderLogo('CLOUD', '#06b6d4') },
+        { id: '5', url: createPlaceholderLogo('AI PRO', '#f59e0b') },
+        { id: '6', url: createPlaceholderLogo('CODE', '#ec4899') }
+      ];
+      setLogos(darkLogos);
+      setSettings({
+        speed: 30,
+        logoSize: 65,
+        spacing: 70,
+        logoSizeMobile: 45,
+        spacingMobile: 45,
+        bgColor: '#1e1e1e',
+        bgType: 'solid',
+        gradientColor1: '#3498db',
+        gradientColor2: '#9b59b6',
+        gradientDirection: 90,
+        cornerStyle: '8',
+        cornerRadius: 0,
+        logoColorScheme: 'original',
+        openInNewTab: true
+      });
+    } else if (templateId === 'minimal') {
+      const minimalLogos: Logo[] = [
+        { id: '1', url: createPlaceholderLogo('BRAND', '#333333') },
+        { id: '2', url: createPlaceholderLogo('STUDIO', '#333333') },
+        { id: '3', url: createPlaceholderLogo('AGENCY', '#333333') },
+        { id: '4', url: createPlaceholderLogo('DESIGN', '#333333') }
+      ];
+      setLogos(minimalLogos);
+      setSettings({
+        speed: 18,
+        logoSize: 55,
+        spacing: 90,
+        logoSizeMobile: 40,
+        spacingMobile: 60,
+        bgColor: '#f5f5f5',
+        bgType: 'solid',
+        gradientColor1: '#3498db',
+        gradientColor2: '#9b59b6',
+        gradientDirection: 90,
+        cornerStyle: '0',
+        cornerRadius: 0,
+        logoColorScheme: 'grayscale',
+        openInNewTab: true
+      });
+    }
+    setShowTemplates(false);
+  };
+
   useEffect(() => {
-    // Load default logos
-    const defaultLogos: Logo[] = [
-      { id: '1', url: createPlaceholderLogo('LOGO 1', '#3498db') },
-      { id: '2', url: createPlaceholderLogo('LOGO 2', '#e74c3c') },
-      { id: '3', url: createPlaceholderLogo('LOGO 3', '#2ecc71') },
-      { id: '4', url: createPlaceholderLogo('LOGO 4', '#f39c12') },
-      { id: '5', url: createPlaceholderLogo('LOGO 5', '#9b59b6') },
-      { id: '6', url: createPlaceholderLogo('LOGO 6', '#1abc9c') }
-    ];
-    setLogos(defaultLogos);
-  }, []);
+    // Load default logos only if not showing templates
+    if (!showTemplates && logos.length === 0) {
+      const defaultLogos: Logo[] = [
+        { id: '1', url: createPlaceholderLogo('LOGO 1', '#3498db') },
+        { id: '2', url: createPlaceholderLogo('LOGO 2', '#e74c3c') },
+        { id: '3', url: createPlaceholderLogo('LOGO 3', '#2ecc71') },
+        { id: '4', url: createPlaceholderLogo('LOGO 4', '#f39c12') },
+        { id: '5', url: createPlaceholderLogo('LOGO 5', '#9b59b6') },
+        { id: '6', url: createPlaceholderLogo('LOGO 6', '#1abc9c') }
+      ];
+      setLogos(defaultLogos);
+    }
+  }, [showTemplates, logos.length]);
 
   const createPlaceholderLogo = (text: string, color: string): string => {
     const canvas = document.createElement('canvas');
@@ -210,6 +319,118 @@ const LogoTickerPage: React.FC = () => {
     return settings.cornerStyle + 'px';
   };
 
+  if (showTemplates) {
+    return (
+      <div className="templates-page">
+        <div className="templates-header">
+          <button className="back-btn-templates" onClick={() => navigate('/')}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Back to Home
+          </button>
+          <h1>Choose a Template</h1>
+          <p>Select a pre-designed template to get started quickly</p>
+        </div>
+
+        <div className="templates-grid">
+          <div className="template-card" onClick={() => applyTemplate('colorful')}>
+            <div className="template-preview">
+              <div className="template-ticker-demo" style={{ background: '#ffffff' }}>
+                <div className="template-ticker-track">
+                  <div style={{ background: '#3498db', width: '80px', height: '32px', borderRadius: '4px' }}></div>
+                  <div style={{ background: '#e74c3c', width: '80px', height: '32px', borderRadius: '4px' }}></div>
+                  <div style={{ background: '#2ecc71', width: '80px', height: '32px', borderRadius: '4px' }}></div>
+                  <div style={{ background: '#f39c12', width: '80px', height: '32px', borderRadius: '4px' }}></div>
+                </div>
+              </div>
+              <div className="template-overlay">
+                <button className="template-select-btn">Use Template</button>
+              </div>
+            </div>
+            <div className="template-info">
+              <h3>Colorful Showcase</h3>
+              <p>Vibrant multi-colored logos on clean white background</p>
+            </div>
+          </div>
+
+          <div className="template-card" onClick={() => applyTemplate('gradient')}>
+            <div className="template-preview">
+              <div className="template-ticker-demo" style={{ background: 'linear-gradient(248deg, #3d48e4, #ee4975)' }}>
+                <div className="template-ticker-track">
+                  <div style={{ background: '#ffffff', width: '80px', height: '32px', borderRadius: '4px' }}></div>
+                  <div style={{ background: '#ffffff', width: '80px', height: '32px', borderRadius: '4px' }}></div>
+                  <div style={{ background: '#ffffff', width: '80px', height: '32px', borderRadius: '4px' }}></div>
+                </div>
+              </div>
+              <div className="template-overlay">
+                <button className="template-select-btn">Use Template</button>
+              </div>
+            </div>
+            <div className="template-info">
+              <h3>Gradient Modern</h3>
+              <p>Bold gradient background with white logos</p>
+            </div>
+          </div>
+
+          <div className="template-card" onClick={() => applyTemplate('dark')}>
+            <div className="template-preview">
+              <div className="template-ticker-demo" style={{ background: '#1e1e1e' }}>
+                <div className="template-ticker-track">
+                  <div style={{ background: '#10b981', width: '80px', height: '32px', borderRadius: '4px' }}></div>
+                  <div style={{ background: '#3b82f6', width: '80px', height: '32px', borderRadius: '4px' }}></div>
+                  <div style={{ background: '#8b5cf6', width: '80px', height: '32px', borderRadius: '4px' }}></div>
+                </div>
+              </div>
+              <div className="template-overlay">
+                <button className="template-select-btn">Use Template</button>
+              </div>
+            </div>
+            <div className="template-info">
+              <h3>Dark Tech</h3>
+              <p>Dark background with tech-inspired neon accents</p>
+            </div>
+          </div>
+
+          <div className="template-card" onClick={() => applyTemplate('minimal')}>
+            <div className="template-preview">
+              <div className="template-ticker-demo" style={{ background: '#f5f5f5' }}>
+                <div className="template-ticker-track">
+                  <div style={{ background: '#d0d0d0', width: '80px', height: '32px', borderRadius: '4px' }}></div>
+                  <div style={{ background: '#d0d0d0', width: '80px', height: '32px', borderRadius: '4px' }}></div>
+                  <div style={{ background: '#d0d0d0', width: '80px', height: '32px', borderRadius: '4px' }}></div>
+                </div>
+              </div>
+              <div className="template-overlay">
+                <button className="template-select-btn">Use Template</button>
+              </div>
+            </div>
+            <div className="template-info">
+              <h3>Minimal Grayscale</h3>
+              <p>Clean minimalist design with grayscale aesthetic</p>
+            </div>
+          </div>
+
+          <div className="template-card" onClick={() => setShowTemplates(false)}>
+            <div className="template-preview blank-template">
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4"/>
+                <path d="M12 8v8M8 12h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+              <div className="template-overlay">
+                <button className="template-select-btn">Start Blank</button>
+              </div>
+            </div>
+            <div className="template-info">
+              <h3>Blank Canvas</h3>
+              <p>Start from scratch with a blank template</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="logo-ticker-container">
       <div className="sidebar">
@@ -308,6 +529,12 @@ const LogoTickerPage: React.FC = () => {
                 </div>
               </div>
 
+              <button className="templates-btn" onClick={() => setShowTemplates(true)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Back to Templates
+              </button>
               <button className="reset-btn" onClick={resetToDefaults}>Reset to Default</button>
             </div>
           )}

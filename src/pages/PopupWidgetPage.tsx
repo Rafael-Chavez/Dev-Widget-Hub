@@ -8,8 +8,15 @@ interface PopupSettings {
   enableExitIntent: boolean;
   enableOverlayBlur: boolean;
   backgroundColor: string;
-  primaryColor: string;
-  textColor: string;
+  headerColor: string;
+  paragraphColor: string;
+  couponBgColor: string;
+  couponCodeColor: string;
+  couponLabelColor: string;
+  buttonBgColor: string;
+  buttonTextColor: string;
+  buttonBorderRadius: number;
+  badgeTextColor: string;
   title: string;
   subtitle: string;
   couponCode: string;
@@ -29,8 +36,15 @@ const PopupWidgetPage: React.FC = () => {
     enableExitIntent: true,
     enableOverlayBlur: true,
     backgroundColor: '#ffffff',
-    primaryColor: '#e040a0',
-    textColor: '#2e1a28',
+    headerColor: '#2e1a28',
+    paragraphColor: '#64748b',
+    couponBgColor: '#fdf2f8',
+    couponCodeColor: '#e040a0',
+    couponLabelColor: '#f9a8d4',
+    buttonBgColor: '#e040a0',
+    buttonTextColor: '#ffffff',
+    buttonBorderRadius: 9999,
+    badgeTextColor: '#e040a0',
     title: 'LEAVING\nSO SOON?',
     subtitle: "Wait! Don't go empty-handed. Take this code for your next treat.",
     couponCode: 'SWEET15',
@@ -43,32 +57,53 @@ const PopupWidgetPage: React.FC = () => {
   const generateEmbedCode = (): string => {
     const config = JSON.stringify(settings, null, 2);
 
-    return `<!-- CandyPop Exit Intent Popup Widget -->
-<div id="candypop-popup-widget"></div>
-<script>
-(function() {
-  const config = ${config};
-
-  function createPopup() {
-    // Create overlay
-    const overlay = document.createElement('div');
-    overlay.id = 'candypop-overlay';
-    overlay.style.cssText = \`
+    // Generate position and style based on layout type
+    const getPopupStyles = () => {
+      switch (settings.layoutStyle) {
+        case 'left-pane':
+          return `
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, \${config.enableOverlayBlur ? '0.4' : '0.6'});
-      \${config.enableOverlayBlur ? 'backdrop-filter: blur(4px);' : ''}
-      z-index: 999999;
+      width: 400px;
+      background: white;
+      border-radius: 0 2.5rem 2.5rem 0;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      z-index: 1000000;
       display: none;
-    \`;
-
-    // Create popup container
-    const popup = document.createElement('div');
-    popup.id = 'candypop-popup';
-    popup.style.cssText = \`
+    `;
+        case 'right-pane':
+          return `
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100%;
+      width: 400px;
+      background: white;
+      border-radius: 2.5rem 0 0 2.5rem;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      z-index: 1000000;
+      display: none;
+    `;
+        case 'sticky-bar':
+          return `
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      background: white;
+      border-radius: 2.5rem 2.5rem 0 0;
+      overflow: hidden;
+      box-shadow: 0 -20px 60px rgba(0,0,0,0.3);
+      z-index: 1000000;
+      display: none;
+    `;
+        default: // modal
+          return `
       position: fixed;
       top: 50%;
       left: 50%;
@@ -81,54 +116,102 @@ const PopupWidgetPage: React.FC = () => {
       max-width: \${config.width}px;
       width: 90%;
       display: none;
+    `;
+      }
+    };
+
+    return `<!-- CandyPop Exit Intent Popup Widget -->
+<div id="candypop-popup-widget"></div>
+<script>
+(function() {
+  const config = ${config};
+
+  function createPopup() {
+    // Create overlay (only for modal, not for panes/sticky)
+    const overlay = document.createElement('div');
+    overlay.id = 'candypop-overlay';
+    overlay.style.cssText = \`
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, \${config.enableOverlayBlur ? '0.4' : '0.6'});
+      \${config.enableOverlayBlur ? 'backdrop-filter: blur(4px);' : ''}
+      z-index: 999999;
+      display: \${config.layoutStyle === 'modal' ? 'none' : 'none'};
     \`;
 
+    // Create popup container
+    const popup = document.createElement('div');
+    popup.id = 'candypop-popup';
+    popup.style.cssText = \`${getPopupStyles()}\`;
+
     popup.innerHTML = \`
-      <div style="display: flex; flex-direction: row;">
+      <div style="display: flex; flex-direction: row; background: \${config.backgroundColor};">
         <div style="width: 42%; position: relative; min-height: 200px;">
           <img src="\${config.imageUrl}" alt="Popup" style="width: 100%; height: 100%; object-fit: cover;">
-          <div style="position: absolute; inset: 0; background: linear-gradient(to top, \${config.primaryColor}66, transparent);"></div>
+          <div style="position: absolute; inset: 0; background: linear-gradient(to top, \${config.buttonBgColor}66, transparent);"></div>
           <div style="position: absolute; bottom: 1rem; left: 1rem; right: 1rem;">
             <div style="background: rgba(255,255,255,0.9); backdrop-filter: blur(4px); padding: 0.25rem 0.75rem; border-radius: 9999px; display: inline-block;">
-              <span style="font-size: 10px; font-weight: 900; color: \${config.primaryColor}; text-transform: uppercase; letter-spacing: 0.1em;">\${config.badgeText}</span>
+              <span style="font-size: 10px; font-weight: 900; color: \${config.badgeTextColor}; text-transform: uppercase; letter-spacing: 0.1em;">\${config.badgeText}</span>
             </div>
           </div>
         </div>
         <div style="width: 58%; padding: 2rem; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center;">
-          <h2 style="font-size: 1.875rem; font-weight: 900; line-height: 1.2; margin-bottom: 0.5rem; letter-spacing: -0.025em; color: \${config.textColor};">
+          <h2 style="font-size: 1.875rem; font-weight: 900; line-height: 1.2; margin-bottom: 0.5rem; letter-spacing: -0.025em; color: \${config.headerColor};">
             \${config.title.replace(/\\n/g, '<br>')}
           </h2>
-          <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1.5rem; font-weight: 500;">\${config.subtitle}</p>
+          <p style="font-size: 0.875rem; color: \${config.paragraphColor}; margin-bottom: 1.5rem; font-weight: 500;">\${config.subtitle}</p>
 
-          <div style="width: 100%; background: #fdf2f8; border: 2px dashed #fbcfe8; border-radius: 1rem; padding: 1rem; margin-bottom: 1.5rem; position: relative; overflow: hidden;">
-            <div style="font-size: 10px; color: #f9a8d4; font-weight: 700; text-transform: uppercase; margin-bottom: 0.25rem;">Your Coupon</div>
-            <div style="font-size: 1.5rem; font-weight: 900; letter-spacing: 0.1em; color: \${config.primaryColor};">\${config.couponCode}</div>
-            <div style="position: absolute; top: 50%; left: -0.5rem; width: 1rem; height: 1rem; background: white; border-radius: 50%; transform: translateY(-50%);"></div>
-            <div style="position: absolute; top: 50%; right: -0.5rem; width: 1rem; height: 1rem; background: white; border-radius: 50%; transform: translateY(-50%);"></div>
+          <div style="width: 100%; background: \${config.couponBgColor}; border: 2px dashed \${config.couponLabelColor}; border-radius: 1rem; padding: 1rem; margin-bottom: 1.5rem; position: relative; overflow: hidden;">
+            <div style="font-size: 10px; color: \${config.couponLabelColor}; font-weight: 700; text-transform: uppercase; margin-bottom: 0.25rem;">Your Coupon</div>
+            <div style="font-size: 1.5rem; font-weight: 900; letter-spacing: 0.1em; color: \${config.couponCodeColor};">\${config.couponCode}</div>
+            <div style="position: absolute; top: 50%; left: -0.5rem; width: 1rem; height: 1rem; background: \${config.backgroundColor}; border-radius: 50%; transform: translateY(-50%);"></div>
+            <div style="position: absolute; top: 50%; right: -0.5rem; width: 1rem; height: 1rem; background: \${config.backgroundColor}; border-radius: 50%; transform: translateY(-50%);"></div>
           </div>
 
-          <button onclick="document.getElementById('candypop-overlay').style.display='none'; document.getElementById('candypop-popup').style.display='none';" style="width: 100%; padding: 1rem; border-radius: 9999px; background: \${config.primaryColor}; color: white; font-weight: 900; font-size: 0.875rem; border: none; cursor: pointer; box-shadow: 0 8px 20px \${config.primaryColor}4d; margin-bottom: 1rem; transition: transform 0.2s;">
+          <button onclick="window.candypopClose()" style="width: 100%; padding: 1rem; border-radius: \${config.buttonBorderRadius === 9999 ? '9999px' : config.buttonBorderRadius + 'px'}; background: \${config.buttonBgColor}; color: \${config.buttonTextColor}; font-weight: 900; font-size: 0.875rem; border: none; cursor: pointer; box-shadow: 0 8px 20px \${config.buttonBgColor}4d; margin-bottom: 1rem; transition: transform 0.2s;">
             \${config.buttonText}
           </button>
 
-          <button onclick="document.getElementById('candypop-overlay').style.display='none'; document.getElementById('candypop-popup').style.display='none';" style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; background: none; border: none; cursor: pointer;">
+          <button onclick="window.candypopClose()" style="font-size: 0.75rem; font-weight: 700; color: \${config.paragraphColor}; background: none; border: none; cursor: pointer;">
             \${config.disclaimerText}
           </button>
         </div>
 
-        <button onclick="document.getElementById('candypop-overlay').style.display='none'; document.getElementById('candypop-popup').style.display='none';" style="position: absolute; top: 1rem; right: 1rem; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+        <button onclick="window.candypopClose()" style="position: absolute; top: 1rem; right: 1rem; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
           ×
         </button>
       </div>
     \`;
 
-    document.body.appendChild(overlay);
+    // Only append overlay for modal layout
+    if (config.layoutStyle === 'modal') {
+      document.body.appendChild(overlay);
+    }
     document.body.appendChild(popup);
 
     // Show popup function
     function showPopup() {
-      overlay.style.display = 'block';
+      if (config.layoutStyle === 'modal') {
+        overlay.style.display = 'block';
+      }
       popup.style.display = 'block';
+    }
+
+    // Close popup function
+    function closePopup() {
+      if (config.layoutStyle === 'modal') {
+        overlay.style.display = 'none';
+      }
+      popup.style.display = 'none';
+    }
+
+    // Attach close handlers
+    window.candypopClose = closePopup;
+    if (config.layoutStyle === 'modal') {
+      overlay.onclick = closePopup;
     }
 
     // Exit intent detection
@@ -336,7 +419,10 @@ const PopupWidgetPage: React.FC = () => {
                     />
                   </div>
 
-                  <button className="w-full py-4 rounded-full bg-white border-2 border-slate-900 text-slate-900 font-black text-sm hover:scale-[1.03] active:scale-95 transition-all flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => setActiveSection('settings')}
+                    className="w-full py-4 rounded-full bg-white border-2 border-slate-900 text-slate-900 font-black text-sm hover:scale-[1.03] active:scale-95 transition-all flex items-center justify-center gap-2"
+                  >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                     </svg>
@@ -460,38 +546,129 @@ const PopupWidgetPage: React.FC = () => {
           )}
 
           {activeSection === 'settings' && (
-            <div className="bg-white rounded-2xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-pink-50">
-              <h3 className="text-lg font-bold text-slate-900 mb-6">Color Settings</h3>
+            <div className="bg-white rounded-2xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-pink-50 space-y-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-4">Text Colors</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-bold text-slate-600 mb-2 block">Header Color</label>
+                    <input
+                      type="color"
+                      className="w-full h-12 rounded-lg cursor-pointer"
+                      value={settings.headerColor}
+                      onChange={(e) => setSettings({ ...settings, headerColor: e.target.value })}
+                    />
+                  </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-bold text-slate-600 mb-2 block">Primary Color</label>
-                  <input
-                    type="color"
-                    className="w-full h-12 rounded-lg cursor-pointer"
-                    value={settings.primaryColor}
-                    onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
-                  />
+                  <div>
+                    <label className="text-sm font-bold text-slate-600 mb-2 block">Paragraph Color</label>
+                    <input
+                      type="color"
+                      className="w-full h-12 rounded-lg cursor-pointer"
+                      value={settings.paragraphColor}
+                      onChange={(e) => setSettings({ ...settings, paragraphColor: e.target.value })}
+                    />
+                  </div>
                 </div>
+              </div>
 
-                <div>
-                  <label className="text-sm font-bold text-slate-600 mb-2 block">Background Color</label>
-                  <input
-                    type="color"
-                    className="w-full h-12 rounded-lg cursor-pointer"
-                    value={settings.backgroundColor}
-                    onChange={(e) => setSettings({ ...settings, backgroundColor: e.target.value })}
-                  />
+              <div className="border-t border-slate-100 pt-6">
+                <h3 className="text-lg font-bold text-slate-900 mb-4">Coupon Colors</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-bold text-slate-600 mb-2 block">Coupon Background Color</label>
+                    <input
+                      type="color"
+                      className="w-full h-12 rounded-lg cursor-pointer"
+                      value={settings.couponBgColor}
+                      onChange={(e) => setSettings({ ...settings, couponBgColor: e.target.value })}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-bold text-slate-600 mb-2 block">Coupon Code Color</label>
+                    <input
+                      type="color"
+                      className="w-full h-12 rounded-lg cursor-pointer"
+                      value={settings.couponCodeColor}
+                      onChange={(e) => setSettings({ ...settings, couponCodeColor: e.target.value })}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-bold text-slate-600 mb-2 block">"Your Coupon" Label Color</label>
+                    <input
+                      type="color"
+                      className="w-full h-12 rounded-lg cursor-pointer"
+                      value={settings.couponLabelColor}
+                      onChange={(e) => setSettings({ ...settings, couponLabelColor: e.target.value })}
+                    />
+                  </div>
                 </div>
+              </div>
 
-                <div>
-                  <label className="text-sm font-bold text-slate-600 mb-2 block">Text Color</label>
-                  <input
-                    type="color"
-                    className="w-full h-12 rounded-lg cursor-pointer"
-                    value={settings.textColor}
-                    onChange={(e) => setSettings({ ...settings, textColor: e.target.value })}
-                  />
+              <div className="border-t border-slate-100 pt-6">
+                <h3 className="text-lg font-bold text-slate-900 mb-4">Button Settings</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-bold text-slate-600 mb-2 block">Button Background Color</label>
+                    <input
+                      type="color"
+                      className="w-full h-12 rounded-lg cursor-pointer"
+                      value={settings.buttonBgColor}
+                      onChange={(e) => setSettings({ ...settings, buttonBgColor: e.target.value })}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-bold text-slate-600 mb-2 block">Button Text Color</label>
+                    <input
+                      type="color"
+                      className="w-full h-12 rounded-lg cursor-pointer"
+                      value={settings.buttonTextColor}
+                      onChange={(e) => setSettings({ ...settings, buttonTextColor: e.target.value })}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-bold text-slate-600 mb-2 block">
+                      Button Roundness: {settings.buttonBorderRadius === 9999 ? 'Full' : `${settings.buttonBorderRadius}px`}
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="9999"
+                      step="1"
+                      value={settings.buttonBorderRadius}
+                      onChange={(e) => setSettings({ ...settings, buttonBorderRadius: parseInt(e.target.value) })}
+                      className="w-full h-2 bg-pink-100 rounded-lg appearance-none cursor-pointer accent-primary"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-slate-100 pt-6">
+                <h3 className="text-lg font-bold text-slate-900 mb-4">Other Colors</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-bold text-slate-600 mb-2 block">Badge Text Color ("Exclusive Offer")</label>
+                    <input
+                      type="color"
+                      className="w-full h-12 rounded-lg cursor-pointer"
+                      value={settings.badgeTextColor}
+                      onChange={(e) => setSettings({ ...settings, badgeTextColor: e.target.value })}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-bold text-slate-600 mb-2 block">Popup Background Color</label>
+                    <input
+                      type="color"
+                      className="w-full h-12 rounded-lg cursor-pointer"
+                      value={settings.backgroundColor}
+                      onChange={(e) => setSettings({ ...settings, backgroundColor: e.target.value })}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -514,10 +691,25 @@ const PopupWidgetPage: React.FC = () => {
             <div className={`absolute inset-0 z-10 ${settings.enableOverlayBlur ? 'bg-on-surface/40 backdrop-blur-sm' : 'bg-on-surface/60'}`}></div>
 
             {/* Popup Preview */}
-            <div className="absolute inset-0 flex items-center justify-center z-20 p-6">
+            <div className={`absolute inset-0 z-20 p-6 ${
+              settings.layoutStyle === 'modal' ? 'flex items-center justify-center' :
+              settings.layoutStyle === 'left-pane' ? 'flex items-center justify-start' :
+              settings.layoutStyle === 'right-pane' ? 'flex items-center justify-end' :
+              'flex items-end justify-center'
+            }`}>
               <div
-                className="bg-white rounded-[2.5rem] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.3)] flex flex-col md:flex-row transform transition-all duration-500"
-                style={{ maxWidth: `${settings.width}px`, width: '100%' }}
+                className={`shadow-[0_20px_60px_rgba(0,0,0,0.3)] flex flex-col md:flex-row transform transition-all duration-500 ${
+                  settings.layoutStyle === 'modal' ? 'rounded-[2.5rem] overflow-hidden' :
+                  settings.layoutStyle === 'sticky-bar' ? 'rounded-t-[2.5rem] overflow-hidden w-full' :
+                  settings.layoutStyle === 'left-pane' ? 'rounded-r-[2.5rem] overflow-hidden h-full' :
+                  'rounded-l-[2.5rem] overflow-hidden h-full'
+                }`}
+                style={{
+                  backgroundColor: settings.backgroundColor,
+                  maxWidth: settings.layoutStyle === 'sticky-bar' ? '100%' : settings.layoutStyle === 'modal' ? `${settings.width}px` : '400px',
+                  width: settings.layoutStyle === 'modal' ? '100%' : settings.layoutStyle === 'sticky-bar' ? '100%' : 'auto',
+                  maxHeight: (settings.layoutStyle === 'left-pane' || settings.layoutStyle === 'right-pane') ? '100%' : 'auto'
+                }}
               >
                 {/* Left Side Image */}
                 <div className="md:w-5/12 relative min-h-[200px]">
@@ -529,14 +721,14 @@ const PopupWidgetPage: React.FC = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent"></div>
                   <div className="absolute bottom-4 left-4 right-4">
                     <div className="bg-white/90 backdrop-blur px-3 py-1 rounded-full inline-block">
-                      <span className="text-[10px] font-black text-primary uppercase tracking-widest">{settings.badgeText}</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: settings.badgeTextColor }}>{settings.badgeText}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Content Side */}
                 <div className="md:w-7/12 p-8 flex flex-col items-center text-center justify-center">
-                  <h2 className="text-3xl font-black leading-tight mb-2 tracking-tighter" style={{ color: settings.textColor }}>
+                  <h2 className="text-3xl font-black leading-tight mb-2 tracking-tighter" style={{ color: settings.headerColor }}>
                     {settings.title.split('\n').map((line, i) => (
                       <React.Fragment key={i}>
                         {line}
@@ -544,27 +736,38 @@ const PopupWidgetPage: React.FC = () => {
                       </React.Fragment>
                     ))}
                   </h2>
-                  <p className="text-sm text-slate-500 mb-6 font-medium">{settings.subtitle}</p>
+                  <p className="text-sm mb-6 font-medium" style={{ color: settings.paragraphColor }}>{settings.subtitle}</p>
 
                   {/* Coupon Box */}
-                  <div className="w-full bg-pink-50 border-2 border-dashed border-pink-300 rounded-2xl p-4 mb-6 relative overflow-hidden">
-                    <div className="text-[10px] text-pink-400 font-bold uppercase mb-1">Your Coupon</div>
-                    <div className="text-2xl font-black tracking-widest" style={{ color: settings.primaryColor }}>
+                  <div
+                    className="w-full border-2 border-dashed rounded-2xl p-4 mb-6 relative overflow-hidden"
+                    style={{
+                      backgroundColor: settings.couponBgColor,
+                      borderColor: settings.couponLabelColor
+                    }}
+                  >
+                    <div className="text-[10px] font-bold uppercase mb-1" style={{ color: settings.couponLabelColor }}>Your Coupon</div>
+                    <div className="text-2xl font-black tracking-widest" style={{ color: settings.couponCodeColor }}>
                       {settings.couponCode}
                     </div>
                     {/* Punched holes effect */}
-                    <div className="absolute top-1/2 -left-2 w-4 h-4 bg-white rounded-full -translate-y-1/2"></div>
-                    <div className="absolute top-1/2 -right-2 w-4 h-4 bg-white rounded-full -translate-y-1/2"></div>
+                    <div className="absolute top-1/2 -left-2 w-4 h-4 rounded-full -translate-y-1/2" style={{ backgroundColor: settings.backgroundColor }}></div>
+                    <div className="absolute top-1/2 -right-2 w-4 h-4 rounded-full -translate-y-1/2" style={{ backgroundColor: settings.backgroundColor }}></div>
                   </div>
 
                   <button
-                    className="w-full py-4 rounded-full text-white font-black text-sm shadow-[0_8px_20px_rgba(224,64,160,0.3)] hover:scale-105 active:scale-95 transition-all mb-4"
-                    style={{ backgroundColor: settings.primaryColor }}
+                    className="w-full py-4 font-black text-sm hover:scale-105 active:scale-95 transition-all mb-4"
+                    style={{
+                      backgroundColor: settings.buttonBgColor,
+                      color: settings.buttonTextColor,
+                      borderRadius: settings.buttonBorderRadius === 9999 ? '9999px' : `${settings.buttonBorderRadius}px`,
+                      boxShadow: `0 8px 20px ${settings.buttonBgColor}4d`
+                    }}
                   >
                     {settings.buttonText}
                   </button>
 
-                  <button className="text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors">
+                  <button className="text-xs font-bold hover:opacity-80 transition-colors" style={{ color: settings.paragraphColor }}>
                     {settings.disclaimerText}
                   </button>
                 </div>
