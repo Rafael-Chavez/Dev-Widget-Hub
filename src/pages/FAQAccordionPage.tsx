@@ -6,11 +6,21 @@ interface FAQItem {
   id: string;
   question: string;
   answer: string;
+  categoryId?: string;
+}
+
+interface FAQCategory {
+  id: string;
+  name: string;
+  faqs: FAQItem[];
 }
 
 interface Settings {
   title: string;
+  titleTag: 'h1' | 'h2' | 'h3' | 'p';
   faqs: FAQItem[];
+  categories: FAQCategory[];
+  useCategories: boolean;
   accentColor: string;
   bgColor: string;
   textColor: string;
@@ -63,6 +73,10 @@ const FAQAccordionPage: React.FC = () => {
   const [openFAQs, setOpenFAQs] = useState<Set<string>>(new Set());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<'question' | 'answer' | null>(null);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [linkText, setLinkText] = useState('');
+  const [linkUrl, setLinkUrl] = useState('');
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
 
   const applyTemplate = (template: Template) => {
     setSettings({
@@ -77,6 +91,7 @@ const FAQAccordionPage: React.FC = () => {
 
   const [settings, setSettings] = useState<Settings>({
     title: 'Frequently Asked Questions',
+    titleTag: 'h2',
     faqs: [
       {
         id: '1',
@@ -99,6 +114,8 @@ const FAQAccordionPage: React.FC = () => {
         answer: 'We accept all major credit cards (Visa, MasterCard, American Express, Discover), PayPal, Apple Pay, and Google Pay.'
       }
     ],
+    categories: [],
+    useCategories: false,
     accentColor: '#3498db',
     bgColor: '#ffffff',
     textColor: '#333333',
@@ -141,6 +158,94 @@ const FAQAccordionPage: React.FC = () => {
     });
   };
 
+  const insertLink = () => {
+    if (editingId && editingField === 'answer' && linkText && linkUrl) {
+      const faq = settings.faqs.find(f => f.id === editingId);
+      if (faq) {
+        const linkHtml = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
+        updateFAQ(editingId, 'answer', faq.answer + ' ' + linkHtml);
+        setShowLinkModal(false);
+        setLinkText('');
+        setLinkUrl('');
+      }
+    }
+  };
+
+  const addCategory = () => {
+    const newCategory: FAQCategory = {
+      id: Date.now().toString(),
+      name: 'New Category',
+      faqs: []
+    };
+    setSettings({
+      ...settings,
+      categories: [...settings.categories, newCategory]
+    });
+  };
+
+  const updateCategory = (id: string, name: string) => {
+    setSettings({
+      ...settings,
+      categories: settings.categories.map(cat =>
+        cat.id === id ? { ...cat, name } : cat
+      )
+    });
+  };
+
+  const removeCategory = (id: string) => {
+    setSettings({
+      ...settings,
+      categories: settings.categories.filter(cat => cat.id !== id)
+    });
+  };
+
+  const addFAQToCategory = (categoryId: string) => {
+    const newFAQ: FAQItem = {
+      id: Date.now().toString(),
+      question: 'New Question',
+      answer: 'Answer goes here...',
+      categoryId
+    };
+    setSettings({
+      ...settings,
+      categories: settings.categories.map(cat =>
+        cat.id === categoryId ? { ...cat, faqs: [...cat.faqs, newFAQ] } : cat
+      )
+    });
+  };
+
+  const updateCategoryFAQ = (categoryId: string, faqId: string, field: keyof FAQItem, value: string) => {
+    setSettings({
+      ...settings,
+      categories: settings.categories.map(cat =>
+        cat.id === categoryId
+          ? { ...cat, faqs: cat.faqs.map(faq => faq.id === faqId ? { ...faq, [field]: value } : faq) }
+          : cat
+      )
+    });
+  };
+
+  const removeCategoryFAQ = (categoryId: string, faqId: string) => {
+    setSettings({
+      ...settings,
+      categories: settings.categories.map(cat =>
+        cat.id === categoryId
+          ? { ...cat, faqs: cat.faqs.filter(faq => faq.id !== faqId) }
+          : cat
+      )
+    });
+  };
+
+  const toggleCategory = (id: string) => {
+    const newOpenCategories = new Set(openCategories);
+    if (newOpenCategories.has(id)) {
+      newOpenCategories.delete(id);
+    } else {
+      newOpenCategories.add(id);
+    }
+    setOpenCategories(newOpenCategories);
+  };
+
   const toggleFAQ = (id: string) => {
     const newOpenFAQs = new Set(openFAQs);
 
@@ -164,7 +269,7 @@ const FAQAccordionPage: React.FC = () => {
 
   const generateEmbedCode = (): string => {
     const titleHtml = settings.title
-      ? `<h2 style="color: ${settings.questionColor}; margin: 0 0 30px; font-size: 32px; font-weight: 700; text-align: center;">${settings.title}</h2>`
+      ? `<${settings.titleTag} style="color: ${settings.questionColor}; margin: 0 0 30px; font-size: 32px; font-weight: 700; text-align: center;">${settings.title}</${settings.titleTag}>`
       : '';
 
     const faqsHtml = settings.faqs.map((faq, index) => {
@@ -276,17 +381,60 @@ const FAQAccordionPage: React.FC = () => {
                     placeholder="Frequently Asked Questions"
                   />
                 </div>
+                <div className="control-group">
+                  <label htmlFor="titleTag">Title Tag</label>
+                  <div className="segmented-control">
+                    {(['h1', 'h2', 'h3', 'p'] as const).map(tag => (
+                      <div key={tag} className="segmented-option">
+                        <input
+                          type="radio"
+                          id={`title-${tag}`}
+                          name="titleTag"
+                          checked={settings.titleTag === tag}
+                          onChange={() => setSettings({...settings, titleTag: tag})}
+                        />
+                        <label htmlFor={`title-${tag}`}>{tag.toUpperCase()}</label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               <div className="content-section">
-                <h3 className="section-title">Manage FAQs</h3>
-                <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '12px' }}>
-                  Click on questions or answers in the preview to edit them inline. Use the button below to add more FAQs.
-                </p>
-                <button className="add-faq-btn" onClick={addFAQ}>
-                  + Add FAQ
-                </button>
+                <h3 className="section-title">FAQ Organization</h3>
+                <div className="control-group">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={settings.useCategories}
+                      onChange={(e) => setSettings({...settings, useCategories: e.target.checked})}
+                    />
+                    <span>Use Categories (Collapsible Sections)</span>
+                  </label>
+                </div>
               </div>
+
+              {settings.useCategories ? (
+                <div className="content-section">
+                  <h3 className="section-title">Manage Categories</h3>
+                  <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '12px' }}>
+                    Create categories to organize your FAQs. Click on text in the preview to edit inline.
+                  </p>
+                  <button className="add-faq-btn" onClick={addCategory}>
+                    + Add Category
+                  </button>
+                </div>
+              ) : (
+                <div className="content-section">
+                  <h3 className="section-title">Manage FAQs</h3>
+                  <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '12px' }}>
+                    Click on questions or answers in the preview to edit them inline. Use the button below to add more FAQs.
+                  </p>
+                  <button className="add-faq-btn" onClick={addFAQ}>
+                    + Add FAQ
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -419,9 +567,162 @@ const FAQAccordionPage: React.FC = () => {
       <div className="main-content">
         <div className="preview-area">
           <div className="faq-widget-preview">
-            {settings.title && (
-              <h2 style={{ color: settings.questionColor }}>{settings.title}</h2>
+            {settings.title && React.createElement(
+              settings.titleTag,
+              { style: { color: settings.questionColor, margin: '0 0 40px', fontSize: '36px', fontWeight: '700', textAlign: 'center' as const } },
+              settings.title
             )}
+            {settings.useCategories ? (
+              <div className="faq-categories">
+                {settings.categories.map((category) => {
+                  const isCategoryOpen = openCategories.has(category.id);
+                  return (
+                    <div key={category.id} className="faq-category">
+                      <div className="faq-category-header" onClick={() => toggleCategory(category.id)}>
+                        <h3
+                          contentEditable
+                          suppressContentEditableWarning
+                          onBlur={(e) => updateCategory(category.id, e.currentTarget.textContent || '')}
+                          style={{ color: settings.questionColor }}
+                        >
+                          {category.name}
+                        </h3>
+                        <div className="category-actions">
+                          {settings.categories.length > 1 && (
+                            <button
+                              className="remove-faq-icon"
+                              onClick={(e) => { e.stopPropagation(); removeCategory(category.id); }}
+                              title="Remove Category"
+                            >
+                              ×
+                            </button>
+                          )}
+                          <button
+                            className="toggle-faq-icon"
+                            style={{ color: settings.accentColor }}
+                          >
+                            {isCategoryOpen ? '−' : '+'}
+                          </button>
+                        </div>
+                      </div>
+                      {isCategoryOpen && (
+                        <div className="category-faqs">
+                          <div className="faq-grid">
+                            {category.faqs.map((faq) => {
+                              const isOpen = openFAQs.has(faq.id);
+                              const isEditingQuestion = editingId === faq.id && editingField === 'question';
+                              const isEditingAnswer = editingId === faq.id && editingField === 'answer';
+
+                              return (
+                                <div
+                                  key={faq.id}
+                                  className={`faq-card ${isOpen ? 'open' : ''}`}
+                                  style={{
+                                    background: settings.bgColor,
+                                    borderRadius: `${settings.borderRadius}px`,
+                                    borderColor: isOpen ? settings.accentColor : '#e0e0e0'
+                                  }}
+                                >
+                                  <div className="faq-card-header">
+                                    <div
+                                      className="faq-question-editable"
+                                      onClick={() => {
+                                        setEditingId(faq.id);
+                                        setEditingField('question');
+                                      }}
+                                      style={{ color: settings.questionColor }}
+                                    >
+                                      {isEditingQuestion ? (
+                                        <input
+                                          type="text"
+                                          value={faq.question}
+                                          onChange={(e) => updateCategoryFAQ(category.id, faq.id, 'question', e.target.value)}
+                                          onBlur={() => {
+                                            setEditingId(null);
+                                            setEditingField(null);
+                                          }}
+                                          onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                              setEditingId(null);
+                                              setEditingField(null);
+                                            }
+                                          }}
+                                          autoFocus
+                                          className="inline-edit-input"
+                                        />
+                                      ) : (
+                                        <span>{faq.question}</span>
+                                      )}
+                                    </div>
+                                    <div className="faq-card-actions">
+                                      {category.faqs.length > 0 && (
+                                        <button
+                                          className="remove-faq-icon"
+                                          onClick={() => removeCategoryFAQ(category.id, faq.id)}
+                                          title="Remove FAQ"
+                                        >
+                                          ×
+                                        </button>
+                                      )}
+                                      <button
+                                        className="toggle-faq-icon"
+                                        onClick={() => toggleFAQ(faq.id)}
+                                        style={{ color: settings.accentColor }}
+                                      >
+                                        {isOpen ? '−' : '+'}
+                                      </button>
+                                    </div>
+                                  </div>
+                                  {isOpen && (
+                                    <div className="faq-answer-editable">
+                                      {isEditingAnswer ? (
+                                        <div>
+                                          <textarea
+                                            value={faq.answer}
+                                            onChange={(e) => updateCategoryFAQ(category.id, faq.id, 'answer', e.target.value)}
+                                            onBlur={() => {
+                                              setEditingId(null);
+                                              setEditingField(null);
+                                            }}
+                                            autoFocus
+                                            className="inline-edit-textarea"
+                                            style={{ color: settings.textColor }}
+                                          />
+                                          <button
+                                            className="add-link-btn"
+                                            onClick={() => setShowLinkModal(true)}
+                                            onMouseDown={(e) => e.preventDefault()}
+                                          >
+                                            + Add Link
+                                          </button>
+                                        </div>
+                                      ) : (
+                                        <div
+                                          onClick={() => {
+                                            setEditingId(faq.id);
+                                            setEditingField('answer');
+                                          }}
+                                          style={{ color: settings.textColor }}
+                                          className="answer-text"
+                                          dangerouslySetInnerHTML={{ __html: faq.answer }}
+                                        />
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                          <button className="add-faq-to-category-btn" onClick={() => addFAQToCategory(category.id)}>
+                            + Add FAQ to {category.name}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
             <div className="faq-grid">
               {settings.faqs.map((faq) => {
                 const isOpen = openFAQs.has(faq.id);
@@ -491,17 +792,26 @@ const FAQAccordionPage: React.FC = () => {
                     {isOpen && (
                       <div className="faq-answer-editable">
                         {isEditingAnswer ? (
-                          <textarea
-                            value={faq.answer}
-                            onChange={(e) => updateFAQ(faq.id, 'answer', e.target.value)}
-                            onBlur={() => {
-                              setEditingId(null);
-                              setEditingField(null);
-                            }}
-                            autoFocus
-                            className="inline-edit-textarea"
-                            style={{ color: settings.textColor }}
-                          />
+                          <div>
+                            <textarea
+                              value={faq.answer}
+                              onChange={(e) => updateFAQ(faq.id, 'answer', e.target.value)}
+                              onBlur={() => {
+                                setEditingId(null);
+                                setEditingField(null);
+                              }}
+                              autoFocus
+                              className="inline-edit-textarea"
+                              style={{ color: settings.textColor }}
+                            />
+                            <button
+                              className="add-link-btn"
+                              onClick={() => setShowLinkModal(true)}
+                              onMouseDown={(e) => e.preventDefault()}
+                            >
+                              + Add Link
+                            </button>
+                          </div>
                         ) : (
                           <div
                             onClick={() => {
@@ -510,9 +820,8 @@ const FAQAccordionPage: React.FC = () => {
                             }}
                             style={{ color: settings.textColor }}
                             className="answer-text"
-                          >
-                            {faq.answer}
-                          </div>
+                            dangerouslySetInnerHTML={{ __html: faq.answer }}
+                          />
                         )}
                       </div>
                     )}
@@ -520,6 +829,7 @@ const FAQAccordionPage: React.FC = () => {
                 );
               })}
             </div>
+            )}
           </div>
 
           <div className="export-section">
@@ -530,6 +840,37 @@ const FAQAccordionPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {showLinkModal && (
+        <div className="modal-overlay" onClick={() => setShowLinkModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Add Link</h3>
+            <div className="control-group">
+              <label>Link Text</label>
+              <input
+                type="text"
+                value={linkText}
+                onChange={(e) => setLinkText(e.target.value)}
+                placeholder="Click here"
+                autoFocus
+              />
+            </div>
+            <div className="control-group">
+              <label>URL</label>
+              <input
+                type="url"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="https://example.com"
+              />
+            </div>
+            <div className="modal-actions">
+              <button className="cancel-btn" onClick={() => setShowLinkModal(false)}>Cancel</button>
+              <button className="insert-btn" onClick={insertLink}>Insert Link</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

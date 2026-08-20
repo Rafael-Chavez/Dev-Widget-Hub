@@ -14,11 +14,82 @@ const HomePage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
 
+  const getWidgetIcon = (id: string) => {
+    const icons: { [key: string]: JSX.Element } = {
+      'logo-ticker': (
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 7H21M3 12H21M3 17H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M7 7V17M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      ),
+      'pricing-table': (
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="2"/>
+          <path d="M3 10H21M8 14H16M10 17H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      ),
+      'faq-accordion': (
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/>
+          <path d="M12 17V17.01M12 14C12 13 13 12.5 13 11.5C13 10.5 12.5 10 11.5 10C10.5 10 10 10.5 10 11.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      ),
+      'announcement-bar': (
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 8C19.6569 8 21 6.65685 21 5C21 3.34315 19.6569 2 18 2C16.3431 2 15 3.34315 15 5C15 6.65685 16.3431 8 18 8Z" stroke="currentColor" strokeWidth="2"/>
+          <path d="M15 5H9L3 8V16L9 19H15M15 5V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      ),
+      'instagram-feed': (
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" strokeWidth="2"/>
+          <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2"/>
+          <circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>
+        </svg>
+      ),
+      'email-templates': (
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="2"/>
+          <path d="M3 7L12 13L21 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+      'countdown-timer': (
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="13" r="8" stroke="currentColor" strokeWidth="2"/>
+          <path d="M12 9V13L15 15M9 3H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      ),
+      'google-reviews': (
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+      'popup-widget': (
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="5" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="2"/>
+          <path d="M8 2V5M16 2V5M8 19V22M16 19V22M2 8H5M19 8H22M2 16H5M19 16H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      ),
+      'spinning-wheel': (
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/>
+          <path d="M12 3V12L17 17M12 3L7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      ),
+      'column-plus-plus': (
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="4" width="7" height="16" rx="1" stroke="currentColor" strokeWidth="2"/>
+          <rect x="14" y="4" width="7" height="16" rx="1" stroke="currentColor" strokeWidth="2"/>
+        </svg>
+      )
+    };
+    return icons[id] || icons['faq-accordion'];
+  };
+
   const widgets = [
     {
       id: 'logo-ticker',
       route: '/logo-ticker',
-      icon: '🎞️',
       title: 'Logo Ticker',
       description: 'Create an animated logo carousel with customizable speed, spacing, and styling',
       badge: 'Popular',
@@ -27,7 +98,6 @@ const HomePage: React.FC = () => {
     {
       id: 'pricing-table',
       route: '/pricing-table',
-      icon: '💰',
       title: 'Pricing Table',
       description: 'Quantity-based pricing with automatic savings calculation and discounts',
       badge: null,
@@ -36,7 +106,6 @@ const HomePage: React.FC = () => {
     {
       id: 'faq-accordion',
       route: '/faq-accordion',
-      icon: '❓',
       title: 'FAQ Accordion',
       description: 'Organize frequently asked questions in an expandable accordion layout',
       badge: 'New',
@@ -45,7 +114,6 @@ const HomePage: React.FC = () => {
     {
       id: 'announcement-bar',
       route: '/announcement-bar',
-      icon: '📢',
       title: 'Announcement Bar',
       description: 'Sticky announcement banner for promotions, alerts, and important messages',
       badge: 'New',
@@ -54,7 +122,6 @@ const HomePage: React.FC = () => {
     {
       id: 'instagram-feed',
       route: '/instagram-feed',
-      icon: '📷',
       title: 'Instagram Feed',
       description: 'Display your Instagram profile and posts with a customizable feed widget',
       badge: null,
@@ -63,7 +130,6 @@ const HomePage: React.FC = () => {
     {
       id: 'email-templates',
       route: '/email-templates',
-      icon: '📧',
       title: 'Email Templates',
       description: 'Pre-built email templates ready to copy and customize for your software',
       badge: null,
@@ -72,7 +138,6 @@ const HomePage: React.FC = () => {
     {
       id: 'countdown-timer',
       route: '/countdown-timer',
-      icon: '⏰',
       title: 'Countdown Timer +',
       description: 'Create urgency with a customizable countdown timer for events or offers',
       badge: 'New',
@@ -81,7 +146,6 @@ const HomePage: React.FC = () => {
     {
       id: 'google-reviews',
       route: '/google-reviews',
-      icon: '⭐',
       title: 'Google Reviews',
       description: 'Display Google business reviews with star ratings and customer testimonials',
       badge: 'New',
@@ -90,7 +154,6 @@ const HomePage: React.FC = () => {
     {
       id: 'popup-widget',
       route: '/popup-widget',
-      icon: '🪟',
       title: 'Pop-up Widget',
       description: 'Create customizable pop-up modals for promotions, announcements, and lead capture',
       badge: 'New',
@@ -99,7 +162,6 @@ const HomePage: React.FC = () => {
     {
       id: 'spinning-wheel',
       route: '/spinning-wheel',
-      icon: '🎡',
       title: 'Spinning Wheel',
       description: 'Gamified email capture with customizable prizes, probabilities, and notifications',
       badge: 'New',
@@ -108,7 +170,6 @@ const HomePage: React.FC = () => {
     {
       id: 'column-plus-plus',
       route: '/column-plus-plus',
-      icon: '📊',
       title: 'Column++',
       description: 'Create unlimited columns with adjustable widths, headers, and media content',
       badge: 'New',
@@ -157,87 +218,6 @@ ${reportForm.description}
 
   return (
     <div className="home-page">
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="hero-content">
-          <div className="hero-text">
-            <div className="badge-pill">
-              <span className="badge-dot"></span>
-              Auto-Generate Code Instantly
-            </div>
-            <h1 className="hero-title">
-              Build Beautiful Widgets
-              <br />
-              <span className="gradient-text">Without Writing Code</span>
-            </h1>
-            <p className="hero-description">
-              Create stunning, customizable widgets for your website in minutes.
-              From pricing tables to announcement bars, we've got you covered.
-            </p>
-            <div className="hero-buttons">
-              <button className="btn-primary" onClick={() => document.getElementById('widgets-grid')?.scrollIntoView({ behavior: 'smooth' })}>
-                <span>Start Generating</span>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-              <button className="btn-secondary" onClick={() => document.getElementById('widgets-grid')?.scrollIntoView({ behavior: 'smooth' })}>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10 3V17M10 17L15 12M10 17L5 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span>Explore Widgets</span>
-              </button>
-            </div>
-            <div className="hero-stats">
-              <div className="stat-item">
-                <div className="stat-number">{widgets.filter(w => w.available).length}+</div>
-                <div className="stat-label">Active Widgets</div>
-              </div>
-              <div className="stat-divider"></div>
-              <div className="stat-item">
-                <div className="stat-number">0</div>
-                <div className="stat-label">Code Required</div>
-              </div>
-              <div className="stat-divider"></div>
-              <div className="stat-item">
-                <div className="stat-number">∞</div>
-                <div className="stat-label">Customization</div>
-              </div>
-            </div>
-          </div>
-          <div className="hero-visual">
-            <div className="dashboard-illustration">
-              <div className="dashboard-header">
-                <div className="dashboard-dots">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
-                <div className="dashboard-title">Widget Builder</div>
-              </div>
-              <div className="dashboard-content">
-                <div className="code-line"></div>
-                <div className="code-line short"></div>
-                <div className="code-line medium"></div>
-                <div className="code-line"></div>
-                <div className="code-line short"></div>
-                <div className="preview-box">
-                  <div className="preview-header">Live Preview</div>
-                  <div className="preview-content">
-                    <div className="preview-element"></div>
-                    <div className="preview-element small"></div>
-                    <div className="preview-element medium"></div>
-                  </div>
-                </div>
-              </div>
-              <div className="floating-icon icon-1">⚡</div>
-              <div className="floating-icon icon-2">🎨</div>
-              <div className="floating-icon icon-3">🚀</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Widgets Grid Section */}
       <section className="widgets-section" id="widgets-grid">
         <div className="section-header">
@@ -260,7 +240,7 @@ ${reportForm.description}
                   </div>
                 )}
                 <div className="widget-icon-wrapper">
-                  <div className="widget-icon">{widget.icon}</div>
+                  <div className="widget-icon">{getWidgetIcon(widget.id)}</div>
                   <div className="icon-glow"></div>
                 </div>
                 <h3 className="widget-title">{widget.title}</h3>
